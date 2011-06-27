@@ -1,0 +1,319 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 45;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		62521CC212514602007F7161 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62521CC112514602007F7161 /* MediaPlayer.framework */; };
+		62588DE81338FA73000039A6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62588DE61338FA73000039A6 /* Security.framework */; };
+		62588DE91338FA73000039A6 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62588DE71338FA73000039A6 /* SystemConfiguration.framework */; };
+		627A01C812494CBA003CFBA7 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 627A01C712494CBA003CFBA7 /* AVFoundation.framework */; };
+		62A217D111B5C9BB008ACC84 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217D011B5C9BB008ACC84 /* CoreAudio.framework */; };
+		62A217D311B5C9BB008ACC84 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217D211B5C9BB008ACC84 /* MessageUI.framework */; };
+		62A217D511B5C9BB008ACC84 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217D411B5C9BB008ACC84 /* QuartzCore.framework */; };
+		62A217E111B5C9D2008ACC84 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217E011B5C9D2008ACC84 /* UIKit.framework */; };
+		62A217E711B5C9DA008ACC84 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217E611B5C9DA008ACC84 /* CoreGraphics.framework */; };
+		62A2180411B5CA7F008ACC84 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A2180311B5CA7F008ACC84 /* CFNetwork.framework */; };
+		62A4151013B8B05400416E1F /* libVMPFramework_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A4150E13B8B05400416E1F /* libVMPFramework_dev.a */; };
+		62A4151113B8B05400416E1F /* libVMPFramework_sim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A4150F13B8B05400416E1F /* libVMPFramework_sim.a */; };
+		62A4151813B8B19100416E1F /* FakeClass.h in Headers */ = {isa = PBXBuildFile; fileRef = 62A4151613B8B19100416E1F /* FakeClass.h */; };
+		62A4151913B8B19100416E1F /* FakeClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 62A4151713B8B19100416E1F /* FakeClass.m */; };
+		AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		62521CC112514602007F7161 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
+		62588DE61338FA73000039A6 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		62588DE71338FA73000039A6 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		627A01C712494CBA003CFBA7 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		62A217D011B5C9BB008ACC84 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		62A217D211B5C9BB008ACC84 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		62A217D411B5C9BB008ACC84 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		62A217E011B5C9D2008ACC84 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		62A217E611B5C9DA008ACC84 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		62A2180311B5CA7F008ACC84 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		62A4150E13B8B05400416E1F /* libVMPFramework_dev.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libVMPFramework_dev.a; sourceTree = "<group>"; };
+		62A4150F13B8B05400416E1F /* libVMPFramework_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libVMPFramework_sim.a; sourceTree = "<group>"; };
+		62A4151613B8B19100416E1F /* FakeClass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FakeClass.h; sourceTree = "<group>"; };
+		62A4151713B8B19100416E1F /* FakeClass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FakeClass.m; sourceTree = "<group>"; };
+		AACBBE490F95108600F1A2B1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D2AAC07E0554694100DB518D /* libVMPFramework.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVMPFramework.a; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D2AAC07C0554694100DB518D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62588DE81338FA73000039A6 /* Security.framework in Frameworks */,
+				62588DE91338FA73000039A6 /* SystemConfiguration.framework in Frameworks */,
+				62A4151013B8B05400416E1F /* libVMPFramework_dev.a in Frameworks */,
+				62A4151113B8B05400416E1F /* libVMPFramework_sim.a in Frameworks */,
+				AACBBE4A0F95108600F1A2B1 /* Foundation.framework in Frameworks */,
+				62A217D111B5C9BB008ACC84 /* CoreAudio.framework in Frameworks */,
+				62A217D311B5C9BB008ACC84 /* MessageUI.framework in Frameworks */,
+				62A217D511B5C9BB008ACC84 /* QuartzCore.framework in Frameworks */,
+				62A217E111B5C9D2008ACC84 /* UIKit.framework in Frameworks */,
+				62A217E711B5C9DA008ACC84 /* CoreGraphics.framework in Frameworks */,
+				62A2180411B5CA7F008ACC84 /* CFNetwork.framework in Frameworks */,
+				627A01C812494CBA003CFBA7 /* AVFoundation.framework in Frameworks */,
+				62521CC212514602007F7161 /* MediaPlayer.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		034768DFFF38A50411DB9C8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D2AAC07E0554694100DB518D /* libVMPFramework.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0867D691FE84028FC02AAC07 /* RadioEngine */ = {
+			isa = PBXGroup;
+			children = (
+				6289F2DB11B684740044F954 /* Classes */,
+				0867D69AFE84028FC02AAC07 /* Frameworks */,
+				62A4150E13B8B05400416E1F /* libVMPFramework_dev.a */,
+				62A4150F13B8B05400416E1F /* libVMPFramework_sim.a */,
+				034768DFFF38A50411DB9C8B /* Products */,
+			);
+			name = RadioEngine;
+			sourceTree = "<group>";
+		};
+		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				62588DE61338FA73000039A6 /* Security.framework */,
+				62588DE71338FA73000039A6 /* SystemConfiguration.framework */,
+				62A2180311B5CA7F008ACC84 /* CFNetwork.framework */,
+				AACBBE490F95108600F1A2B1 /* Foundation.framework */,
+				62A217D011B5C9BB008ACC84 /* CoreAudio.framework */,
+				62A217D211B5C9BB008ACC84 /* MessageUI.framework */,
+				62A217D411B5C9BB008ACC84 /* QuartzCore.framework */,
+				62A217E011B5C9D2008ACC84 /* UIKit.framework */,
+				62A217E611B5C9DA008ACC84 /* CoreGraphics.framework */,
+				627A01C712494CBA003CFBA7 /* AVFoundation.framework */,
+				62521CC112514602007F7161 /* MediaPlayer.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		6289F2DB11B684740044F954 /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				62A4151613B8B19100416E1F /* FakeClass.h */,
+				62A4151713B8B19100416E1F /* FakeClass.m */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D2AAC07A0554694100DB518D /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62A4151813B8B19100416E1F /* FakeClass.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D2AAC07D0554694100DB518D /* VMPFramework */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "VMPFramework" */;
+			buildPhases = (
+				D2AAC07A0554694100DB518D /* Headers */,
+				D2AAC07B0554694100DB518D /* Sources */,
+				D2AAC07C0554694100DB518D /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VMPFramework;
+			productName = RadioEngine;
+			productReference = D2AAC07E0554694100DB518D /* libVMPFramework.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0867D690FE84028FC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = Beherith;
+			};
+			buildConfigurationList = 1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "VMPFramework" */;
+			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
+			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				de,
+				en,
+			);
+			mainGroup = 0867D691FE84028FC02AAC07 /* RadioEngine */;
+			productRefGroup = 034768DFFF38A50411DB9C8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D2AAC07D0554694100DB518D /* VMPFramework */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D2AAC07B0554694100DB518D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62A4151913B8B19100416E1F /* FakeClass.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB921F08733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/RadioEngine.dst;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = VMPFramework;
+			};
+			name = Debug;
+		};
+		1DEB922008733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				DSTROOT = /tmp/RadioEngine.dst;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = VMPFramework;
+			};
+			name = Release;
+		};
+		1DEB922308733DC00010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1DEB922408733DC00010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		62103CE711C18B710064DF5A /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = "";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				OTHER_LDFLAGS = "-ObjC";
+				PREBINDING = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Distribution;
+		};
+		62103CE811C18B710064DF5A /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				DSTROOT = /tmp/RadioEngine.dst;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = VMPFramework;
+			};
+			name = Distribution;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "VMPFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB921F08733DC00010E9CD /* Debug */,
+				1DEB922008733DC00010E9CD /* Release */,
+				62103CE811C18B710064DF5A /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB922208733DC00010E9CD /* Build configuration list for PBXProject "VMPFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB922308733DC00010E9CD /* Debug */,
+				1DEB922408733DC00010E9CD /* Release */,
+				62103CE711C18B710064DF5A /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0867D690FE84028FC02AAC07 /* Project object */;
+}

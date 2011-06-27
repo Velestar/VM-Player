@@ -1,0 +1,12 @@
+prefix=
+exec_prefix=
+libdir=${pcfiledir}
+includedir=/Users/Beherith/projects/velestar/VMPlayer/src/ffmpeg
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 53.7.0
+Requires: libavutil = 51.9.0
+Conflicts:
+Libs: ${libdir}/libavcodec.a  -lm -lbz2 -lz 
+Cflags: -I${includedir}
