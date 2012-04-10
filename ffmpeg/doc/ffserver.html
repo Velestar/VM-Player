@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
 <html>
-<!-- Created on June, 20 2011 by texi2html 1.70 -->
+<!-- Created on February, 1 2012 by texi2html 1.70 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,34 +11,79 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <head>
-<title>ffserver Documentation: </title>
+<title>FFmpeg documentation : ffserver </title>
 
 <meta name="description" content="ffserver Documentation: ">
-<meta name="keywords" content="ffserver Documentation: ">
+<meta name="keywords" content="FFmpeg documentation : ffserver ">
 <meta name="resource-type" content="document">
 <meta name="distribution" content="global">
 <meta name="Generator" content="texi2html 1.70">
 <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
 <style type="text/css">
 <!--
-a.summary-letter {text-decoration: none}
-pre.display {font-family: serif}
-pre.format {font-family: serif}
-pre.menu-comment {font-family: serif}
-pre.menu-preformatted {font-family: serif}
-pre.smalldisplay {font-family: serif; font-size: smaller}
-pre.smallexample {font-size: smaller}
-pre.smallformat {font-family: serif; font-size: smaller}
-pre.smalllisp {font-size: smaller}
-ul.toc {list-style: none}
+a.summary-letter { text-decoration: none }
+a { color: #2D6198; }
+a:visited { color: #884488; }
+h1 a, h2 a, h3 a { text-decoration: inherit; color: inherit; }
+p { margin-left: 1em; margin-right: 1em; }
+table { margin-left: 2em; }
+pre { margin-left: 2em; }
+#footer { text-align: center; }
+#body { margin-left: 1em; margin-right: 1em; }
+body { background-color: #313131; margin: 0; }
+
+#container {
+    background-color: white;
+    color: #202020;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+h1 {
+    background-color: #7BB37B;
+    border: 1px solid #6A996A;
+    color: #151515;
+    font-size: 1.2em;
+    padding-bottom: 0.2em;
+    padding-left: 0.4em;
+    padding-top: 0.2em;
+}
+
+h2 {
+    color: #313131;
+    font-size: 1.2em;
+}
+
+h3 {
+    color: #313131;
+    font-size: 0.8em;
+    margin-bottom: -8px;
+}
+
+.note {
+    margin: 1em;
+    border: 1px solid #bbc9d8;
+    background-color: #dde1e1;
+}
+
+.important {
+    margin: 1em;
+    border: 1px solid #d26767;
+    background-color: #f8e1e1;
+}
+
 -->
 </style>
 
+<link rel="icon" href="favicon.png" type="image/png" />
+<link rel="stylesheet" type="text/css" href="default.css" />
 
 </head>
 
-<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<body >
+<div id="container">
 
+<div id="body">
 <a name="SEC_Top"></a>
 <table cellpadding="1" cellspacing="1" border="0">
 <tr><td valign="middle" align="left">[<a href="#SEC_Top" title="Cover (top) of document">Top</a>]</td>
@@ -51,7 +96,7 @@ ul.toc {list-style: none}
 
 
 
-<hr size="1">
+
 <a name="SEC1"></a>
 <h1 class="chapter"> <a href="#TOC1">1. Synopsys</a> </h1>
 
@@ -63,7 +108,8 @@ ul.toc {list-style: none}
 <h1 class="chapter"> <a href="#TOC2">2. Description</a> </h1>
 
 <p>ffserver is a streaming server for both audio and video. It supports
-several live feeds, streaming from files and time shifting on live feeds
+
+</p><p>several live feeds, streaming from files and time shifting on live feeds
 (you can seek to positions in the past on each live feed, provided you
 specify a big enough feed storage in ffserver.conf).
 
@@ -74,7 +120,7 @@ file.
 
 </p><p>This documentation covers only the streaming aspects of ffserver /
 ffmpeg. All questions about parameters for ffmpeg, codec questions,
-etc. are not covered here. Read `<tt>ffmpeg-doc.html</tt>' for more
+etc. are not covered here. Read `<tt>ffmpeg.html</tt>' for more
 information.
 
 </p><a name="SEC3"></a>
@@ -152,8 +198,8 @@ Don't ask why the other audio types do not work.
 </p><p>As a simple test, just run the following two command lines where INPUTFILE
 is some file which you can decode with ffmpeg:
 
-</p><table><tr><td>&nbsp;</td><td><pre class="example">./ffserver -f doc/ffserver.conf &amp;
-./ffmpeg -i INPUTFILE http://localhost:8090/feed1.ffm
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffserver -f doc/ffserver.conf &amp;
+ffmpeg -i INPUTFILE http://localhost:8090/feed1.ffm
 </pre></td></tr></table>
 <p>At this point you should be able to go to your Windows machine and fire up
 Windows Media Player (WMP). Go to Open URL and enter
@@ -189,7 +235,7 @@ If you are one of these people, then export 'AUDIO_FLIP_LEFT=1' before
 starting ffmpeg.
 
 </p><a name="SEC11"></a>
-<h3 class="subsection"> <a href="#TOC11">2.7.2 The audio and video loose sync after a while.</a> </h3>
+<h3 class="subsection"> <a href="#TOC11">2.7.2 The audio and video lose sync after a while.</a> </h3>
 
 <p>Yes, they do.
 
@@ -298,12 +344,47 @@ example 'KB', 'MiB', 'G' and 'B' as postfix.
 </p><p>Options which do not take arguments are boolean options, and set the
 corresponding value to true. They can be set to false by prefixing
 with &quot;no&quot; the option name, for example using &quot;-nofoo&quot; in the
-commandline will set to false the boolean option with name &quot;foo&quot;.
+command line will set to false the boolean option with name &quot;foo&quot;.
 
+</p><p><a name="ANC1"></a>
 </p><a name="SEC19"></a>
-<h2 class="section"> <a href="#TOC19">3.1 Generic options</a> </h2>
+<h2 class="section"> <a href="#TOC19">3.1 Stream specifiers</a> </h2>
+<p>Some options are applied per-stream, e.g. bitrate or codec. Stream specifiers
+are used to precisely specify which stream(s) does a given option belong to.
 
-<p>These options are shared amongst the ff* tools.
+</p><p>A stream specifier is a string generally appended to the option name and
+separated from it by a colon. E.g. <code>-codec:a:1 ac3</code> option contains
+<code>a:1</code> stream specifer, which matches the second audio stream. Therefore it
+would select the ac3 codec for the second audio stream.
+
+</p><p>A stream specifier can match several stream, the option is then applied to all
+of them. E.g. the stream specifier in <code>-b:a 128k</code> matches all audio
+streams.
+
+</p><p>An empty stream specifier matches all streams, for example <code>-codec copy</code>
+or <code>-codec: copy</code> would copy all the streams without reencoding.
+
+</p><p>Possible forms of stream specifiers are:
+</p><dl compact="compact">
+<dt>`<samp> <var>stream_index</var></samp>'</dt>
+<dd><p>Matches the stream with this index. E.g. <code>-threads:1 4</code> would set the
+thread count for the second stream to 4.
+</p></dd>
+<dt>`<samp> <var>stream_type</var>[:<var>stream_index</var>]</samp>'</dt>
+<dd><p><var>stream_type</var> is one of: 'v' for video, 'a' for audio, 's' for subtitle,
+'d' for data and 't' for attachments. If <var>stream_index</var> is given, then
+matches stream number <var>stream_index</var> of this type. Otherwise matches all
+streams of this type.
+</p></dd>
+<dt>`<samp> p:<var>program_id</var>[:<var>stream_index</var>]</samp>'</dt>
+<dd><p>If <var>stream_index</var> is given, then matches stream number <var>stream_index</var> in
+program with id <var>program_id</var>. Otherwise matches all streams in this program.
+</p></dd>
+</dl>
+<a name="SEC20"></a>
+<h2 class="section"> <a href="#TOC20">3.2 Generic options</a> </h2>
+
+<p>These options are shared amongst the av* tools.
 
 </p><dl compact="compact">
 <dt>`<samp> -L</samp>'</dt>
@@ -374,7 +455,11 @@ commandline will set to false the boolean option with name &quot;foo&quot;.
 <dd><p>Show available pixel formats.
 
 </p></dd>
-<dt>`<samp> -loglevel <var>loglevel</var></samp>'</dt>
+<dt>`<samp> -sample_fmts</samp>'</dt>
+<dd><p>Show available sample formats.
+
+</p></dd>
+<dt>`<samp> -loglevel <var>loglevel</var> | -v <var>loglevel</var></samp>'</dt>
 <dd><p>Set the logging level used by the library.
 <var>loglevel</var> is a number or a string containing one of the following values:
 </p><dl compact="compact">
@@ -391,16 +476,59 @@ commandline will set to false the boolean option with name &quot;foo&quot;.
 <p>By default the program logs to stderr, if coloring is supported by the
 terminal, colors are used to mark errors and warnings. Log coloring
 can be disabled setting the environment variable
-<code>FFMPEG_FORCE_NOCOLOR</code> or <code>NO_COLOR</code>, or can be forced setting
-the environment variable <code>FFMPEG_FORCE_COLOR</code>.
+<code>AV_LOG_FORCE_NOCOLOR</code> or <code>NO_COLOR</code>, or can be forced setting
+the environment variable <code>AV_LOG_FORCE_COLOR</code>.
 The use of the environment variable <code>NO_COLOR</code> is deprecated and
 will be dropped in a following FFmpeg version.
 
 </p></dd>
+<dt>`<samp> -report</samp>'</dt>
+<dd><p>Dump full command line and console output to a file named
+<code><var>program</var>-<var>YYYYMMDD</var>-<var>HHMMSS</var>.log</code> in the current
+directory.
+This file can be useful for bug reports.
+It also implies <code>-loglevel verbose</code>.
+
+</p><p>Note: setting the environment variable <code>FFREPORT</code> to any value has the
+same effect.
+
+</p></dd>
 </dl>
 
-<a name="SEC20"></a>
-<h2 class="section"> <a href="#TOC20">3.2 Main options</a> </h2>
+<a name="SEC21"></a>
+<h2 class="section"> <a href="#TOC21">3.3 AVOptions</a> </h2>
+
+<p>These options are provided directly by the libavformat, libavdevice and
+libavcodec libraries. To see the list of available AVOptions, use the
+`<samp>-help</samp>' option. They are separated into two categories:
+</p><dl compact="compact">
+<dt>`<samp> generic</samp>'</dt>
+<dd><p>These options can be set for any container, codec or device. Generic options
+are listed under AVFormatContext options for containers/devices and under
+AVCodecContext options for codecs.
+</p></dd>
+<dt>`<samp> private</samp>'</dt>
+<dd><p>These options are specific to the given container, device or codec. Private
+options are listed under their corresponding containers/devices/codecs.
+</p></dd>
+</dl>
+
+<p>For example to write an ID3v2.3 header instead of a default ID3v2.4 to
+an MP3 file, use the `<samp>id3v2_version</samp>' private option of the MP3
+muxer:
+</p><table><tr><td>&nbsp;</td><td><pre class="example">ffmpeg -i input.flac -id3v2_version 3 out.mp3
+</pre></td></tr></table>
+<p>All codec AVOptions are obviously per-stream, so the chapter on stream
+specifiers applies to them
+
+</p><p>Note `<samp>-nooption</samp>' syntax cannot be used for boolean AVOptions,
+use `<samp>-option 0</samp>'/`<samp>-option 1</samp>'.
+
+</p><p>Note2 old undocumented way of specifying per-stream AVOptions by prepending
+v/a/s to the options name is now obsolete and will be removed soon.
+
+</p><a name="SEC22"></a>
+<h2 class="section"> <a href="#TOC22">3.4 Main options</a> </h2>
 
 <dl compact="compact">
 <dt>`<samp> -f <var>configfile</var></samp>'</dt>
@@ -442,7 +570,7 @@ rather than as a daemon.
     <li><a name="TOC9" href="#SEC9">2.7 Troubleshooting</a>
     <ul class="toc">
       <li><a name="TOC10" href="#SEC10">2.7.1 I don't hear any audio, but video is fine.</a></li>
-      <li><a name="TOC11" href="#SEC11">2.7.2 The audio and video loose sync after a while.</a></li>
+      <li><a name="TOC11" href="#SEC11">2.7.2 The audio and video lose sync after a while.</a></li>
       <li><a name="TOC12" href="#SEC12">2.7.3 After a long while, the video update rate goes way down in WMP.</a></li>
       <li><a name="TOC13" href="#SEC13">2.7.4 WMP 6.4 behaves differently to WMP 7.</a></li>
     </ul></li>
@@ -453,13 +581,15 @@ rather than as a daemon.
   </ul></li>
   <li><a name="TOC18" href="#SEC18">3. Options</a>
   <ul class="toc">
-    <li><a name="TOC19" href="#SEC19">3.1 Generic options</a></li>
-    <li><a name="TOC20" href="#SEC20">3.2 Main options</a></li>
+    <li><a name="TOC19" href="#SEC19">3.1 Stream specifiers</a></li>
+    <li><a name="TOC20" href="#SEC20">3.2 Generic options</a></li>
+    <li><a name="TOC21" href="#SEC21">3.3 AVOptions</a></li>
+    <li><a name="TOC22" href="#SEC22">3.4 Main options</a></li>
   </ul>
 </li>
 </ul>
 </div>
-<hr size="1">
+
 <a name="SEC_About"></a>
 <table cellpadding="1" cellspacing="1" border="0">
 <tr><td valign="middle" align="left">[<a href="#SEC_Top" title="Cover (top) of document">Top</a>]</td>
@@ -469,7 +599,7 @@ rather than as a daemon.
 </tr></table>
 <h1>About This Document</h1>
 <p>
-  This document was generated by <em>Beherith</em> on <em>June, 20 2011</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
+  This document was generated by <em>Beherith</em> on <em>February, 1 2012</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
 </p>
 <p>
   The buttons in the navigation panels have the following meaning:
@@ -568,14 +698,15 @@ rather than as a daemon.
   </li>
 </ul>
 
-<hr size="1">
-<hr size="1">
+
+<div id="footer">
 <p>
  <font size="-1">
-  This document was generated by <em>Beherith</em> on <em>June, 20 2011</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
+  This document was generated by <em>Beherith</em> on <em>February, 1 2012</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
  </font>
  <br>
-
+</div></div>
 </p>
 </body>
 </html>
+</div>

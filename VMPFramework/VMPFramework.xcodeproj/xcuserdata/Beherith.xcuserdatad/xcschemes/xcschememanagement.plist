@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>VMPFramework copy.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
 		<key>VMPFramework.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -12,6 +17,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>62068A821534604E0072B657</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>D2AAC07D0554694100DB518D</key>
 		<dict>
 			<key>primary</key>

@@ -1,11 +1,11 @@
 prefix=
 exec_prefix=
 libdir=${pcfiledir}
-includedir=/Users/Beherith/projects/velestar/VMPlayer/src/ffmpeg
+includedir=.
 
 Name: libavfilter
 Description: FFmpeg video filtering library
-Version: 2.18.0
+Version: 2.60.100
 Requires: 
 Conflicts:
 Libs: ${libdir}/libavfilter.a  -lm -lbz2 -lz 

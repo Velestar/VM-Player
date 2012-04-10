@@ -62,9 +62,9 @@ const int *sws_getCoefficients(int colorspace)
 #define LOADCHROMA(i)                               \
     U = pu[i];                                      \
     V = pv[i];                                      \
-    r = (void *)c->table_rV[V];                     \
-    g = (void *)(c->table_gU[U] + c->table_gV[V]);  \
-    b = (void *)c->table_bU[U];
+    r = (void *)c->table_rV[V+YUVRGB_TABLE_HEADROOM];                     \
+    g = (void *)(c->table_gU[U+YUVRGB_TABLE_HEADROOM] + c->table_gV[V+YUVRGB_TABLE_HEADROOM]);  \
+    b = (void *)c->table_bU[U+YUVRGB_TABLE_HEADROOM];
 
 #define PUTRGB(dst,src,i)            \
     Y = src[2*i];                    \
@@ -479,7 +479,7 @@ CLOSEYUV2RGBFUNC(8)
 YUV2RGBFUNC(yuv2rgb_c_1_ordered_dither, uint8_t, 0)
         const uint8_t *d128 = dither_8x8_220[y&7];
         char out_1 = 0, out_2 = 0;
-        g= c->table_gU[128] + c->table_gV[128];
+        g= c->table_gU[128 + YUVRGB_TABLE_HEADROOM] + c->table_gV[128 + YUVRGB_TABLE_HEADROOM];
 
 #define PUTRGB1(out,src,i,o)    \
     Y = src[2*i];               \
@@ -555,29 +555,27 @@ SwsFunc ff_yuv2rgb_get_func_ptr(SwsContext *c)
     return NULL;
 }
 
-static void fill_table(uint8_t* table[256], const int elemsize, const int inc, void *y_tab)
+static void fill_table(uint8_t* table[256 + 2*YUVRGB_TABLE_HEADROOM], const int elemsize, const int inc, void *y_tab)
 {
     int i;
-    int64_t cb = 0;
     uint8_t *y_table = y_tab;
 
     y_table -= elemsize * (inc >> 9);
 
-    for (i = 0; i < 256; i++) {
+    for (i = 0; i < 256 + 2*YUVRGB_TABLE_HEADROOM; i++) {
+        int64_t cb = av_clip(i-YUVRGB_TABLE_HEADROOM, 0, 255)*inc;
         table[i] = y_table + elemsize * (cb >> 16);
-        cb += inc;
     }
 }
 
-static void fill_gv_table(int table[256], const int elemsize, const int inc)
+static void fill_gv_table(int table[256 + 2*YUVRGB_TABLE_HEADROOM], const int elemsize, const int inc)
 {
     int i;
-    int64_t cb = 0;
     int off = -(inc >> 9);
 
-    for (i = 0; i < 256; i++) {
+    for (i = 0; i < 256 + 2*YUVRGB_TABLE_HEADROOM; i++) {
+        int64_t cb = av_clip(i-YUVRGB_TABLE_HEADROOM, 0, 255)*inc;
         table[i] = elemsize * (off + (cb >> 16));
-        cb += inc;
     }
 }
 
@@ -615,7 +613,7 @@ av_cold int ff_yuv2rgb_c_init_tables(SwsContext *c, const int inv_table[4], int 
     uint8_t *y_table;
     uint16_t *y_table16;
     uint32_t *y_table32;
-    int i, base, rbase, gbase, bbase, abase, needAlpha;
+    int i, base, rbase, gbase, bbase, av_uninit(abase), needAlpha;
     const int yoffs = fullRange ? 384 : 326;
 
     int64_t crv =  inv_table[0];
@@ -790,8 +788,8 @@ av_cold int ff_yuv2rgb_c_init_tables(SwsContext *c, const int inv_table[4], int 
         y_table32 = c->yuvTable;
         yb = -(384<<16) - oy;
         for (i = 0; i < 1024; i++) {
-            uint8_t yval = av_clip_uint8((yb + 0x8000) >> 16);
-            y_table32[i     ] = (yval << rbase) + (needAlpha ? 0 : (255 << abase));
+            unsigned yval = av_clip_uint8((yb + 0x8000) >> 16);
+            y_table32[i     ] = (yval << rbase) + (needAlpha ? 0 : (255u << abase));
             y_table32[i+1024] = yval << gbase;
             y_table32[i+2048] = yval << bbase;
             yb += cy;

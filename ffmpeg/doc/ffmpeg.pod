@@ -4,7 +4,7 @@ ffmpeg - ffmpeg video converter
 
 =head1 SYNOPSIS
 
-ffmpeg [[infile options][B<-i> I<infile>]]... {[outfile options] I<outfile>}...
+ffmpeg [global options] [[infile options][B<-i> I<infile>]]... {[outfile options] I<outfile>}...
 
 =head1 DESCRIPTION
 
@@ -13,15 +13,33 @@ ffmpeg is a very fast video and audio converter that can also grab from
 a live audio/video source. It can also convert between arbitrary sample
 rates and resize video on the fly with a high quality polyphase filter.
 
-The command line interface is designed to be intuitive, in the sense
-that ffmpeg tries to figure out all parameters that can possibly be
-derived automatically. You usually only have to specify the target
-bitrate you want.
+ffmpeg reads from an arbitrary number of input "files" (which can be regular
+files, pipes, network streams, grabbing devices, etc.), specified by the
+C<-i> option, and writes to an arbitrary number of output "files", which are
+specified by a plain output filename. Anything found on the command line which
+cannot be interpreted as an option is considered to be an output filename.
+
+Each input or output file can in principle contain any number of streams of
+different types (video/audio/subtitle/attachment/data). Allowed number and/or
+types of streams can be limited by the container format. Selecting, which
+streams from which inputs go into output, is done either automatically or with
+the C<-map> option (see the Stream selection chapter).
+
+To refer to input files in options, you must use their indices (0-based). E.g.
+the first input file is C<0>, the second is C<1> etc. Similarly, streams
+within a file are referred to by their indices. E.g. C<2:3> refers to the
+fourth stream in the third input file. See also the Stream specifiers chapter.
 
 As a general rule, options are applied to the next specified
 file. Therefore, order is important, and you can have the same
 option on the command line multiple times. Each occurrence is
 then applied to the next input or output file.
+Exceptions from this rule are the global options (e.g. verbosity level),
+which should be specified first.
+
+Do not mix input and output files -- first specify all input files, then all
+output files. Also do not mix options which belong to different files. All
+options apply ONLY to the next input or output file and are reset between files.
 
 
 =over 4
@@ -31,7 +49,7 @@ then applied to the next input or output file.
 
 To set the video bitrate of the output file to 64kbit/s:
 	
-	ffmpeg -i input.avi -b 64k output.avi
+	ffmpeg -i input.avi -b:v 64k output.avi
 
 
 
@@ -56,9 +74,20 @@ to 1 fps and the frame rate of the output file to 24 fps:
 
 The format option may be needed for raw input files.
 
-By default ffmpeg tries to convert as losslessly as possible: It
-uses the same audio and video parameters for the outputs as the one
-specified for the inputs.
+
+=head1 STREAM SELECTION
+
+
+By default ffmpeg includes only one stream of each type (video, audio, subtitle)
+present in the input files and adds them to each output file.  It picks the
+"best" of each based upon the following criteria; for video it is the stream
+with the highest resolution, for audio the stream with the most channels, for
+subtitle it's the first subtitle stream. In the case where several streams of
+the same type rate equally, the lowest numbered stream is chosen.
+
+You can disable some of those defaults by using C<-vn/-an/-sn> options. For
+full manual control, use the C<-map> option, which disables the defaults just
+described.
 
 
 =head1 OPTIONS
@@ -75,13 +104,56 @@ example 'KB', 'MiB', 'G' and 'B' as postfix.
 Options which do not take arguments are boolean options, and set the
 corresponding value to true. They can be set to false by prefixing
 with "no" the option name, for example using "-nofoo" in the
-commandline will set to false the boolean option with name "foo".
+command line will set to false the boolean option with name "foo".
+
+
+
+=head2 Stream specifiers
+
+Some options are applied per-stream, e.g. bitrate or codec. Stream specifiers
+are used to precisely specify which stream(s) does a given option belong to.
+
+A stream specifier is a string generally appended to the option name and
+separated from it by a colon. E.g. C<-codec:a:1 ac3> option contains
+C<a:1> stream specifer, which matches the second audio stream. Therefore it
+would select the ac3 codec for the second audio stream.
+
+A stream specifier can match several stream, the option is then applied to all
+of them. E.g. the stream specifier in C<-b:a 128k> matches all audio
+streams.
+
+An empty stream specifier matches all streams, for example C<-codec copy>
+or C<-codec: copy> would copy all the streams without reencoding.
+
+Possible forms of stream specifiers are:
+
+=over 4
+
+
+=item I<stream_index>
+
+Matches the stream with this index. E.g. C<-threads:1 4> would set the
+thread count for the second stream to 4.
+
+=item I<stream_type>B<[:>I<stream_index>B<]>
+
+I<stream_type> is one of: 'v' for video, 'a' for audio, 's' for subtitle,
+'d' for data and 't' for attachments. If I<stream_index> is given, then
+matches stream number I<stream_index> of this type. Otherwise matches all
+streams of this type.
+
+=item B<p:>I<program_id>B<[:>I<stream_index>B<]>
+
+If I<stream_index> is given, then matches stream number I<stream_index> in
+program with id I<program_id>. Otherwise matches all streams in this program.
+
+=back
 
 
 =head2 Generic options
 
 
-These options are shared amongst the ff* tools.
+These options are shared amongst the av* tools.
 
 
 =over 4
@@ -181,7 +253,12 @@ Show available libavfilter filters.
 Show available pixel formats.
 
 
-=item B<-loglevel> I<loglevel>
+=item B<-sample_fmts>
+
+Show available sample formats.
+
+
+=item B<-loglevel> I<loglevel> B<| -v> I<loglevel>
 
 Set the logging level used by the library.
 I<loglevel> is a number or a string containing one of the following values:
@@ -219,14 +296,67 @@ I<loglevel> is a number or a string containing one of the following values:
 By default the program logs to stderr, if coloring is supported by the
 terminal, colors are used to mark errors and warnings. Log coloring
 can be disabled setting the environment variable
-B<FFMPEG_FORCE_NOCOLOR> or B<NO_COLOR>, or can be forced setting
-the environment variable B<FFMPEG_FORCE_COLOR>.
+B<AV_LOG_FORCE_NOCOLOR> or B<NO_COLOR>, or can be forced setting
+the environment variable B<AV_LOG_FORCE_COLOR>.
 The use of the environment variable B<NO_COLOR> is deprecated and
 will be dropped in a following FFmpeg version.
 
 
+=item B<-report>
+
+Dump full command line and console output to a file named
+C<I<program>-I<YYYYMMDD>-I<HHMMSS>.log> in the current
+directory.
+This file can be useful for bug reports.
+It also implies C<-loglevel verbose>.
+
+Note: setting the environment variable C<FFREPORT> to any value has the
+same effect.
+
+
 =back
 
+
+
+=head2 AVOptions
+
+
+These options are provided directly by the libavformat, libavdevice and
+libavcodec libraries. To see the list of available AVOptions, use the
+B<-help> option. They are separated into two categories:
+
+=over 4
+
+
+=item B<generic>
+
+These options can be set for any container, codec or device. Generic options
+are listed under AVFormatContext options for containers/devices and under
+AVCodecContext options for codecs.
+
+=item B<private>
+
+These options are specific to the given container, device or codec. Private
+options are listed under their corresponding containers/devices/codecs.
+
+=back
+
+
+For example to write an ID3v2.3 header instead of a default ID3v2.4 to
+an MP3 file, use the B<id3v2_version> private option of the MP3
+muxer:
+	
+	ffmpeg -i input.flac -id3v2_version 3 out.mp3
+
+
+All codec AVOptions are obviously per-stream, so the chapter on stream
+specifiers applies to them
+
+Note B<-nooption> syntax cannot be used for boolean AVOptions,
+use B<-option 0>/B<-option 1>.
+
+Note2 old undocumented way of specifying per-stream AVOptions by prepending
+v/a/s to the options name is now obsolete and will be removed soon.
 
 
 =head2 Main options
@@ -237,50 +367,83 @@ will be dropped in a following FFmpeg version.
 
 
 
-=item B<-f> I<fmt>
+=item B<-f> I<fmt> B<(>I<input/output>B<)>
 
-Force format.
+Force input or output file format. The format is normally auto detected for input
+files and guessed from file extension for output files, so this option is not
+needed in most cases.
 
 
-=item B<-i> I<filename>
+=item B<-i> I<filename> B<(>I<input>B<)>
 
 input file name
 
 
-=item B<-y>
+=item B<-y (>I<global>B<)>
 
-Overwrite output files.
-
-
-=item B<-t> I<duration>
-
-Restrict the transcoded/captured video sequence
-to the duration specified in seconds.
-C<hh:mm:ss[.xxx]> syntax is also supported.
+Overwrite output files without asking.
 
 
-=item B<-fs> I<limit_size>
+=item B<-n (>I<global>B<)>
+
+Do not overwrite output files but exit if file exists.
+
+
+=item B<-c[:>I<stream_specifier>B<]> I<codec> B<(>I<input/output,per-stream>B<)>
+
+
+=item B<-codec[:>I<stream_specifier>B<]> I<codec> B<(>I<input/output,per-stream>B<)>
+
+Select an encoder (when used before an output file) or a decoder (when used
+before an input file) for one or more streams. I<codec> is the name of a
+decoder/encoder or a special value C<copy> (output only) to indicate that
+the stream is not to be re-encoded.
+
+For example
+	
+	ffmpeg -i INPUT -map 0 -c:v libx264 -c:a copy OUTPUT
+
+encodes all video streams with libx264 and copies all audio streams.
+
+For each stream, the last matching C<c> option is applied, so
+	
+	ffmpeg -i INPUT -map 0 -c copy -c:v:1 libx264 -c:a:137 libvorbis OUTPUT
+
+will copy all the streams except the second video, which will be encoded with
+libx264, and the 138th audio, which will be encoded with libvorbis.
+
+
+=item B<-t> I<duration> B<(>I<output>B<)>
+
+Stop writing the output after its duration reaches I<duration>.
+I<duration> may be a number in seconds, or in C<hh:mm:ss[.xxx]> form.
+
+
+=item B<-fs> I<limit_size> B<(>I<output>B<)>
 
 Set the file size limit.
 
 
-=item B<-ss> I<position>
+=item B<-ss> I<position> B<(>I<input/output>B<)>
 
-Seek to given time position in seconds.
-C<hh:mm:ss[.xxx]> syntax is also supported.
+When used as an input option (before C<-i>), seeks in this input file to
+I<position>. When used as an output option (before an output filename),
+decodes but discards input until the timestamps reach I<position>. This is
+slower, but more accurate.
+
+I<position> may be either in seconds or in C<hh:mm:ss[.xxx]> form.
 
 
-=item B<-itsoffset> I<offset>
+=item B<-itsoffset> I<offset> B<(>I<input>B<)>
 
 Set the input time offset in seconds.
 C<[-]hh:mm:ss[.xxx]> syntax is also supported.
-This option affects all the input files that follow it.
 The offset is added to the timestamps of the input files.
 Specifying a positive offset means that the corresponding
-streams are delayed by 'offset' seconds.
+streams are delayed by I<offset> seconds.
 
 
-=item B<-timestamp> I<time>
+=item B<-timestamp> I<time> B<(>I<output>B<)>
 
 Set the recording timestamp in the container.
 The syntax for I<time> is:
@@ -294,26 +457,34 @@ If the year-month-day part is not specified it takes the current
 year-month-day.
 
 
-=item B<-metadata> I<key>B<=>I<value>
+=item B<-metadata[:metadata_specifier]> I<key>B<=>I<value> B<(>I<output,per-metadata>B<)>
 
 Set a metadata key/value pair.
+
+An optional I<metadata_specifier> may be given to set metadata
+on streams or chapters. See C<-map_metadata> documentation for
+details.
+
+This option overrides metadata set with C<-map_metadata>. It is
+also possible to delete metadata by using an empty value.
 
 For example, for setting the title in the output file:
 	
 	ffmpeg -i in.avi -metadata title="my title" out.flv
 
 
+To set the language of the first audio stream:
+	
+	ffmpeg -i INPUT -metadata:s:a:1 language=eng OUTPUT
 
-=item B<-v> I<number>
-
-Set the logging verbosity level.
 
 
-=item B<-target> I<type>
+=item B<-target> I<type> B<(>I<output>B<)>
 
-Specify target file type ("vcd", "svcd", "dvd", "dv", "dv50", "pal-vcd",
-"ntsc-svcd", ... ). All the format options (bitrate, codecs,
-buffer sizes) are then set automatically. You can just type:
+Specify target file type (C<vcd>, C<svcd>, C<dvd>, C<dv>,
+C<dv50>). I<type> may be prefixed with C<pal->, C<ntsc-> or
+C<film-> to use the corresponding standard. All the format options
+(bitrate, codecs, buffer sizes) are then set automatically. You can just type:
 
 	
 	ffmpeg -i myfile.avi -target vcd /tmp/vcd.mpg
@@ -327,24 +498,76 @@ they do not conflict with the standard, as in:
 
 
 
-=item B<-dframes> I<number>
+=item B<-dframes> I<number> B<(>I<output>B<)>
 
-Set the number of data frames to record.
-
-
-=item B<-scodec> I<codec>
-
-Force subtitle codec ('copy' to copy stream).
+Set the number of data frames to record. This is an alias for C<-frames:d>.
 
 
-=item B<-newsubtitle>
+=item B<-frames[:>I<stream_specifier>B<]> I<framecount> B<(>I<output,per-stream>B<)>
 
-Add a new subtitle stream to the current output stream.
+Stop writing to the stream after I<framecount> frames.
 
 
-=item B<-slang> I<code>
+=item B<-q[:>I<stream_specifier>B<]> I<q> B<(>I<output,per-stream>B<)>
 
-Set the ISO 639 language code (3 letters) of the current subtitle stream.
+
+=item B<-qscale[:>I<stream_specifier>B<]> I<q> B<(>I<output,per-stream>B<)>
+
+Use fixed quality scale (VBR). The meaning of I<q> is
+codec-dependent.
+
+
+=item B<-filter[:>I<stream_specifier>B<]> I<filter_graph> B<(>I<output,per-stream>B<)>
+
+I<filter_graph> is a description of the filter graph to apply to
+the stream. Use C<-filters> to show all the available filters
+(including also sources and sinks).
+
+=item B<-pre[:>I<stream_specifier>B<]> I<preset_name> B<(>I<output,per-stream>B<)>
+
+Specify the preset for matching stream(s).
+
+
+=item B<-stats (>I<global>B<)>
+
+Print encoding progress/statistics. On by default.
+
+
+=item B<-attach> I<filename> B<(>I<output>B<)>
+
+Add an attachment to the output file. This is supported by a few formats
+like Matroska for e.g. fonts used in rendering subtitles. Attachments
+are implemented as a specific type of stream, so this option will add
+a new stream to the file. It is then possible to use per-stream options
+on this stream in the usual way. Attachment streams created with this
+option will be created after all the other streams (i.e. those created
+with C<-map> or automatic mappings).
+
+Note that for Matroska you also have to set the mimetype metadata tag:
+	
+	ffmpeg -i INPUT -attach DejaVuSans.ttf -metadata:s:2 mimetype=application/x-truetype-font out.mkv
+
+(assuming that the attachment stream will be third in the output file).
+
+
+=item B<-dump_attachment[:>I<stream_specifier>B<]> I<filename> B<(>I<input,per-stream>B<)>
+
+Extract the matching attachment stream into a file named I<filename>. If
+I<filename> is empty, then the value of the C<filename> metadata tag
+will be used.
+
+E.g. to extract the first attachment to a file named 'out.ttf':
+	
+	ffmpeg -dump_attachment:t:0 out.ttf INPUT
+
+To extract all attachments to files determined by the C<filename> tag:
+	
+	ffmpeg -dump_attachment:t "" INPUT
+
+
+Technical note -- attachments are implemented as codec extradata, so this
+option can actually be used to extract extradata from any stream, not just
+attachments.
 
 
 =back
@@ -358,23 +581,17 @@ Set the ISO 639 language code (3 letters) of the current subtitle stream.
 =over 4
 
 
-=item B<-b> I<bitrate>
+=item B<-vframes> I<number> B<(>I<output>B<)>
 
-Set the video bitrate in bit/s (default = 200 kb/s).
+Set the number of video frames to record. This is an alias for C<-frames:v>.
 
-=item B<-vframes> I<number>
-
-Set the number of video frames to record.
-
-=item B<-r> I<fps>
+=item B<-r[:>I<stream_specifier>B<]> I<fps> B<(>I<input/output,per-stream>B<)>
 
 Set frame rate (Hz value, fraction or abbreviation), (default = 25).
 
-=item B<-s> I<size>
+=item B<-s[:>I<stream_specifier>B<]> I<size> B<(>I<input/output,per-stream>B<)>
 
-Set frame size. The format is B<wxh> (ffserver default = 160x128).
-There is no default for input streams,
-for output streams it is set by default to the size of the source stream.
+Set frame size. The format is B<wxh> (default - same as source).
 The following abbreviations are recognized:
 
 =over 4
@@ -500,7 +717,7 @@ The following abbreviations are recognized:
 
 
 
-=item B<-aspect> I<aspect>
+=item B<-aspect[:>I<stream_specifier>B<]> I<aspect> B<(>I<output,per-stream>B<)>
 
 Set the video display aspect ratio specified by I<aspect>.
 
@@ -542,7 +759,8 @@ crop=width:height:x:y instead.
 All the pad options have been removed. Use -vf
 pad=width:height:x:y:color instead.
 
-=item B<-vn>
+
+=item B<-vn (>I<output>B<)>
 
 Disable video recording.
 
@@ -565,7 +783,7 @@ Requires -bufsize to be set.
 Set min video bitrate (in bit/s).
 Most useful in setting up a CBR encode:
 	
-	ffmpeg -i myfile.avi -b 4000k -minrate 4000k -maxrate 4000k -bufsize 1835k out.m2v
+	ffmpeg -i myfile.avi -b:v 4000k -minrate 4000k -maxrate 4000k -bufsize 1835k out.m2v
 
 It is of little use elsewise.
 
@@ -573,14 +791,16 @@ It is of little use elsewise.
 
 Set video buffer verifier buffer size (in bits).
 
-=item B<-vcodec> I<codec>
+=item B<-vcodec> I<codec> B<(>I<output>B<)>
 
-Force video codec to I<codec>. Use the C<copy> special value to
-tell that the raw codec data must be copied as is.
+Set the video codec. This is an alias for C<-codec:v>.
 
-=item B<-sameq>
+=item B<-same_quant>
 
 Use same quantizer as source (implies VBR).
+
+Note that this is NOT SAME QUALITY. Do not use this option unless you know you
+need it.
 
 
 =item B<-pass> I<n>
@@ -593,22 +813,17 @@ at the exact requested bitrate.
 On pass 1, you may just deactivate audio and set output to null,
 examples for Windows and Unix:
 	
-	ffmpeg -i foo.mov -vcodec libxvid -pass 1 -an -f rawvideo -y NUL
-	ffmpeg -i foo.mov -vcodec libxvid -pass 1 -an -f rawvideo -y /dev/null
+	ffmpeg -i foo.mov -c:v libxvid -pass 1 -an -f rawvideo -y NUL
+	ffmpeg -i foo.mov -c:v libxvid -pass 1 -an -f rawvideo -y /dev/null
 
 
 
-=item B<-passlogfile> I<prefix>
+=item B<-passlogfile> I<prefix> B<(>I<global>B<)>
 
 Set two-pass log file name prefix to I<prefix>, the default file name
 prefix is ``ffmpeg2pass''. The complete file name will be
 F<PREFIX-N.log>, where N is a number specific to the output
-stream.
-
-
-=item B<-newvideo>
-
-Add a new video stream to the current output stream.
+stream
 
 
 =item B<-vlang> I<code>
@@ -616,12 +831,12 @@ Add a new video stream to the current output stream.
 Set the ISO 639 language code (3 letters) of the current video stream.
 
 
-=item B<-vf> I<filter_graph>
+=item B<-vf> I<filter_graph> B<(>I<output>B<)>
 
 I<filter_graph> is a description of the filter graph to apply to
 the input video.
 Use the option "-filters" to show all the available filters (including
-also sources and sinks).
+also sources and sinks).  This is an alias for C<-filter:v>.
 
 
 =back
@@ -635,12 +850,12 @@ also sources and sinks).
 =over 4
 
 
-=item B<-pix_fmt> I<format>
+=item B<-pix_fmt[:>I<stream_specifier>B<]> I<format> B<(>I<input/output,per-stream>B<)>
 
-Set pixel format. Use 'list' as parameter to show all the supported
+Set pixel format. Use C<-pix_fmts> to show all the supported
 pixel formats.
 
-=item B<-sws_flags> I<flags>
+=item B<-sws_flags> I<flags> B<(>I<input/output>B<)>
 
 Set SwScaler flags.
 
@@ -650,15 +865,11 @@ Set the group of pictures size.
 
 =item B<-intra>
 
-Use only intra frames.
+deprecated, use -g 1
 
 =item B<-vdt> I<n>
 
 Discard threshold.
-
-=item B<-qscale> I<q>
-
-Use fixed video quantizer scale (VBR).
 
 =item B<-qmin> I<q>
 
@@ -809,9 +1020,9 @@ and the following constants are available:
 
 
 
-=item B<-rc_override> I<override>
+=item B<-rc_override[:>I<stream_specifier>B<]> I<override> B<(>I<output,per-stream>B<)>
 
-Rate control override for specific intervals, formated as "int,int,int"
+Rate control override for specific intervals, formatted as "int,int,int"
 list separated with slashes. Two first values are the beginning and
 end frame numbers, last one is quantizer to use if positive, or quality
 factor if negative.
@@ -1068,7 +1279,7 @@ Dump video coding statistics to F<vstats_HHMMSS.log>.
 
 Dump video coding statistics to I<file>.
 
-=item B<-top> I<n>
+=item B<-top[:>I<stream_specifier>B<]> I<n> B<(>I<output,per-stream>B<)>
 
 top=1/bottom=0/auto=-1 field first
 
@@ -1076,28 +1287,31 @@ top=1/bottom=0/auto=-1 field first
 
 Intra_dc_precision.
 
-=item B<-vtag> I<fourcc/tag>
+=item B<-vtag> I<fourcc/tag> B<(>I<output>B<)>
 
-Force video tag/fourcc.
+Force video tag/fourcc. This is an alias for C<-tag:v>.
 
-=item B<-qphist>
+=item B<-qphist (>I<global>B<)>
 
-Show QP histogram.
+Show QP histogram
 
 =item B<-vbsf> I<bitstream_filter>
 
-Bitstream filters available are "dump_extra", "remove_extra", "noise", "h264_mp4toannexb", "imxdump", "mjpegadump", "mjpeg2jpeg".
-	
-	ffmpeg -i h264.mp4 -vcodec copy -vbsf h264_mp4toannexb -an out.h264
+Deprecated see -bsf
 
-
-=item B<-force_key_frames> I<time>B<[,>I<time>B<...]>
+=item B<-force_key_frames[:>I<stream_specifier>B<]> I<time>B<[,>I<time>B<...] (>I<output,per-stream>B<)>
 
 Force key frames at the specified timestamps, more precisely at the first
 frames after each specified time.
 This option can be useful to ensure that a seek point is present at a
 chapter mark or any other designated place in the output file.
 The timestamps must be specified in ascending order.
+
+
+=item B<-copyinkf[:>I<stream_specifier>B<] (>I<output,per-stream>B<)>
+
+When doing stream copy, copy also non-key frames found at the
+beginning.
 
 =back
 
@@ -1110,55 +1324,40 @@ The timestamps must be specified in ascending order.
 =over 4
 
 
-=item B<-aframes> I<number>
+=item B<-aframes> I<number> B<(>I<output>B<)>
 
-Set the number of audio frames to record.
+Set the number of audio frames to record. This is an alias for C<-frames:a>.
 
-=item B<-ar> I<freq>
+=item B<-ar[:>I<stream_specifier>B<]> I<freq> B<(>I<input/output,per-stream>B<)>
 
-Set the audio sampling frequency. there is no default for input streams,
-for output streams it is set by default to the frequency of the input stream.
+Set the audio sampling frequency. For output streams it is set by
+default to the frequency of the corresponding input stream. For input
+streams this option only makes sense for audio grabbing devices and raw
+demuxers and is mapped to the corresponding demuxer options.
 
-=item B<-ab> I<bitrate>
+=item B<-aq> I<q> B<(>I<output>B<)>
 
-Set the audio bitrate in bit/s (default = 64k).
+Set the audio quality (codec-specific, VBR). This is an alias for -q:a.
 
-=item B<-aq> I<q>
+=item B<-ac[:>I<stream_specifier>B<]> I<channels> B<(>I<input/output,per-stream>B<)>
 
-Set the audio quality (codec-specific, VBR).
+Set the number of audio channels. For output streams it is set by
+default to the number of input audio channels. For input streams
+this option only makes sense for audio grabbing devices and raw demuxers
+and is mapped to the corresponding demuxer options.
 
-=item B<-ac> I<channels>
-
-Set the number of audio channels. For input streams it is set by
-default to 1, for output streams it is set by default to the same
-number of audio channels in input.
-
-=item B<-an>
+=item B<-an (>I<output>B<)>
 
 Disable audio recording.
 
-=item B<-acodec> I<codec>
+=item B<-acodec> I<codec> B<(>I<input/output>B<)>
 
-Force audio codec to I<codec>. Use the C<copy> special value to
-specify that the raw codec data must be copied as is.
+Set the audio codec. This is an alias for C<-codec:a>.
 
-=item B<-newaudio>
+=item B<-sample_fmt[:>I<stream_specifier>B<]> I<sample_fmt> B<(>I<output,per-stream>B<)>
 
-Add a new audio track to the output file. If you want to specify parameters,
-do so before C<-newaudio> (C<-acodec>, C<-ab>, etc..).
-
-Mapping will be done automatically, if the number of output streams is equal to
-the number of input streams, else it will pick the first one that matches. You
-can override the mapping using C<-map> as usual.
-
-Example:
-	
-	ffmpeg -i file.mpg -vcodec copy -acodec ac3 -ab 384k test.mpg -acodec mp2 -ab 192k -newaudio
-
-
-=item B<-alang> I<code>
-
-Set the ISO 639 language code (3 letters) of the current audio stream.
+Set the audio sample format. Use C<-sample_fmts> to get a list
+of supported sample formats.
 
 =back
 
@@ -1171,9 +1370,9 @@ Set the ISO 639 language code (3 letters) of the current audio stream.
 =over 4
 
 
-=item B<-atag> I<fourcc/tag>
+=item B<-atag> I<fourcc/tag> B<(>I<output>B<)>
 
-Force audio tag/fourcc.
+Force audio tag/fourcc. This is an alias for C<-tag:a>.
 
 =item B<-audio_service_type> I<type>
 
@@ -1223,7 +1422,7 @@ Karaoke
 
 =item B<-absf> I<bitstream_filter>
 
-Bitstream filters available are "dump_extra", "remove_extra", "noise", "mp3comp", "mp3decomp".
+Deprecated, see -bsf
 
 =back
 
@@ -1236,28 +1435,21 @@ Bitstream filters available are "dump_extra", "remove_extra", "noise", "mp3comp"
 =over 4
 
 
-=item B<-scodec> I<codec>
-
-Force subtitle codec ('copy' to copy stream).
-
-=item B<-newsubtitle>
-
-Add a new subtitle stream to the current output stream.
-
 =item B<-slang> I<code>
 
 Set the ISO 639 language code (3 letters) of the current subtitle stream.
 
-=item B<-sn>
+=item B<-scodec> I<codec> B<(>I<input/output>B<)>
+
+Set the subtitle codec. This is an alias for C<-codec:s>.
+
+=item B<-sn (>I<output>B<)>
 
 Disable subtitle recording.
 
 =item B<-sbsf> I<bitstream_filter>
 
-Bitstream filters available are "mov2textsub", "text2movsub".
-	
-	ffmpeg -i file.mov -an -vn -sbsf mov2textsub -scodec copy -f rawvideo sub.txt
-
+Deprecated, see -bsf
 
 =back
 
@@ -1270,15 +1462,7 @@ Bitstream filters available are "mov2textsub", "text2movsub".
 =over 4
 
 
-=item B<-vc> I<channel>
-
-Set video grab channel (DV1394 only).
-
-=item B<-tvstd> I<standard>
-
-Set television standard (NTSC, PAL (SECAM)).
-
-=item B<-isync>
+=item B<-isync (>I<global>B<)>
 
 Synchronize read on input.
 
@@ -1293,61 +1477,146 @@ Synchronize read on input.
 =over 4
 
 
-=item B<-map> I<input_file_id>B<.>I<input_stream_id>B<[:>I<sync_file_id>B<.>I<sync_stream_id>B<]>
+=item B<-map [-]>I<input_file_id>B<[:>I<stream_specifier>B<][,>I<sync_file_id>B<[:>I<stream_specifier>B<]] (>I<output>B<)>
 
 
-Designate an input stream as a source for the output file. Each input
+Designate one or more input streams as a source for the output file. Each input
 stream is identified by the input file index I<input_file_id> and
 the input stream index I<input_stream_id> within the input
-file. Both indexes start at 0. If specified,
-I<sync_file_id>.I<sync_stream_id> sets which input stream
+file. Both indices start at 0. If specified,
+I<sync_file_id>:I<stream_specifier> sets which input stream
 is used as a presentation sync reference.
 
-The C<-map> options must be specified just after the output file.
-If any C<-map> options are used, the number of C<-map> options
-on the command line must match the number of streams in the output
-file. The first C<-map> option on the command line specifies the
+The first C<-map> option on the command line specifies the
 source for output stream 0, the second C<-map> option specifies
 the source for output stream 1, etc.
 
+A C<-> character before the stream identifier creates a "negative" mapping.
+It disables matching streams from already created mappings.
+
+For example, to map ALL streams from the first input file to output
+	
+	ffmpeg -i INPUT -map 0 output
+
+
 For example, if you have two audio streams in the first input file,
-these streams are identified by "0.0" and "0.1". You can use
-C<-map> to select which stream to place in an output file. For
+these streams are identified by "0:0" and "0:1". You can use
+C<-map> to select which streams to place in an output file. For
 example:
 	
-	ffmpeg -i INPUT out.wav -map 0.1
+	ffmpeg -i INPUT -map 0:1 out.wav
 
-will map the input stream in F<INPUT> identified by "0.1" to
+will map the input stream in F<INPUT> identified by "0:1" to
 the (single) output stream in F<out.wav>.
 
 For example, to select the stream with index 2 from input file
-F<a.mov> (specified by the identifier "0.2"), and stream with
-index 6 from input F<b.mov> (specified by the identifier "1.6"),
+F<a.mov> (specified by the identifier "0:2"), and stream with
+index 6 from input F<b.mov> (specified by the identifier "1:6"),
 and copy them to the output file F<out.mov>:
 	
-	ffmpeg -i a.mov -i b.mov -vcodec copy -acodec copy out.mov -map 0.2 -map 1.6
+	ffmpeg -i a.mov -i b.mov -c copy -map 0:2 -map 1:6 out.mov
 
 
-To add more streams to the output file, you can use the
-C<-newaudio>, C<-newvideo>, C<-newsubtitle> options.
+To select all video and the third audio stream from an input file:
+	
+	ffmpeg -i INPUT -map 0:v -map 0:a:2 OUTPUT
 
 
-=item B<-map_meta_data> I<outfile>B<[,>I<metadata>B<]:>I<infile>B<[,>I<metadata>B<]>
+To map all the streams except the second audio, use negative mappings
+	
+	ffmpeg -i INPUT -map 0 -map -0:a:1 OUTPUT
 
-Deprecated, use I<-map_metadata> instead.
+
+Note that using this option disables the default mappings for this output file.
 
 
-=item B<-map_metadata> I<outfile>B<[,>I<metadata>B<]:>I<infile>B<[,>I<metadata>B<]>
+=item B<-map_channel [>I<input_file_id>B<.>I<stream_specifier>B<.>I<channel_id>B<|-1][:>I<output_file_id>B<.>I<stream_specifier>B<]>
 
-Set metadata information of I<outfile> from I<infile>. Note that those
-are file indices (zero-based), not filenames.
-Optional I<metadata> parameters specify, which metadata to copy - (g)lobal
-(i.e. metadata that applies to the whole file), per-(s)tream, per-(c)hapter or
-per-(p)rogram. All metadata specifiers other than global must be followed by the
-stream/chapter/program number. If metadata specifier is omitted, it defaults to
-global.
+Map an audio channel from a given input to an output. If
+I<output_file_id>.I<stream_specifier> are not set, the audio channel will
+be mapped on all the audio streams.
 
-By default, global metadata is copied from the first input file to all output files,
+Using "-1" instead of
+I<input_file_id>.I<stream_specifier>.I<channel_id> will map a muted
+channel.
+
+For example, assuming I<INPUT> is a stereo audio file, you can switch the
+two audio channels with the following command:
+	
+	ffmpeg -i INPUT -map_channel 0.0.1 -map_channel 0.0.0 OUTPUT
+
+
+If you want to mute the first channel and keep the second:
+	
+	ffmpeg -i INPUT -map_channel -1 -map_channel 0.0.1 OUTPUT
+
+
+The order of the "-map_channel" option specifies the order of the channels in
+the output stream. The output channel layout is guessed from the number of
+channels mapped (mono if one "-map_channel", stereo if two, etc.). Using "-ac"
+in combination of "-map_channel" makes the channel gain levels to be updated if
+channel layouts don't match (for instance two "-map_channel" options and "-ac
+6").
+
+You can also extract each channel of an I<INPUT> to specific outputs; the
+following command extract each channel of the audio stream (file 0, stream 0)
+to the respective I<OUTPUT_CH0> and I<OUTPUT_CH1>:
+	
+	ffmpeg -i INPUT -map_channel 0.0.0 OUTPUT_CH0 -map_channel 0.0.1 OUTPUT_CH1
+
+
+The following example split the channels of a stereo input into streams:
+
+	
+	ffmpeg -i stereo.wav -map 0:0 -map 0:0 -map_channel 0.0.0:0.0 -map_channel 0.0.1:0.1 -y out.ogg
+
+
+Note that currently each output stream can only contain channels from a single
+input stream; you can't for example use "-map_channel" to pick multiple input
+audio channels contained in different streams (from the same or different files)
+and merge them into a single output stream. It is therefore not currently
+possible, for example, to turn two separate mono streams into a single stereo
+stream. However spliting a stereo stream into two single channel mono streams
+is possible.
+
+
+=item B<-map_metadata[:>I<metadata_spec_out>B<]> I<infile>B<[:>I<metadata_spec_in>B<] (>I<output,per-metadata>B<)>
+
+Set metadata information of the next output file from I<infile>. Note that
+those are file indices (zero-based), not filenames.
+Optional I<metadata_spec_in/out> parameters specify, which metadata to copy.
+A metadata specifier can have the following forms:
+
+=over 4
+
+
+=item I<g>
+
+global metadata, i.e. metadata that applies to the whole file
+
+
+=item I<s>B<[:>I<stream_spec>B<]>
+
+per-stream metadata. I<stream_spec> is a stream specifier as described
+in the Stream specifiers chapter. In an input metadata specifier, the first
+matching stream is copied from. In an output metadata specifier, all matching
+streams are copied to.
+
+
+=item I<c>B<:>I<chapter_index>
+
+per-chapter metadata. I<chapter_index> is the zero-based chapter index.
+
+
+=item I<p>B<:>I<program_index>
+
+per-program metadata. I<program_index> is the zero-based program index.
+
+=back
+
+If metadata specifier is omitted, it defaults to global.
+
+By default, global metadata is copied from the first input file,
 per-stream and per-chapter metadata is copied along with streams/chapters. These
 default mappings are disabled by creating any mapping of the relevant type. A negative
 file index can be used to create a dummy mapping that just disables automatic copying.
@@ -1355,43 +1624,121 @@ file index can be used to create a dummy mapping that just disables automatic co
 For example to copy metadata from the first stream of the input file to global metadata
 of the output file:
 	
-	ffmpeg -i in.ogg -map_metadata 0:0,s0 out.mp3
+	ffmpeg -i in.ogg -map_metadata 0:s:0 out.mp3
 
 
-=item B<-map_chapters> I<outfile>B<:>I<infile>
+To do the reverse, i.e. copy global metadata to all audio streams:
+	
+	ffmpeg -i in.mkv -map_metadata:s:a 0:g out.mkv
 
-Copy chapters from I<infile> to I<outfile>. If no chapter mapping is specified,
-then chapters are copied from the first input file with at least one chapter to all
-output files. Use a negative file index to disable any chapter copying.
+Note that simple C<0> would work as well in this example, since global
+metadata is assumed by default.
 
-=item B<-debug>
+
+=item B<-map_chapters> I<input_file_index> B<(>I<output>B<)>
+
+Copy chapters from input file with index I<input_file_index> to the next
+output file. If no chapter mapping is specified, then chapters are copied from
+the first input file with at least one chapter. Use a negative file index to
+disable any chapter copying.
+
+=item B<-debug> I<category>
 
 Print specific debug info.
+I<category> is a number or a string containing one of the following values:
 
-=item B<-benchmark>
+=over 4
+
+
+=item B<bitstream>
+
+
+=item B<buffers>
+
+picture buffer allocations
+
+=item B<bugs>
+
+
+=item B<dct_coeff>
+
+
+=item B<er>
+
+error recognition
+
+=item B<mb_type>
+
+macroblock (MB) type
+
+=item B<mmco>
+
+memory management control operations (H.264)
+
+=item B<mv>
+
+motion vector
+
+=item B<pict>
+
+picture info
+
+=item B<pts>
+
+
+=item B<qp>
+
+per-block quantization parameter (QP)
+
+=item B<rc>
+
+rate control
+
+=item B<skip>
+
+
+=item B<startcode>
+
+
+=item B<thread_ops>
+
+threading operations
+
+=item B<vis_mb_type>
+
+visualize block types
+
+=item B<vis_qp>
+
+visualize quantization parameter (QP), lower QP are tinted greener
+
+=back
+
+
+=item B<-benchmark (>I<global>B<)>
 
 Show benchmarking information at the end of an encode.
 Shows CPU time used and maximum memory consumption.
 Maximum memory consumption is not supported on all systems,
 it will usually display as 0 if not supported.
 
-=item B<-dump>
+=item B<-timelimit> I<duration> B<(>I<global>B<)>
 
-Dump each input packet.
+Exit after ffmpeg has been running for I<duration> seconds.
 
-=item B<-hex>
+=item B<-dump (>I<global>B<)>
+
+Dump each input packet to stderr.
+
+=item B<-hex (>I<global>B<)>
 
 When dumping packets, also dump the payload.
-
-=item B<-bitexact>
-
-Only use bit exact algorithms (for codec testing).
 
 =item B<-ps> I<size>
 
 Set RTP payload size in bytes.
 
-=item B<-re>
+=item B<-re (>I<input>B<)>
 
 Read input at native frame rate. Mainly used to simulate a grab device.
 
@@ -1399,11 +1746,13 @@ Read input at native frame rate. Mainly used to simulate a grab device.
 
 Loop over the input stream. Currently it works only for image
 streams. This option is used for automatic FFserver testing.
+This option is deprecated, use -loop 1.
 
 =item B<-loop_output> I<number_of_times>
 
 Repeatedly loop output for formats that support looping such as animated GIF
 (0 will loop the output infinitely).
+This option is deprecated, use -loop.
 
 =item B<-threads> I<count>
 
@@ -1417,21 +1766,21 @@ Video sync method.
 =over 4
 
 
-=item B<0>
+=item B<0, passthrough>
 
 Each frame is passed with its timestamp from the demuxer to the muxer.
 
-=item B<1>
+=item B<1, cfr>
 
 Frames will be duplicated and dropped to achieve exactly the requested
 constant framerate.
 
-=item B<2>
+=item B<2, vfr>
 
 Frames are passed through with their timestamp or dropped so as to
 prevent 2 frames from having the same timestamp.
 
-=item B<-1>
+=item B<-1, auto>
 
 Chooses between 1 and 2 depending on muxer capabilities. This is the
 default method.
@@ -1467,15 +1816,15 @@ Finish encoding when the shortest input stream ends.
 
 Timestamp discontinuity delta threshold.
 
-=item B<-muxdelay> I<seconds>
+=item B<-muxdelay> I<seconds> B<(>I<input>B<)>
 
 Set the maximum demux-decode delay.
 
-=item B<-muxpreload> I<seconds>
+=item B<-muxpreload> I<seconds> B<(>I<input>B<)>
 
 Set the initial demux-decode delay.
 
-=item B<-streamid> I<output-stream-index>B<:>I<new-value>
+=item B<-streamid> I<output-stream-index>B<:>I<new-value> B<(>I<output>B<)>
 
 Assign a new stream-id value to an output stream. This option should be
 specified prior to the output filename to which it applies.
@@ -1488,18 +1837,44 @@ an output mpegts file:
 	ffmpeg -i infile -streamid 0:33 -streamid 1:36 out.ts
 
 
+
+=item B<-bsf[:>I<stream_specifier>B<]> I<bitstream_filters> B<(>I<output,per-stream>B<)>
+
+Set bitstream filters for matching streams. I<bistream_filters> is
+a comma-separated list of bitstream filters. Use the C<-bsfs> option
+to get the list of bitstream filters.
+	
+	ffmpeg -i h264.mp4 -c:v copy -vbsf h264_mp4toannexb -an out.h264
+
+	
+	ffmpeg -i file.mov -an -vn -sbsf mov2textsub -c:s copy -f rawvideo sub.txt
+
+
+
+=item B<-tag[:>I<stream_specifier>B<]> I<codec_tag> B<(>I<per-stream>B<)>
+
+Force a tag/fourcc for matching streams.
+
+
+=item B<-timecode> I<hh>B<:>I<mm>B<:>I<ss>B<SEP>I<ff>
+
+Specify Timecode for writing. I<SEP> is ':' for non drop timecode and ';'
+(or '.') for drop.
+	
+	ffmpeg -i input.mpg -timecode 01:02:03.04 -r 30000/1001 -s ntsc output.mpg
+
+
 =back
 
 
 
 =head2 Preset files
 
-
 A preset file contains a sequence of I<option>=I<value> pairs,
 one for each line, specifying a sequence of options which would be
 awkward to specify on the command line. Lines starting with the hash
 ('#') character are ignored and are used to provide comments. Check
-the F<ffpresets> directory in the FFmpeg source tree for examples.
+the F<presets> directory in the FFmpeg source tree for examples.
 
 Preset files are specified with the C<vpre>, C<apre>,
 C<spre>, and C<fpre> options. The C<fpre> option takes the
@@ -1542,7 +1917,7 @@ the Linux player does not seem to be very fast, so it can miss
 frames. An example is:
 
 	
-	ffmpeg -g 3 -r 3 -t 10 -b 50k -s qcif -f rv10 /tmp/b.rm
+	ffmpeg -g 3 -r 3 -t 10 -b:v 50k -s qcif -f rv10 /tmp/b.rm
 
 
 
@@ -1578,18 +1953,28 @@ To have a constant quality (but a variable bitrate), use the option
 quality).
 
 
-=item *
-
-When converting video files, you can use the '-sameq' option which
-uses the same quality factor in the encoder as in the decoder.
-It allows almost lossless encoding.
-
-
 =back
 
 
 =head1 EXAMPLES
 
+
+
+=head2 Preset files
+
+
+A preset file contains a sequence of I<option=value> pairs, one for
+each line, specifying a sequence of options which can be specified also on
+the command line. Lines starting with the hash ('#') character are ignored and
+are used to provide comments. Empty lines are also ignored. Check the
+F<presets> directory in the FFmpeg source tree for examples.
+
+Preset files are specified with the C<pre> option, this option takes a
+preset name as input.  FFmpeg searches for a file named I<preset_name>.avpreset in
+the directories F<$AVCONV_DATADIR> (if set), and F<$HOME/.ffmpeg>, and in
+the data directory defined at configuration time (usually F<$PREFIX/share/ffmpeg>)
+in that order.  For example, if the argument is C<libx264-max>, it will
+search for the file F<libx264-max.avpreset>.
 
 
 =head2 Video and Audio grabbing
@@ -1602,9 +1987,14 @@ and audio directly.
 	ffmpeg -f oss -i /dev/dsp -f video4linux2 -i /dev/video0 /tmp/out.mpg
 
 
+Or with an ALSA audio source (mono input, card id 1) instead of OSS:
+	
+	ffmpeg -f alsa -ac 1 -i hw:1 -f video4linux2 -i /dev/video0 /tmp/out.mpg
+
+
 Note that you must activate the right video source and channel before
-launching ffmpeg with any TV viewer such as xawtv
-(E<lt>B<http://linux.bytesex.org/xawtv/>E<gt>) by Gerd Knorr. You also
+launching ffmpeg with any TV viewer such as
+ xawtv (C<http://linux.bytesex.org/xawtv/>) by Gerd Knorr. You also
 have to set the audio recording levels correctly with a
 standard mixer.
 
@@ -1710,7 +2100,7 @@ You can encode to several formats at the same time and define a
 mapping from input stream to output streams:
 
 	
-	ffmpeg -i /tmp/a.wav -ab 64k /tmp/a.mp2 -ab 128k /tmp/b.mp2 -map 0:0 -map 0:0
+	ffmpeg -i /tmp/a.wav -map 0:a -b:a 64k /tmp/a.mp2 -map 0:a -b:a 128k /tmp/b.mp2
 
 
 Converts a.wav to a.mp2 at 64 kbits and to b.mp2 at 128 kbits. '-map
@@ -1723,7 +2113,7 @@ stream, in the order of the definition of output streams.
 You can transcode decrypted VOBs:
 
 	
-	ffmpeg -i snatch_1.vob -f avi -vcodec mpeg4 -b 800k -g 300 -bf 2 -acodec libmp3lame -ab 128k snatch.avi
+	ffmpeg -i snatch_1.vob -f avi -c:v mpeg4 -b:v 800k -g 300 -bf 2 -c:a libmp3lame -b:a 128k snatch.avi
 
 
 This is a typical DVD ripping example; the input is a VOB file, the
@@ -1771,16 +2161,11 @@ only formats accepting a normal integer are suitable.
 You can put many streams of the same type in the output:
 
 	
-	ffmpeg -i test1.avi -i test2.avi -vcodec copy -acodec copy -vcodec copy -acodec copy test12.avi -newvideo -newaudio
+	ffmpeg -i test1.avi -i test2.avi -map 0.3 -map 0.2 -map 0.1 -map 0.0 -c copy test12.nut
 
 
-In addition to the first video and audio streams, the resulting
-output file F<test12.avi> will contain the second video
-and the second audio stream found in the input streams list.
-
-The C<-newvideo>, C<-newaudio> and C<-newsubtitle>
-options have to be specified immediately after the name of the output
-file to which you want to add them.
+The resulting output file F<test12.avi> will contain first four streams from
+the input file in reverse order.
 
 
 =back
@@ -1789,7 +2174,7 @@ file to which you want to add them.
 =head1 EXPRESSION EVALUATION
 
 
-When evaluating an arithemetic expression, FFmpeg uses an internal
+When evaluating an arithmetic expression, FFmpeg uses an internal
 formula evaluator, implemented through the F<libavutil/eval.h>
 interface.
 
@@ -1888,12 +2273,13 @@ Allow to store the value of the expression I<expr> in an internal
 variable. I<var> specifies the number of the variable where to
 store the value, and it is a value ranging from 0 to 9. The function
 returns the value stored in the internal variable.
+Note, Variables are currently not shared between expressions.
 
 
 =item B<ld(var)>
 
 Allow to load the value of the internal variable with number
-I<var>, which was previosly stored with st(I<var>, I<expr>).
+I<var>, which was previously stored with st(I<var>, I<expr>).
 The function returns the loaded value.
 
 
@@ -1938,22 +2324,75 @@ Return 1.0 if I<expr> is zero, 0.0 otherwise.
 Compute the power of I<x> elevated I<y>, it is equivalent to
 "(I<x>)^(I<y>)".
 
+
+=item B<random(x)>
+
+Return a pseudo random value between 0.0 and 1.0. I<x> is the index of the
+internal variable which will be used to save the seed/state.
+
+
+=item B<hypot(x, y)>
+
+This function is similar to the C function with the same name; it returns
+"sqrt(I<x>*I<x> + I<y>*I<y>)", the length of the hypotenuse of a
+right triangle with sides of length I<x> and I<y>, or the distance of the
+point (I<x>, I<y>) from the origin.
+
+
+=item B<gcd(x, y)>
+
+Return the greatest common divisor of I<x> and I<y>. If both I<x> and
+I<y> are 0 or either or both are less than zero then behavior is undefined.
+
+
+=item B<if(x, y)>
+
+Evaluate I<x>, and if the result is non-zero return the result of
+the evaluation of I<y>, return 0 otherwise.
+
+
+=item B<ifnot(x, y)>
+
+Evaluate I<x>, and if the result is zero return the result of the
+evaluation of I<y>, return 0 otherwise.
+
 =back
 
 
-Note that:
+The following constants are available:
+
+=over 4
+
+
+=item B<PI>
+
+area of the unit disc, approximately 3.14
+
+=item B<E>
+
+exp(1) (Euler's number), approximately 2.718
+
+=item B<PHI>
+
+golden ratio (1+sqrt(5))/2, approximately 1.618
+
+=back
+
+
+Assuming that an expression is considered "true" if it has a non-zero
+value, note that:
 
 C<*> works like AND
 
 C<+> works like OR
 
-thus
+and the construct:
 	
 	if A then B else C
 
 is equivalent to
 	
-	A*B + not(A)*C
+	if(A,B) + ifnot(A,C)
 
 
 In your C code, you can extend the list of unary and binary functions,
@@ -2086,7 +2525,7 @@ follows.
 =head2 rawvideo
 
 
-Rawvideo decoder.
+Raw video decoder.
 
 This decoder decodes rawvideo streams.
 
@@ -2123,6 +2562,20 @@ top-field-first is assumed
 
 =back
 
+
+
+=head1 AUDIO DECODERS
+
+
+
+=head2 ffwavesynth
+
+
+Internal wave synthetizer.
+
+This decoder generates wave patterns according to predefined sequences. Its
+use is purely internal and the format of the data it accepts is not publicly
+documented.
 
 
 =head1 ENCODERS
@@ -2706,14 +3159,14 @@ Not Indicated (default)
 
 =item B<on>
 
-Dolby Surround EX On
+Dolby Surround EX Off
 
 =item B<2>
 
 
 =item B<off>
 
-Dolby Surround EX Off
+Dolby Surround EX On
 
 =back
 
@@ -2741,14 +3194,14 @@ Not Indicated (default)
 
 =item B<on>
 
-Dolby Headphone On
+Dolby Headphone Off
 
 =item B<2>
 
 
 =item B<off>
 
-Dolby Headphone Off
+Dolby Headphone On
 
 =back
 
@@ -3106,42 +3559,39 @@ Set the encoding preset.
 =item B<tune> I<tune_name>
 
 Tune the encoding params.
-Deprecated in favor of I<x264_opts>
 
 
 =item B<fastfirstpass> I<bool>
 
 Use fast settings when encoding first pass, default value is 1.
-Deprecated in favor of I<x264_opts>.
 
 
 =item B<profile> I<profile_name>
 
 Set profile restrictions.
-Deprecated in favor of I<x264_opts>.
 
 
 =item B<level> I<level>
 
 Specify level (as defined by Annex A).
-Deprecated in favor of I<x264_opts>.
+Deprecated in favor of I<x264opts>.
 
 
 =item B<passlogfile> I<filename>
 
 Specify filename for 2 pass stats.
-Deprecated in favor of I<x264_opts>.
+Deprecated in favor of I<x264opts> (see I<stats> libx264 option).
 
 
 =item B<wpredp> I<wpred_type>
 
 Specify Weighted prediction for P-frames.
-Deprecated in favor of I<x264_opts>.
+Deprecated in favor of I<x264opts> (see I<weightp> libx264 option).
 
 
 =item B<x264opts> I<options>
 
-Allow to set any x264 option, see x264 manual for a list.
+Allow to set any x264 option, see x264 --fullhelp for a list.
 
 I<options> is a list of I<key>=I<value> couples separated by
 ":".
@@ -3149,7 +3599,7 @@ I<options> is a list of I<key>=I<value> couples separated by
 =back
 
 
-For example to specify libx264 encoding options with F<ffmpeg>:
+For example to specify libx264 encoding options with B<ffmpeg>:
 	
 	ffmpeg -i foo.mpg -vcodec libx264 -x264opts keyint=123:min-keyint=20 -an out.mkv
 
@@ -3211,19 +3661,19 @@ F<i%m%g-2.jpg>, ..., F<i%m%g-10.jpg>, etc.
 The size, the pixel format, and the format of each image must be the
 same for all the files in the sequence.
 
-The following example shows how to use F<ffmpeg> for creating a
+The following example shows how to use B<ffmpeg> for creating a
 video from the images in the file sequence F<img-001.jpeg>,
-F<img-002.jpeg>, ..., assuming an input framerate of 10 frames per
+F<img-002.jpeg>, ..., assuming an input frame rate of 10 frames per
 second:
 	
-	ffmpeg -r 10 -f image2 -i 'img-%03d.jpeg' out.avi
+	ffmpeg -i 'img-%03d.jpeg' -r 10 out.mkv
 
 
 Note that the pattern must not necessarily contain "%d" or
 "%0I<N>d", for example to convert a single image file
 F<img.jpeg> you can employ the command:
 	
-	ffmpeg -f image2 -i img.jpeg img.png
+	ffmpeg -i img.jpeg img.png
 
 
 
@@ -3238,6 +3688,38 @@ the discard flags on AVStreams (by pressing 'a' or 'v' in ffplay),
 the caller can decide which variant streams to actually receive.
 The total bitrate of the variant that the stream belongs to is
 available in a metadata key named "variant_bitrate".
+
+
+=head2 sbg
+
+
+SBaGen script demuxer.
+
+This demuxer reads the script language used by SBaGen
+E<lt>B<http://uazu.net/sbagen/>E<gt> to generate binaural beats sessions. A SBG
+script looks like that:
+	
+	-SE
+	a: 300-2.5/3 440+4.5/0
+	b: 300-2.5/0 440+4.5/3
+	off: -
+	NOW      == a
+	+0:07:00 == b
+	+0:14:00 == a
+	+0:21:00 == b
+	+0:30:00    off
+
+
+A SBG script can mix absolute and relative timestamps. If the script uses
+either only absolute timestamps (including the script start time) or only
+relative ones, then its layout is fixed, and the conversion is
+straightforward. On the other hand, if the script mixes both kind of
+timestamps, then the I<NOW> reference for relative timestamps will be
+taken from the current time of day at the time the script is read, and the
+script layout will be frozen according to that reference. That means that if
+the script is directly played, the actual times will match the absolute
+timestamps up to the sound controller's clock accuracy, but if the user
+somehow pauses the playback or seeks, all times will be shifted accordingly.
 
 
 =head1 MUXERS
@@ -3287,15 +3769,15 @@ You can print the CRC to stdout with the command:
 	ffmpeg -i INPUT -f crc -
 
 
-You can select the output format of each frame with F<ffmpeg> by
+You can select the output format of each frame with B<ffmpeg> by
 specifying the audio and video codec and format. For example to
 compute the CRC of the input audio converted to PCM unsigned 8-bit
 and the input video converted to MPEG-2 video, use the command:
 	
-	ffmpeg -i INPUT -acodec pcm_u8 -vcodec mpeg2video -f crc -
+	ffmpeg -i INPUT -c:a pcm_u8 -c:v mpeg2video -f crc -
 
 
-See also the C<framecrc> muxer.
+See also the framecrc muxer.
 
 
 
@@ -3325,16 +3807,17 @@ You can print the CRC of each decoded frame to stdout with the command:
 	ffmpeg -i INPUT -f framecrc -
 
 
-You can select the output format of each frame with F<ffmpeg> by
+You can select the output format of each frame with B<ffmpeg> by
 specifying the audio and video codec and format. For example, to
 compute the CRC of each decoded input audio frame converted to PCM
 unsigned 8-bit and of each decoded input video frame converted to
 MPEG-2 video, use the command:
 	
-	ffmpeg -i INPUT -acodec pcm_u8 -vcodec mpeg2video -f framecrc -
+	ffmpeg -i INPUT -c:a pcm_u8 -c:v mpeg2video -f framecrc -
 
 
-See also the C<crc> muxer.
+See also the crc muxer.
+
 
 
 =head2 image2
@@ -3367,26 +3850,26 @@ The pattern "img%%-%d.jpg" will specify a sequence of filenames of the
 form F<img%-1.jpg>, F<img%-2.jpg>, ..., F<img%-10.jpg>,
 etc.
 
-The following example shows how to use F<ffmpeg> for creating a
+The following example shows how to use B<ffmpeg> for creating a
 sequence of files F<img-001.jpeg>, F<img-002.jpeg>, ...,
 taking one image every second from the input video:
 	
-	ffmpeg -i in.avi -r 1 -f image2 'img-%03d.jpeg'
+	ffmpeg -i in.avi -vsync 1 -r 1 -f image2 'img-%03d.jpeg'
 
 
-Note that with F<ffmpeg>, if the format is not specified with the
+Note that with B<ffmpeg>, if the format is not specified with the
 C<-f> option and the output filename specifies an image file
 format, the image2 muxer is automatically selected, so the previous
 command can be written as:
 	
-	ffmpeg -i in.avi -r 1 'img-%03d.jpeg'
+	ffmpeg -i in.avi -vsync 1 -r 1 'img-%03d.jpeg'
 
 
 Note also that the pattern must not necessarily contain "%d" or
 "%0I<N>d", for example to create a single image file
 F<img.jpeg> from the input video you can employ the command:
 	
-	ffmpeg -i in.avi -f image2 -vframes 1 img.jpeg
+	ffmpeg -i in.avi -f image2 -frames:v 1 img.jpeg
 
 
 The image muxer supports the .Y.U.V image file format. This format is
@@ -3394,6 +3877,26 @@ special in that that each image frame consists of three files, for
 each of the YUV420P components. To read or write this image file format,
 specify the name of the '.Y' file. The muxer will automatically open the
 '.U' and '.V' files as required.
+
+
+=head2 mov
+
+
+MOV / MP4 muxer
+
+The muxer options are:
+
+
+=over 4
+
+
+=item B<-moov_size> I<bytes>
+
+Reserves space for the moov atom at the beginning of the file instead of placing the
+moov atom at the end. If the space reserved is insufficient, muxing will fail.
+
+=back
+
 
 
 =head2 mpegts
@@ -3441,7 +3944,7 @@ C<service_provider> is "FFmpeg" and the default for
 C<service_name> is "Service01".
 
 	
-	ffmpeg -i file.mpg -acodec copy -vcodec copy \
+	ffmpeg -i file.mpg -c copy \
 	     -mpegts_original_network_id 0x1122 \
 	     -mpegts_transport_stream_id 0x3344 \
 	     -mpegts_service_id 0x5566 \
@@ -3461,14 +3964,14 @@ Null muxer.
 This muxer does not generate any output file, it is mainly useful for
 testing or benchmarking purposes.
 
-For example to benchmark decoding with F<ffmpeg> you can use the
+For example to benchmark decoding with B<ffmpeg> you can use the
 command:
 	
 	ffmpeg -benchmark -i INPUT -f null out.null
 
 
 Note that the above command does not read or write the F<out.null>
-file, but specifying the output file is required by the F<ffmpeg>
+file, but specifying the output file is required by the B<ffmpeg>
 syntax.
 
 Alternatively you can write the command as:
@@ -3590,7 +4093,52 @@ Both eyes laced in one Block, Right-eye view is first
 
 For example a 3D WebM clip can be created using the following command line:
 	
-	ffmpeg -i sample_left_right_clip.mpg -an -vcodec libvpx -metadata stereo_mode=left_right -y stereo_clip.webm
+	ffmpeg -i sample_left_right_clip.mpg -an -c:v libvpx -metadata stereo_mode=left_right -y stereo_clip.webm
+
+
+
+=head2 segment
+
+
+Basic stream segmenter.
+
+The segmenter muxer outputs streams to a number of separate files of nearly
+fixed duration. Output filename pattern can be set in a fashion similar to
+image2.
+
+Every segment starts with a video keyframe, if a video stream is present.
+The segment muxer works best with a single constant frame rate video.
+
+Optionally it can generate a flat list of the created segments, one segment
+per line.
+
+
+=over 4
+
+
+=item B<segment_format> I<format>
+
+Override the inner container format, by default it is guessed by the filename
+extension.
+
+=item B<segment_time> I<t>
+
+Set segment duration to I<t> seconds.
+
+=item B<segment_list> I<name>
+
+Generate also a listfile named I<name>.
+
+=item B<segment_list_size> I<size>
+
+Overwrite the listfile once it reaches I<size> entries.
+
+=back
+
+
+	
+	ffmpeg -i in.mkv -c copy -map 0 -f segment -list out.list out%03d.nut
+
 
 
 
@@ -3640,7 +4188,7 @@ specify card number or identifier, device number and subdevice number
 To see the list of cards currently recognized by your system check the
 files F</proc/asound/cards> and F</proc/asound/devices>.
 
-For example to capture with F<ffmpeg> from an ALSA device with
+For example to capture with B<ffmpeg> from an ALSA device with
 card id 0, you may run the command:
 	
 	ffmpeg -f alsa -i hw:0 alsaout.wav
@@ -3654,6 +4202,143 @@ E<lt>B<http://www.alsa-project.org/alsa-doc/alsa-lib/pcm.html>E<gt>
 
 
 BSD video input device.
+
+
+=head2 dshow
+
+
+Windows DirectShow input device.
+
+DirectShow support is enabled when FFmpeg is built with mingw-w64.
+Currently only audio and video devices are supported.
+
+Multiple devices may be opened as separate inputs, but they may also be
+opened on the same input, which should improve synchronism between them.
+
+The input name should be in the format:
+
+	
+	<TYPE>=<NAME>[:<TYPE>=<NAME>]
+
+
+where I<TYPE> can be either I<audio> or I<video>,
+and I<NAME> is the device's name.
+
+
+=head3 Options
+
+
+If no options are specified, the device's defaults are used.
+If the device does not support the requested options, it will
+fail to open.
+
+
+=over 4
+
+
+
+=item B<video_size>
+
+Set the video size in the captured video.
+
+
+=item B<framerate>
+
+Set the framerate in the captured video.
+
+
+=item B<sample_rate>
+
+Set the sample rate (in Hz) of the captured audio.
+
+
+=item B<sample_size>
+
+Set the sample size (in bits) of the captured audio.
+
+
+=item B<channels>
+
+Set the number of channels in the captured audio.
+
+
+=item B<list_devices>
+
+If set to B<true>, print a list of devices and exit.
+
+
+=item B<list_options>
+
+If set to B<true>, print a list of selected device's options
+and exit.
+
+
+=item B<video_device_number>
+
+Set video device number for devices with same name (starts at 0,
+defaults to 0).
+
+
+=item B<audio_device_number>
+
+Set audio device number for devices with same name (starts at 0,
+defaults to 0).
+
+
+=back
+
+
+
+=head3 Examples
+
+
+
+=over 4
+
+
+
+=item *
+
+Print the list of DirectShow supported devices and exit:
+	
+	$ ffmpeg -list_devices true -f dshow -i dummy
+
+
+
+=item *
+
+Open video device I<Camera>:
+	
+	$ ffmpeg -f dshow -i video="Camera"
+
+
+
+=item *
+
+Open second video device with name I<Camera>:
+	
+	$ ffmpeg -f dshow -video_device_number 1 -i video="Camera"
+
+
+
+=item *
+
+Open video device I<Camera> and audio device I<Microphone>:
+	
+	$ ffmpeg -f dshow -i video="Camera":audio="Microphone"
+
+
+
+=item *
+
+Print the list of supported options in selected device and exit:
+	
+	$ ffmpeg -list_options true -f dshow -i video="Camera"
+
+
+
+=back
+
 
 
 =head2 dv1394
@@ -3676,14 +4361,14 @@ For more detailed information read the file
 Documentation/fb/framebuffer.txt included in the Linux source tree.
 
 To record from the framebuffer device F</dev/fb0> with
-F<ffmpeg>:
+B<ffmpeg>:
 	
 	ffmpeg -f fbdev -r 10 -i /dev/fb0 out.avi
 
 
 You can take a single screenshot image with the command:
 	
-	ffmpeg -f fbdev -vframes 1 -r 1 -i /dev/fb0 screenshot.jpeg
+	ffmpeg -f fbdev -frames:v 1 -r 1 -i /dev/fb0 screenshot.jpeg
 
 
 See also E<lt>B<http://linux-fbdev.sourceforge.net/>E<gt>, and fbset(1).
@@ -3707,15 +4392,15 @@ device.
 Once you have created one or more JACK readable clients, you need to
 connect them to one or more JACK writable clients.
 
-To connect or disconnect JACK clients you can use the
-F<jack_connect> and F<jack_disconnect> programs, or do it
-through a graphical interface, for example with F<qjackctl>.
+To connect or disconnect JACK clients you can use the B<jack_connect>
+and B<jack_disconnect> programs, or do it through a graphical interface,
+for example with B<qjackctl>.
 
 To list the JACK clients and their properties you can invoke the command
-F<jack_lsp>.
+B<jack_lsp>.
 
 Follows an example which shows how to capture a JACK readable client
-with F<ffmpeg>.
+with B<ffmpeg>.
 	
 	# Create a JACK writable client with name "ffmpeg".
 	$ ffmpeg -f jack -i ffmpeg -y out.wav
@@ -3740,10 +4425,219 @@ For more information read:
 E<lt>B<http://jackaudio.org/>E<gt>
 
 
+=head2 lavfi
+
+
+Libavfilter input virtual device.
+
+This input device reads data from the open output pads of a libavfilter
+filtergraph.
+
+For each filtergraph open output, the input device will create a
+corresponding stream which is mapped to the generated output. Currently
+only video data is supported. The filtergraph is specified through the
+option B<graph>.
+
+
+=head3 Options
+
+
+
+=over 4
+
+
+
+=item B<graph>
+
+Specify the filtergraph to use as input. Each video open output must be
+labelled by a unique string of the form "outI<N>", where I<N> is a
+number starting from 0 corresponding to the mapped input stream
+generated by the device.
+The first unlabelled output is automatically assigned to the "out0"
+label, but all the others need to be specified explicitly.
+
+If not specified defaults to the filename specified for the input
+device.
+
+=back
+
+
+
+=head3 Examples
+
+
+
+=over 4
+
+
+=item *
+
+Create a color video stream and play it back with B<ffplay>:
+	
+	ffplay -f lavfi -graph "color=pink [out0]" dummy
+
+
+
+=item *
+
+As the previous example, but use filename for specifying the graph
+description, and omit the "out0" label:
+	
+	ffplay -f lavfi color=pink
+
+
+
+=item *
+
+Create three different video test filtered sources and play them:
+	
+	ffplay -f lavfi -graph "testsrc [out0]; testsrc,hflip [out1]; testsrc,negate [out2]" test3
+
+
+
+=item *
+
+Read an audio stream from a file using the amovie source and play it
+back with B<ffplay>:
+	
+	ffplay -f lavfi "amovie=test.wav"
+
+
+
+=item *
+
+Read an audio stream and a video stream and play it back with
+B<ffplay>:
+	
+	ffplay -f lavfi "movie=test.avi[out0];amovie=test.wav[out1]"
+
+
+
+=back
+
+
+
 =head2 libdc1394
 
 
 IIDC1394 input device, based on libdc1394 and libraw1394.
+
+
+=head2 openal
+
+
+The OpenAL input device provides audio capture on all systems with a
+working OpenAL 1.1 implementation.
+
+To enable this input device during configuration, you need OpenAL
+headers and libraries installed on your system, and need to configure
+FFmpeg with C<--enable-openal>.
+
+OpenAL headers and libraries should be provided as part of your OpenAL
+implementation, or as an additional download (an SDK). Depending on your
+installation you may need to specify additional flags via the
+C<--extra-cflags> and C<--extra-ldflags> for allowing the build
+system to locate the OpenAL headers and libraries.
+
+An incomplete list of OpenAL implementations follows:
+
+
+=over 4
+
+
+=item B<Creative>
+
+The official Windows implementation, providing hardware acceleration
+with supported devices and software fallback.
+See E<lt>B<http://openal.org/>E<gt>.
+
+=item B<OpenAL Soft>
+
+Portable, open source (LGPL) software implementation. Includes
+backends for the most common sound APIs on the Windows, Linux,
+Solaris, and BSD operating systems.
+See E<lt>B<http://kcat.strangesoft.net/openal.html>E<gt>.
+
+=item B<Apple>
+
+OpenAL is part of Core Audio, the official Mac OS X Audio interface.
+See E<lt>B<http://developer.apple.com/technologies/mac/audio-and-video.html>E<gt>
+
+=back
+
+
+This device allows to capture from an audio input device handled
+through OpenAL.
+
+You need to specify the name of the device to capture in the provided
+filename. If the empty string is provided, the device will
+automatically select the default device. You can get the list of the
+supported devices by using the option I<list_devices>.
+
+
+=head3 Options
+
+
+
+=over 4
+
+
+
+=item B<channels>
+
+Set the number of channels in the captured audio. Only the values
+B<1> (monaural) and B<2> (stereo) are currently supported.
+Defaults to B<2>.
+
+
+=item B<sample_size>
+
+Set the sample size (in bits) of the captured audio. Only the values
+B<8> and B<16> are currently supported. Defaults to
+B<16>.
+
+
+=item B<sample_rate>
+
+Set the sample rate (in Hz) of the captured audio.
+Defaults to B<44.1k>.
+
+
+=item B<list_devices>
+
+If set to B<true>, print a list of devices and exit.
+Defaults to B<false>.
+
+
+=back
+
+
+
+=head3 Examples
+
+
+Print the list of OpenAL supported devices and exit:
+	
+	$ ffmpeg -list_devices true -f openal -i dummy out.ogg
+
+
+Capture from the OpenAL device F<DR-BT101 via PulseAudio>:
+	
+	$ ffmpeg -f openal -i 'DR-BT101 via PulseAudio' out.ogg
+
+
+Capture from the default device (note the empty string '' as filename):
+	
+	$ ffmpeg -f openal -i '' out.ogg
+
+
+Capture from two devices simultaneously, writing to two different files,
+within the same B<ffmpeg> command:
+	
+	$ ffmpeg -f openal -i 'DR-BT101 via PulseAudio' out1.ogg -f openal -i 'ALSA Default' out2.ogg
+
+Note: not all OpenAL implementations support multiple simultaneous capture -
+try the latest OpenAL Soft if the above does not work.
 
 
 =head2 oss
@@ -3755,7 +4649,7 @@ The filename to provide to the input device is the device node
 representing the OSS input device, and is usually set to
 F</dev/dsp>.
 
-For example to grab from F</dev/dsp> using F<ffmpeg> use the
+For example to grab from F</dev/dsp> using B<ffmpeg> use the
 command:
 	
 	ffmpeg -f oss -i /dev/dsp /tmp/oss.wav
@@ -3763,6 +4657,105 @@ command:
 
 For more information about OSS see:
 E<lt>B<http://manuals.opensound.com/usersguide/dsp.html>E<gt>
+
+
+=head2 pulse
+
+
+pulseaudio input device.
+
+To enable this input device during configuration you need libpulse-simple
+installed in your system.
+
+The filename to provide to the input device is a source device or the
+string "default"
+
+To list the pulse source devices and their properties you can invoke
+the command B<pactl list sources>.
+
+	
+	ffmpeg -f pulse -i default /tmp/pulse.wav
+
+
+
+=head3 I<server> AVOption
+
+
+The syntax is:
+	
+	-server <server name>
+
+
+Connects to a specific server.
+
+
+=head3 I<name> AVOption
+
+
+The syntax is:
+	
+	-name <application name>
+
+
+Specify the application name pulse will use when showing active clients,
+by default it is the LIBAVFORMAT_IDENT string
+
+
+=head3 I<stream_name> AVOption
+
+
+The syntax is:
+	
+	-stream_name <stream name>
+
+
+Specify the stream name pulse will use when showing active streams,
+by default it is "record"
+
+
+=head3 I<sample_rate> AVOption
+
+
+The syntax is:
+	
+	-sample_rate <samplerate>
+
+
+Specify the samplerate in Hz, by default 48kHz is used.
+
+
+=head3 I<channels> AVOption
+
+
+The syntax is:
+	
+	-channels <N>
+
+
+Specify the channels in use, by default 2 (stereo) is set.
+
+
+=head3 I<frame_size> AVOption
+
+
+The syntax is:
+	
+	-frame_size <bytes>
+
+
+Specify the number of byte per frame, by default it is set to 1024.
+
+
+=head3 I<fragment_size> AVOption
+
+
+The syntax is:
+	
+	-fragment_size <bytes>
+
+
+Specify the minimal buffering fragment in pulseaudio, it will affect the
+audio latency. By default it is unset.
 
 
 =head2 sndio
@@ -3777,7 +4770,7 @@ The filename to provide to the input device is the device node
 representing the sndio input device, and is usually set to
 F</dev/audio0>.
 
-For example to grab from F</dev/audio0> using F<ffmpeg> use the
+For example to grab from F</dev/audio0> using B<ffmpeg> use the
 command:
 	
 	ffmpeg -f sndio -i /dev/audio0 /tmp/oss.wav
@@ -3797,16 +4790,19 @@ the device.
 
 Video4Linux and Video4Linux2 devices only support a limited set of
 I<width>xI<height> sizes and framerates. You can check which are
-supported for example with the command F<dov4l> for Video4Linux
-devices and the command F<v4l-info> for Video4Linux2 devices.
+supported for example with the command B<dov4l> for Video4Linux
+devices and using B<-list_formats all> for Video4Linux2 devices.
 
 If the size for the device is set to 0x0, the input device will
-try to autodetect the size to use.
+try to auto-detect the size to use.
 Only for the video4linux2 device, if the frame rate is set to 0/0 the
 input device will use the frame rate value already set in the driver.
 
 Video4Linux support is deprecated since Linux 2.6.30, and will be
 dropped in later versions.
+
+Note that if FFmpeg is build with v4l-utils support ("--enable-libv4l2"
+option), it will always be used.
 
 Follow some usage examples of the video4linux devices with the ff*
 tools.
@@ -3815,14 +4811,17 @@ tools.
 	# to the default of 25/1.
 	ffplay -s 320x240 -f video4linux /dev/video0
 	
-	# Grab and show the input of a video4linux2 device, autoadjust size.
+	# Grab and show the input of a video4linux2 device, auto-adjust size.
 	ffplay -f video4linux2 /dev/video0
 	
-	# Grab and record the input of a video4linux2 device, autoadjust size,
+	# Grab and record the input of a video4linux2 device, auto-adjust size,
 	# frame rate value defaults to 0/0 so it is read from the video4linux2
 	# driver.
 	ffmpeg -f video4linux2 -i /dev/video0 out.mpeg
 
+
+"v4l" and "v4l2" can be used as aliases for the respective "video4linux" and
+"video4linux2".
 
 
 =head2 vfwcap
@@ -3849,7 +4848,7 @@ The filename passed as input has the syntax:
 
 I<hostname>:I<display_number>.I<screen_number> specifies the
 X11 display name of the screen to grab from. I<hostname> can be
-ommitted, and defaults to "localhost". The environment variable
+omitted, and defaults to "localhost". The environment variable
 B<DISPLAY> contains the default display name.
 
 I<x_offset> and I<y_offset> specify the offsets of the grabbed
@@ -3858,15 +4857,58 @@ default to 0.
 
 Check the X11 documentation (e.g. man X) for more detailed information.
 
-Use the F<dpyinfo> program for getting basic information about the
+Use the B<dpyinfo> program for getting basic information about the
 properties of your X11 display (e.g. grep for "name" or "dimensions").
 
-For example to grab from F<:0.0> using F<ffmpeg>:
+For example to grab from F<:0.0> using B<ffmpeg>:
 	
 	ffmpeg -f x11grab -r 25 -s cif -i :0.0 out.mpg
 	
 	# Grab at position 10,20.
-	ffmpeg -f x11grab -25 -s cif -i :0.0+10,20 out.mpg
+	ffmpeg -f x11grab -r 25 -s cif -i :0.0+10,20 out.mpg
+
+
+
+=head3 I<follow_mouse> AVOption
+
+
+The syntax is:
+	
+	-follow_mouse centered|<PIXELS>
+
+
+When it is specified with "centered", the grabbing region follows the mouse
+pointer and keeps the pointer at the center of region; otherwise, the region
+follows only when the mouse pointer reaches within I<PIXELS> (greater than
+zero) to the edge of region.
+
+For example:
+	
+	ffmpeg -f x11grab -follow_mouse centered -r 25 -s cif -i :0.0 out.mpg
+	
+	# Follows only when the mouse pointer reaches within 100 pixels to edge
+	ffmpeg -f x11grab -follow_mouse 100 -r 25 -s cif -i :0.0 out.mpg
+
+
+
+=head3 I<show_region> AVOption
+
+
+The syntax is:
+	
+	-show_region 1
+
+
+If I<show_region> AVOption is specified with I<1>, then the grabbing
+region will be indicated on screen. With this option, it's easy to know what is
+being grabbed if only a portion of the screen is grabbed.
+
+For example:
+	
+	ffmpeg -f x11grab -show_region 1 -r 25 -s cif -i :0.0+10,20 out.mpg
+	
+	# With follow_mouse
+	ffmpeg -f x11grab -follow_mouse centered -show_region 1  -r 25 -s cif -i :0.0 out.mpg
 
 
 
@@ -3906,7 +4948,7 @@ OSS (Open Sound System) output device.
 =head2 sdl
 
 
-SDL (Simple Directmedia Layer) output device.
+SDL (Simple DirectMedia Layer) output device.
 
 This output devices allows to show a video stream in an SDL
 window. Only one SDL window is allowed per application, so you can
@@ -3952,7 +4994,7 @@ If not specified it defaults to the size of the input video.
 =head3 Examples
 
 
-The following command shows the F<ffmpeg> output is an
+The following command shows the B<ffmpeg> output is an
 SDL window, forcing its size to the qcif format:
 	
 	ffmpeg -i INPUT -vcodec rawvideo -pix_fmt yuv420p -window_size qcif -f sdl "SDL output"
@@ -4023,7 +5065,7 @@ resource to be concatenated, each one possibly specifying a distinct
 protocol.
 
 For example to read a sequence of files F<split1.mpeg>,
-F<split2.mpeg>, F<split3.mpeg> with F<ffplay> use the
+F<split2.mpeg>, F<split3.mpeg> with B<ffplay> use the
 command:
 	
 	ffplay concat:split1.mpeg\|split2.mpeg\|split3.mpeg
@@ -4040,7 +5082,7 @@ File access protocol.
 
 Allow to read from or read to a file.
 
-For example to read from a file F<input.mpeg> with F<ffmpeg>
+For example to read from a file F<input.mpeg> with B<ffmpeg>
 use the command:
 	
 	ffmpeg -i file:input.mpeg output.mpeg
@@ -4119,14 +5161,14 @@ pipe (e.g. 0 for stdin, 1 for stdout, 2 for stderr).  If I<number>
 is not specified, by default the stdout file descriptor will be used
 for writing, stdin for reading.
 
-For example to read from stdin with F<ffmpeg>:
+For example to read from stdin with B<ffmpeg>:
 	
 	cat test.wav | ffmpeg -i pipe:0
 	# ...this is the same as...
 	cat test.wav | ffmpeg -i pipe:
 
 
-For writing to stdout with F<ffmpeg>:
+For writing to stdout with B<ffmpeg>:
 	
 	ffmpeg -i test.wav -f avi pipe:1 | cat > test.avi
 	# ...this is the same as...
@@ -4142,8 +5184,8 @@ be seekable, so they will fail with the pipe output protocol.
 
 Real-Time Messaging Protocol.
 
-The Real-Time Messaging Protocol (RTMP) is used for streaming multime‐
-dia content across a TCP/IP network.
+The Real-Time Messaging Protocol (RTMP) is used for streaming multimedia
+content across a TCP/IP network.
 
 The required syntax is:
 	
@@ -4182,7 +5224,7 @@ application specified in I<app>, may be prefixed by "mp4:".
 =back
 
 
-For example to read with F<ffplay> a multimedia resource named
+For example to read with B<ffplay> a multimedia resource named
 "sample" from the application "vod" from an RTMP server "myserver":
 	
 	ffplay rtmp://myserver/vod/sample
@@ -4196,7 +5238,7 @@ Real-Time Messaging Protocol and its variants supported through
 librtmp.
 
 Requires the presence of the librtmp headers and library during
-configuration. You need to explicitely configure the build with
+configuration. You need to explicitly configure the build with
 "--enable-librtmp". If enabled this will replace the native RTMP
 protocol.
 
@@ -4220,12 +5262,12 @@ I<key>=I<val>.
 See the librtmp manual page (man 3 librtmp) for more information.
 
 For example, to stream a file in real-time to an RTMP server using
-F<ffmpeg>:
+B<ffmpeg>:
 	
 	ffmpeg -re -i myfile -f flv rtmp://myserver/live/mystream
 
 
-To play the same stream using F<ffplay>:
+To play the same stream using B<ffplay>:
 	
 	ffplay "rtmp://myserver/live/mystream live=1"
 
@@ -4247,15 +5289,18 @@ data transferred over RDT).
 
 The muxer can be used to send a stream using RTSP ANNOUNCE to a server
 supporting it (currently Darwin Streaming Server and Mischa Spiegelmock's
-RTSP server, E<lt>B<http://github.com/revmischa/rtsp-server>E<gt>).
+ RTSP server (C<http://github.com/revmischa/rtsp-server>)).
 
 The required syntax for a RTSP url is:
 	
-	rtsp://<hostname>[:<port>]/<path>[?<options>]
+	rtsp://<hostname>[:<port>]/<path>
 
 
-I<options> is a C<&>-separated list. The following options
+The following options (set on the B<ffmpeg>/B<ffplay> command
+line, or set in code via C<AVOption>s or in C<avformat_open_input>),
 are supported:
+
+Flags for C<rtsp_transport>:
 
 
 =over 4
@@ -4273,7 +5318,7 @@ Use TCP (interleaving within the RTSP control channel) as lower
 transport protocol.
 
 
-=item B<multicast>
+=item B<udp_multicast>
 
 Use UDP multicast as lower transport protocol.
 
@@ -4283,6 +5328,18 @@ Use UDP multicast as lower transport protocol.
 Use HTTP tunneling as lower transport protocol, which is useful for
 passing proxies.
 
+=back
+
+
+Multiple lower transport protocols may be specified, in that case they are
+tried one at a time (if the setup of one fails, the next one is tried).
+For the muxer, only the C<tcp> and C<udp> options are supported.
+
+Flags for C<rtsp_flags>:
+
+
+=over 4
+
 
 =item B<filter_src>
 
@@ -4291,16 +5348,12 @@ Accept packets only from negotiated peer address and port.
 =back
 
 
-Multiple lower transport protocols may be specified, in that case they are
-tried one at a time (if the setup of one fails, the next one is tried).
-For the muxer, only the C<tcp> and C<udp> options are supported.
-
 When receiving data over UDP, the demuxer tries to reorder received packets
 (since they may arrive out of order, or packets may get lost totally). In
 order for this to be enabled, a maximum delay must be specified in the
 C<max_delay> field of AVFormatContext.
 
-When watching multi-bitrate Real-RTSP streams with F<ffplay>, the
+When watching multi-bitrate Real-RTSP streams with B<ffplay>, the
 streams to display can be chosen with C<-vst> I<n> and
 C<-ast> I<n> for video and audio respectively, and can be switched
 on the fly by pressing C<v> and C<a>.
@@ -4310,13 +5363,13 @@ Example command lines:
 To watch a stream over UDP, with a max reordering delay of 0.5 seconds:
 
 	
-	ffplay -max_delay 500000 rtsp://server/video.mp4?udp
+	ffplay -max_delay 500000 -rtsp_transport udp rtsp://server/video.mp4
 
 
 To watch a stream tunneled over HTTP:
 
 	
-	ffplay rtsp://server/video.mp4?http
+	ffplay -rtsp_transport http rtsp://server/video.mp4
 
 
 To send a stream in realtime to a RTSP server, for others to watch:
@@ -4393,13 +5446,13 @@ To broadcast a stream on the local subnet, for watching in VLC:
 	ffmpeg -re -i <input> -f sap sap://224.0.0.255?same_port=1
 
 
-Similarly, for watching in ffplay:
+Similarly, for watching in B<ffplay>:
 
 	
 	ffmpeg -re -i <input> -f sap sap://224.0.0.255
 
 
-And for watching in ffplay, over IPv6:
+And for watching in B<ffplay>, over IPv6:
 
 	
 	ffmpeg -re -i <input> -f sap sap://[ff0e::1:2:3:4]
@@ -4493,6 +5546,13 @@ set the UDP buffer size in bytes
 override the local UDP port to bind with
 
 
+=item B<localaddr=>I<addr>
+
+Choose the local IP address. This is useful e.g. if sending multicast
+and the host has multiple interfaces, where the user can choose
+which interface to send on by specifying the IP address of that interface.
+
+
 =item B<pkt_size=>I<size>
 
 set the size in bytes of UDP packets
@@ -4523,7 +5583,7 @@ the specified peer address/port.
 =back
 
 
-Some usage examples of the udp protocol with F<ffmpeg> follow.
+Some usage examples of the udp protocol with B<ffmpeg> follow.
 
 To stream over UDP to a remote endpoint:
 	
@@ -4574,6 +5634,20 @@ Below is a description of the currently available bitstream filters.
 =head2 h264_mp4toannexb
 
 
+Convert an H.264 bitstream from length prefixed mode to start code
+prefixed mode (as defined in the Annex B of the ITU-T H.264
+specification).
+
+This is required by some streaming formats, typically the MPEG-2
+transport stream format ("mpegts").
+
+For example to remux an MP4 file containing an H.264 stream to mpegts
+format with B<ffmpeg>, you can use the command:
+
+	
+	ffmpeg -i INPUT.mp4 -codec copy -bsf:v h264_mp4toannexb OUTPUT.ts
+
+
 
 =head2 imx_dump_header
 
@@ -4589,7 +5663,7 @@ JPEG image. The individual frames can be extracted without loss,
 e.g. by
 
 	
-	ffmpeg -i ../some_mjpeg.avi -vcodec copy frames_%d.jpg
+	ffmpeg -i ../some_mjpeg.avi -c:v copy frames_%d.jpg
 
 
 Unfortunately, these chunks are incomplete JPEG images, because
@@ -4612,9 +5686,9 @@ stream (carrying the AVI1 header ID and lacking a DHT segment) to
 produce fully qualified JPEG images.
 
 	
-	ffmpeg -i mjpeg-movie.avi -vcodec copy -vbsf mjpeg2jpeg frame_%d.jpg
+	ffmpeg -i mjpeg-movie.avi -c:v copy -vbsf mjpeg2jpeg frame_%d.jpg
 	exiftran -i -9 frame*.jpg
-	ffmpeg -i frame_%d.jpg -vcodec copy rotated.avi
+	ffmpeg -i frame_%d.jpg -c:v copy rotated.avi
 
 
 
@@ -4663,9 +5737,9 @@ output pads is called a "sink".
 
 
 A filtergraph can be represented using a textual representation, which
-is recognized by the C<-vf> and C<-af> options of the ff*
-tools, and by the C<av_parse_graph()> function defined in
-F<libavfilter/avfiltergraph>.
+is recognized by the C<-vf> option of the ff*
+tools, and by the C<avfilter_graph_parse()> function defined in
+F<libavfilter/avfiltergraph.h>.
 
 A filterchain consists of a sequence of connected filters, each one
 connected to the previous one in the sequence. A filterchain is
@@ -4738,11 +5812,115 @@ Follows a BNF description for the filtergraph syntax:
 
 
 When you configure your FFmpeg build, you can disable any of the
-existing filters using --disable-filters.
+existing filters using C<--disable-filters>.
 The configure output will show the audio filters included in your
 build.
 
 Below is a description of the currently available audio filters.
+
+
+=head2 aconvert
+
+
+Convert the input audio format to the specified formats.
+
+The filter accepts a string of the form:
+"I<sample_format>:I<channel_layout>:I<packing_format>".
+
+I<sample_format> specifies the sample format, and can be a string or
+the corresponding numeric value defined in F<libavutil/samplefmt.h>.
+
+I<channel_layout> specifies the channel layout, and can be a string
+or the corresponding number value defined in F<libavutil/audioconvert.h>.
+
+I<packing_format> specifies the type of packing in output, can be one
+of "planar" or "packed", or the corresponding numeric values "0" or "1".
+
+The special parameter "auto", signifies that the filter will
+automatically select the output format depending on the output filter.
+
+Some examples follow.
+
+
+=over 4
+
+
+=item *
+
+Convert input to unsigned 8-bit, stereo, packed:
+	
+	aconvert=u8:stereo:packed
+
+
+
+=item *
+
+Convert input to unsigned 8-bit, automatically select out channel layout
+and packing format:
+	
+	aconvert=u8:auto:auto
+
+
+=back
+
+
+
+=head2 aformat
+
+
+Convert the input audio to one of the specified formats. The framework will
+negotiate the most appropriate format to minimize conversions.
+
+The filter accepts three lists of formats, separated by ":", in the form:
+"I<sample_formats>:I<channel_layouts>:I<packing_formats>".
+
+Elements in each list are separated by "," which has to be escaped in the
+filtergraph specification.
+
+The special parameter "all", in place of a list of elements, signifies all
+supported formats.
+
+Some examples follow:
+	
+	aformat=u8\,s16:mono:packed
+	
+	aformat=s16:mono\,stereo:all
+
+
+
+=head2 amerge
+
+
+Merge two audio streams into a single multi-channel stream.
+
+This filter does not need any argument.
+
+If the channel layouts of the inputs are disjoint, and therefore compatible,
+the channel layout of the output will be set accordingly and the channels
+will be reordered as necessary. If the channel layouts of the inputs are not
+disjoint, the output will have all the channels of the first input then all
+the channels of the second input, in that order, and the channel layout of
+the output will be the default value corresponding to the total number of
+channels.
+
+For example, if the first input is in 2.1 (FL+FR+LF) and the second input
+is FC+BL+BR, then the output will be in 5.1, with the channels in the
+following order: a1, a2, b1, a3, b2, b3 (a1 is the first channel of the
+first input, b1 is the first channel of the second input).
+
+On the other hand, if both input are in stereo, the output channels will be
+in the default order: a1, a2, b1, b2, and the channel layout will be
+arbitrarily set to 4.0, which may or may not be the expected value.
+
+Both inputs must have the same sample rate, format and packing.
+
+If inputs do not have the same duration, the output will stop with the
+shortest.
+
+Example: merge two mono files into a stereo stream:
+	
+	amovie=left.wav [l] ; amovie=right.mp3 [r] ; [l] [r] amerge
+
 
 
 =head2 anull
@@ -4751,38 +5929,680 @@ Below is a description of the currently available audio filters.
 Pass the audio source unchanged to the output.
 
 
+=head2 aresample
+
+
+Resample the input audio to the specified sample rate.
+
+The filter accepts exactly one parameter, the output sample rate. If not
+specified then the filter will automatically convert between its input
+and output sample rates.
+
+For example, to resample the input audio to 44100Hz:
+	
+	aresample=44100
+
+
+
+=head2 ashowinfo
+
+
+Show a line containing various information for each input audio frame.
+The input audio is not modified.
+
+The shown line contains a sequence of key/value pairs of the form
+I<key>:I<value>.
+
+A description of each shown parameter follows:
+
+
+=over 4
+
+
+=item B<n>
+
+sequential number of the input frame, starting from 0
+
+
+=item B<pts>
+
+presentation TimeStamp of the input frame, expressed as a number of
+time base units. The time base unit depends on the filter input pad, and
+is usually 1/I<sample_rate>.
+
+
+=item B<pts_time>
+
+presentation TimeStamp of the input frame, expressed as a number of
+seconds
+
+
+=item B<pos>
+
+position of the frame in the input stream, -1 if this information in
+unavailable and/or meaningless (for example in case of synthetic audio)
+
+
+=item B<fmt>
+
+sample format name
+
+
+=item B<chlayout>
+
+channel layout description
+
+
+=item B<nb_samples>
+
+number of samples (per each channel) contained in the filtered frame
+
+
+=item B<rate>
+
+sample rate for the audio frame
+
+
+=item B<planar>
+
+if the packing format is planar, 0 if packed
+
+
+=item B<checksum>
+
+Adler-32 checksum (printed in hexadecimal) of all the planes of the input frame
+
+
+=item B<plane_checksum>
+
+Adler-32 checksum (printed in hexadecimal) for each input frame plane,
+expressed in the form "[I<c0> I<c1> I<c2> I<c3> I<c4> I<c5>
+I<c6> I<c7>]"
+
+=back
+
+
+
+=head2 asplit
+
+
+Pass on the input audio to two outputs. Both outputs are identical to
+the input audio.
+
+For example:
+	
+	[in] asplit[out0], showaudio[out1]
+
+
+will create two separate outputs from the same input, one cropped and
+one padded.
+
+
+=head2 astreamsync
+
+
+Forward two audio streams and control the order the buffers are forwarded.
+
+The argument to the filter is an expression deciding which stream should be
+forwarded next: if the result is negative, the first stream is forwarded; if
+the result is positive or zero, the second stream is forwarded. It can use
+the following variables:
+
+
+=over 4
+
+
+=item I<b1 b2>
+
+number of buffers forwarded so far on each stream
+
+=item I<s1 s2>
+
+number of samples forwarded so far on each stream
+
+=item I<t1 t2>
+
+current timestamp of each stream
+
+=back
+
+
+The default value is C<t1-t2>, which means to always forward the stream
+that has a smaller timestamp.
+
+Example: stress-test C<amerge> by randomly sending buffers on the wrong
+input, while avoiding too much of a desynchronization:
+	
+	amovie=file.ogg [a] ; amovie=file.mp3 [b] ;
+	[a] [b] astreamsync=(2*random(1))-1+tanh(5*(t1-t2)) [a2] [b2] ;
+	[a2] [b2] amerge
+
+
+
+=head2 earwax
+
+
+Make audio easier to listen to on headphones.
+
+This filter adds `cues' to 44.1kHz stereo (i.e. audio CD format) audio
+so that when listened to on headphones the stereo image is moved from
+inside your head (standard for headphones) to outside and in front of
+the listener (standard for speakers).
+
+Ported from SoX.
+
+
+=head2 pan
+
+
+Mix channels with specific gain levels. The filter accepts the output
+channel layout followed by a set of channels definitions.
+
+This filter is also designed to remap efficiently the channels of an audio
+stream.
+
+The filter accepts parameters of the form:
+"I<l>:I<outdef>:I<outdef>:..."
+
+
+=over 4
+
+
+=item B<l>
+
+output channel layout or number of channels
+
+
+=item B<outdef>
+
+output channel specification, of the form:
+"I<out_name>=[I<gain>*]I<in_name>[+[I<gain>*]I<in_name>...]"
+
+
+=item B<out_name>
+
+output channel to define, either a channel name (FL, FR, etc.) or a channel
+number (c0, c1, etc.)
+
+
+=item B<gain>
+
+multiplicative coefficient for the channel, 1 leaving the volume unchanged
+
+
+=item B<in_name>
+
+input channel to use, see out_name for details; it is not possible to mix
+named and numbered input channels
+
+=back
+
+
+If the `=' in a channel specification is replaced by `E<lt>', then the gains for
+that specification will be renormalized so that the total is 1, thus
+avoiding clipping noise.
+
+
+=head3 Mixing examples
+
+
+For example, if you want to down-mix from stereo to mono, but with a bigger
+factor for the left channel:
+	
+	pan=1:c0=0.9*c0+0.1*c1
+
+
+A customized down-mix to stereo that works automatically for 3-, 4-, 5- and
+7-channels surround:
+	
+	pan=stereo: FL < FL + 0.5*FC + 0.6*BL + 0.6*SL : FR < FR + 0.5*FC + 0.6*BR + 0.6*SR
+
+
+Note that B<ffmpeg> integrates a default down-mix (and up-mix) system
+that should be preferred (see "-ac" option) unless you have very specific
+needs.
+
+
+=head3 Remapping examples
+
+
+The channel remapping will be effective if, and only if:
+
+
+=over 4
+
+
+=item *<gain coefficients are zeroes or ones,>
+
+
+=item *<only one input per channel output,>
+
+
+=item *<the number of output channels is supported by libswresample (16 at the>
+
+      moment)
+
+=back
+
+
+If all these conditions are satisfied, the filter will notify the user ("Pure
+channel mapping detected"), and use an optimized and lossless method to do the
+remapping.
+
+For example, if you have a 5.1 source and want a stereo audio stream by
+dropping the extra channels:
+	
+	pan="stereo: c0=FL : c1=FR"
+
+
+Given the same source, you can also switch front left and front right channels
+and keep the input channel layout:
+	
+	pan="5.1: c0=c1 : c1=c0 : c2=c2 : c3=c3 : c4=c4 : c5=c5"
+
+
+If the input is a stereo audio stream, you can mute the front left channel (and
+still keep the stereo channel layout) with:
+	
+	pan="stereo:c1=c1"
+
+
+Still with a stereo audio stream input, you can copy the right channel in both
+front left and right:
+	
+	pan="stereo: c0=FR : c1=FR"
+
+
+
+=head2 silencedetect
+
+
+Detect silence in an audio stream.
+
+This filter logs a message when it detects that the input audio volume is less
+or equal to a noise tolerance value for a duration greater or equal to the
+minimum detected noise duration.
+
+The printed times and duration are expressed in seconds.
+
+
+=over 4
+
+
+=item B<duration, d>
+
+Set silence duration until notification (default is 2 seconds).
+
+
+=item B<noise, n>
+
+Set noise tolerance. Can be specified in dB (in case "dB" is appended to the
+specified value) or amplitude ratio. Default is -60dB, or 0.001.
+
+=back
+
+
+Detect 5 seconds of silence with -50dB noise tolerance:
+	
+	silencedetect=n=-50dB:d=5
+
+
+Complete example with B<ffmpeg> to detect silence with 0.0001 noise
+tolerance in F<silence.mp3>:
+	
+	ffmpeg -f lavfi -i amovie=silence.mp3,silencedetect=noise=0.0001 -f null -
+
+
+
+=head2 volume
+
+
+Adjust the input audio volume.
+
+The filter accepts exactly one parameter I<vol>, which expresses
+how the audio volume will be increased or decreased.
+
+Output values are clipped to the maximum value.
+
+If I<vol> is expressed as a decimal number, the output audio
+volume is given by the relation:
+	
+	<output_volume> = <vol> * <input_volume>
+
+
+If I<vol> is expressed as a decimal number followed by the string
+"dB", the value represents the requested change in decibels of the
+input audio power, and the output audio volume is given by the
+relation:
+	
+	<output_volume> = 10^(<vol>/20) * <input_volume>
+
+
+Otherwise I<vol> is considered an expression and its evaluated
+value is used for computing the output audio volume according to the
+first relation.
+
+Default value for I<vol> is 1.0.
+
+
+=head3 Examples
+
+
+
+=over 4
+
+
+=item *
+
+Half the input audio volume:
+	
+	volume=0.5
+
+
+The above example is equivalent to:
+	
+	volume=1/2
+
+
+
+=item *
+
+Decrease input audio power by 12 decibels:
+	
+	volume=-12dB
+
+
+=back
+
+
+
 =head1 AUDIO SOURCES
 
 
 Below is a description of the currently available audio sources.
 
 
+=head2 abuffer
+
+
+Buffer audio frames, and make them available to the filter chain.
+
+This source is mainly intended for a programmatic use, in particular
+through the interface defined in F<libavfilter/asrc_abuffer.h>.
+
+It accepts the following mandatory parameters:
+I<sample_rate>:I<sample_fmt>:I<channel_layout>:I<packing>
+
+
+=over 4
+
+
+
+=item B<sample_rate>
+
+The sample rate of the incoming audio buffers.
+
+
+=item B<sample_fmt>
+
+The sample format of the incoming audio buffers.
+Either a sample format name or its corresponging integer representation from
+the enum AVSampleFormat in F<libavutil/samplefmt.h>
+
+
+=item B<channel_layout>
+
+The channel layout of the incoming audio buffers.
+Either a channel layout name from channel_layout_map in
+F<libavutil/audioconvert.c> or its corresponding integer representation
+from the AV_CH_LAYOUT_* macros in F<libavutil/audioconvert.h>
+
+
+=item B<packing>
+
+Either "packed" or "planar", or their integer representation: 0 or 1
+respectively.
+
+
+=back
+
+
+For example:
+	
+	abuffer=44100:s16:stereo:planar
+
+
+will instruct the source to accept planar 16bit signed stereo at 44100Hz.
+Since the sample format with name "s16" corresponds to the number
+1 and the "stereo" channel layout corresponds to the value 3, this is
+equivalent to:
+	
+	abuffer=44100:1:3:1
+
+
+
+=head2 aevalsrc
+
+
+Generate an audio signal specified by an expression.
+
+This source accepts in input one or more expressions (one for each
+channel), which are evaluated and used to generate a corresponding
+audio signal.
+
+It accepts the syntax: I<exprs>[::I<options>].
+I<exprs> is a list of expressions separated by ":", one for each
+separate channel. The output channel layout depends on the number of
+provided expressions, up to 8 channels are supported.
+
+I<options> is an optional sequence of I<key>=I<value> pairs,
+separated by ":".
+
+The description of the accepted options follows.
+
+
+=over 4
+
+
+
+=item B<duration, d>
+
+Set the minimum duration of the sourced audio. See the function
+C<av_parse_time()> for the accepted format.
+Note that the resulting duration may be greater than the specified
+duration, as the generated audio is always cut at the end of a
+complete frame.
+
+If not specified, or the expressed duration is negative, the audio is
+supposed to be generated forever.
+
+
+=item B<nb_samples, n>
+
+Set the number of samples per channel per each output frame,
+default to 1024.
+
+
+=item B<sample_rate, s>
+
+Specify the sample rate, default to 44100.
+
+=back
+
+
+Each expression in I<exprs> can contain the following constants:
+
+
+=over 4
+
+
+=item B<n>
+
+number of the evaluated sample, starting from 0
+
+
+=item B<t>
+
+time of the evaluated sample expressed in seconds, starting from 0
+
+
+=item B<s>
+
+sample rate
+
+
+=back
+
+
+
+=head3 Examples
+
+
+
+=over 4
+
+
+
+=item *
+
+Generate silence:
+	
+	aevalsrc=0
+
+
+
+=item *
+
+
+Generate a sin signal with frequency of 440 Hz, set sample rate to
+8000 Hz:
+	
+	aevalsrc="sin(440*2*PI*t)::s=8000"
+
+
+
+=item *
+
+Generate white noise:
+	
+	aevalsrc="-2+random(0)"
+
+
+
+=item *
+
+Generate an amplitude modulated signal:
+	
+	aevalsrc="sin(10*2*PI*t)*sin(880*2*PI*t)"
+
+
+
+=item *
+
+Generate 2.5 Hz binaural beats on a 360 Hz carrier:
+	
+	aevalsrc="0.1*sin(2*PI*(360-2.5/2)*t) : 0.1*sin(2*PI*(360+2.5/2)*t)"
+
+
+
+=back
+
+
+
+=head2 amovie
+
+
+Read an audio stream from a movie container.
+
+It accepts the syntax: I<movie_name>[:I<options>] where
+I<movie_name> is the name of the resource to read (not necessarily
+a file but also a device or a stream accessed through some protocol),
+and I<options> is an optional sequence of I<key>=I<value>
+pairs, separated by ":".
+
+The description of the accepted options follows.
+
+
+=over 4
+
+
+
+=item B<format_name, f>
+
+Specify the format assumed for the movie to read, and can be either
+the name of a container or an input device. If not specified the
+format is guessed from I<movie_name> or by probing.
+
+
+=item B<seek_point, sp>
+
+Specify the seek point in seconds, the frames will be output
+starting from this seek point, the parameter is evaluated with
+C<av_strtod> so the numerical value may be suffixed by an IS
+postfix. Default value is "0".
+
+
+=item B<stream_index, si>
+
+Specify the index of the audio stream to read. If the value is -1,
+the best suited audio stream will be automatically selected. Default
+value is "-1".
+
+
+=back
+
+
+
 =head2 anullsrc
 
 
-Null audio source, never return audio frames. It is mainly useful as a
-template and to be employed in analysis / debugging tools.
+Null audio source, return unprocessed audio frames. It is mainly useful
+as a template and to be employed in analysis / debugging tools, or as
+the source for filters which ignore the input data (for example the sox
+synth filter).
 
-It accepts as optional parameter a string of the form
-I<sample_rate>:I<channel_layout>.
+It accepts an optional sequence of I<key>=I<value> pairs,
+separated by ":".
 
-I<sample_rate> specify the sample rate, and defaults to 44100.
+The description of the accepted options follows.
 
-I<channel_layout> specify the channel layout, and can be either an
-integer or a string representing a channel layout. The default value
-of I<channel_layout> is 3, which corresponds to CH_LAYOUT_STEREO.
+
+=over 4
+
+
+
+=item B<sample_rate, s>
+
+Specify the sample rate, and defaults to 44100.
+
+
+=item B<channel_layout, cl>
+
+
+Specify the channel layout, and can be either an integer or a string
+representing a channel layout. The default value of I<channel_layout>
+is "stereo".
 
 Check the channel_layout_map definition in
 F<libavcodec/audioconvert.c> for the mapping between strings and
 channel layout values.
 
+
+=item B<nb_samples, n>
+
+Set the number of samples per requested frames.
+
+
+=back
+
+
 Follow some examples:
 	
-	#  set the sample rate to 48000 Hz and the channel layout to CH_LAYOUT_MONO.
-	anullsrc=48000:4
+	#  set the sample rate to 48000 Hz and the channel layout to AV_CH_LAYOUT_MONO.
+	anullsrc=r=48000:cl=4
 	
 	# same as
-	anullsrc=48000:mono
+	anullsrc=r=48000:cl=mono
 
 
 
@@ -4790,6 +6610,19 @@ Follow some examples:
 
 
 Below is a description of the currently available audio sinks.
+
+
+=head2 abuffersink
+
+
+Buffer audio frames, and make them available to the end of filter chain.
+
+This sink is mainly intended for programmatic use, in particular
+through the interface defined in F<libavfilter/buffersink.h>.
+
+It requires a pointer to an AVABufferSinkContext structure, which
+defines the incoming buffers' formats, to be passed as the opaque
+parameter to C<avfilter_init_filter> for initialization.
 
 
 =head2 anullsink
@@ -4804,11 +6637,29 @@ tools.
 
 
 When you configure your FFmpeg build, you can disable any of the
-existing filters using --disable-filters.
+existing filters using C<--disable-filters>.
 The configure output will show the video filters included in your
 build.
 
 Below is a description of the currently available video filters.
+
+
+=head2 ass
+
+
+Draw ASS (Advanced Substation Alpha) subtitles on top of input video
+using the libass library.
+
+To enable compilation of this filter you need to configure FFmpeg with
+C<--enable-libass>.
+
+This filter accepts in input the name of the ass file to render.
+
+For example, to render the file F<sub.ass> on top of the input
+video, use the command:
+	
+	ass=sub.ass
+
 
 
 =head2 blackframe
@@ -4834,6 +6685,88 @@ I<threshold> is the threshold below which a pixel value is
 considered black, and defaults to 32.
 
 
+=head2 boxblur
+
+
+Apply boxblur algorithm to the input video.
+
+This filter accepts the parameters:
+I<luma_radius>:I<luma_power>:I<chroma_radius>:I<chroma_power>:I<alpha_radius>:I<alpha_power>
+
+Chroma and alpha parameters are optional, if not specified they default
+to the corresponding values set for I<luma_radius> and
+I<luma_power>.
+
+I<luma_radius>, I<chroma_radius>, and I<alpha_radius> represent
+the radius in pixels of the box used for blurring the corresponding
+input plane. They are expressions, and can contain the following
+constants:
+
+=over 4
+
+
+=item B<w, h>
+
+the input width and height in pixels
+
+
+=item B<cw, ch>
+
+the input chroma image width and height in pixels
+
+
+=item B<hsub, vsub>
+
+horizontal and vertical chroma subsample values. For example for the
+pixel format "yuv422p" I<hsub> is 2 and I<vsub> is 1.
+
+=back
+
+
+The radius must be a non-negative number, and must not be greater than
+the value of the expression C<min(w,h)/2> for the luma and alpha planes,
+and of C<min(cw,ch)/2> for the chroma planes.
+
+I<luma_power>, I<chroma_power>, and I<alpha_power> represent
+how many times the boxblur filter is applied to the corresponding
+plane.
+
+Some examples follow:
+
+
+=over 4
+
+
+
+=item *
+
+Apply a boxblur filter with luma, chroma, and alpha radius
+set to 2:
+	
+	boxblur=2:1
+
+
+
+=item *
+
+Set luma radius to 2, alpha and chroma radius to 0
+	
+	boxblur=2:1:0:0:0:0
+
+
+
+=item *
+
+Set luma and chroma radius to a fraction of the video dimension
+	
+	boxblur=min(h,w)/10:1:min(cw,ch)/10:1
+
+
+
+=back
+
+
+
 =head2 copy
 
 
@@ -4852,12 +6785,6 @@ The parameters are expressions containing the following constants:
 =over 4
 
 
-=item B<E, PI, PHI>
-
-the corresponding mathematical approximated values for e
-(euler number), pi (greek PI), PHI (golden ratio)
-
-
 =item B<x, y>
 
 the computed values for I<x> and I<y>. They are evaluated for
@@ -4866,7 +6793,7 @@ each new frame.
 
 =item B<in_w, in_h>
 
-the input width and heigth
+the input width and height
 
 
 =item B<iw, ih>
@@ -4876,12 +6803,33 @@ same as I<in_w> and I<in_h>
 
 =item B<out_w, out_h>
 
-the output (cropped) width and heigth
+the output (cropped) width and height
 
 
 =item B<ow, oh>
 
 same as I<out_w> and I<out_h>
+
+
+=item B<a>
+
+same as I<iw> / I<ih>
+
+
+=item B<sar>
+
+input sample aspect ratio
+
+
+=item B<dar>
+
+input display aspect ratio, it is the same as (I<iw> / I<ih>) * I<sar>
+
+
+=item B<hsub, vsub>
+
+horizontal and vertical chroma subsample values. For example for the
+pixel format "yuv422p" I<hsub> is 2 and I<vsub> is 1.
 
 
 =item B<n>
@@ -5010,6 +6958,182 @@ playback.
 
 
 
+=head2 delogo
+
+
+Suppress a TV station logo by a simple interpolation of the surrounding
+pixels. Just set a rectangle covering the logo and watch it disappear
+(and sometimes something even uglier appear - your mileage may vary).
+
+The filter accepts parameters as a string of the form
+"I<x>:I<y>:I<w>:I<h>:I<band>", or as a list of
+I<key>=I<value> pairs, separated by ":".
+
+The description of the accepted parameters follows.
+
+
+=over 4
+
+
+
+=item B<x, y>
+
+Specify the top left corner coordinates of the logo. They must be
+specified.
+
+
+=item B<w, h>
+
+Specify the width and height of the logo to clear. They must be
+specified.
+
+
+=item B<band, t>
+
+Specify the thickness of the fuzzy edge of the rectangle (added to
+I<w> and I<h>). The default value is 4.
+
+
+=item B<show>
+
+When set to 1, a green rectangle is drawn on the screen to simplify
+finding the right I<x>, I<y>, I<w>, I<h> parameters, and
+I<band> is set to 4. The default value is 0.
+
+
+=back
+
+
+Some examples follow.
+
+
+=over 4
+
+
+
+=item *
+
+Set a rectangle covering the area with top left corner coordinates 0,0
+and size 100x77, setting a band of size 10:
+	
+	delogo=0:0:100:77:10
+
+
+
+=item *
+
+As the previous example, but use named options:
+	
+	delogo=x=0:y=0:w=100:h=77:band=10
+
+
+
+=back
+
+
+
+=head2 deshake
+
+
+Attempt to fix small changes in horizontal and/or vertical shift. This
+filter helps remove camera shake from hand-holding a camera, bumping a
+tripod, moving on a vehicle, etc.
+
+The filter accepts parameters as a string of the form
+"I<x>:I<y>:I<w>:I<h>:I<rx>:I<ry>:I<edge>:I<blocksize>:I<contrast>:I<search>:I<filename>"
+
+A description of the accepted parameters follows.
+
+
+=over 4
+
+
+
+=item B<x, y, w, h>
+
+Specify a rectangular area where to limit the search for motion
+vectors.
+If desired the search for motion vectors can be limited to a
+rectangular area of the frame defined by its top left corner, width
+and height. These parameters have the same meaning as the drawbox
+filter which can be used to visualise the position of the bounding
+box.
+
+This is useful when simultaneous movement of subjects within the frame
+might be confused for camera motion by the motion vector search.
+
+If any or all of I<x>, I<y>, I<w> and I<h> are set to -1
+then the full frame is used. This allows later options to be set
+without specifying the bounding box for the motion vector search.
+
+Default - search the whole frame.
+
+
+=item B<rx, ry>
+
+Specify the maximum extent of movement in x and y directions in the
+range 0-64 pixels. Default 16.
+
+
+=item B<edge>
+
+Specify how to generate pixels to fill blanks at the edge of the
+frame. An integer from 0 to 3 as follows:
+
+=over 4
+
+
+=item B<0>
+
+Fill zeroes at blank locations
+
+=item B<1>
+
+Original image at blank locations
+
+=item B<2>
+
+Extruded edge value at blank locations
+
+=item B<3>
+
+Mirrored edge at blank locations
+
+=back
+
+
+The default setting is mirror edge at blank locations.
+
+
+=item B<blocksize>
+
+Specify the blocksize to use for motion search. Range 4-128 pixels,
+default 8.
+
+
+=item B<contrast>
+
+Specify the contrast threshold for blocks. Only blocks with more than
+the specified contrast (difference between darkest and lightest
+pixels) will be considered. Range 1-255, default 125.
+
+
+=item B<search>
+
+Specify the search strategy 0 = exhaustive search, 1 = less exhaustive
+search. Default - exhaustive search.
+
+
+=item B<filename>
+
+If set then a detailed log of the motion search is written to the
+specified file.
+
+
+=back
+
+
+
 =head2 drawbox
 
 
@@ -5103,10 +7227,13 @@ If both text and textfile are specified, an error is thrown.
 
 =item B<x, y>
 
-The offsets where text will be drawn within the video frame.
-Relative to the top/left border of the output image.
+The expressions which specify the offsets where text will be drawn
+within the video frame. They are relative to the top/left border of the
+output image.
 
-The default value of I<x> and I<y> is 0.
+The default value of I<x> and I<y> is "0".
+
+See below for the list of accepted constants.
 
 
 =item B<fontsize>
@@ -5228,27 +7355,175 @@ Default value is 4.
 =back
 
 
-For example the command:
+The parameters for I<x> and I<y> are expressions containing the
+following constants:
+
+
+=over 4
+
+
+=item B<W, H>
+
+the input width and height
+
+
+=item B<tw, text_w>
+
+the width of the rendered text
+
+
+=item B<th, text_h>
+
+the height of the rendered text
+
+
+=item B<lh, line_h>
+
+the height of each text line
+
+
+=item B<sar>
+
+input sample aspect ratio
+
+
+=item B<dar>
+
+input display aspect ratio, it is the same as (I<w> / I<h>) * I<sar>
+
+
+=item B<hsub, vsub>
+
+horizontal and vertical chroma subsample values. For example for the
+pixel format "yuv422p" I<hsub> is 2 and I<vsub> is 1.
+
+
+=item B<max_glyph_w>
+
+maximum glyph width, that is the maximum width for all the glyphs
+contained in the rendered text
+
+
+=item B<max_glyph_h>
+
+maximum glyph height, that is the maximum height for all the glyphs
+contained in the rendered text, it is equivalent to I<ascent> -
+I<descent>.
+
+
+=item B<max_glyph_a, ascent>
+
+
+the maximum distance from the baseline to the highest/upper grid
+coordinate used to place a glyph outline point, for all the rendered
+glyphs.
+It is a positive value, due to the grid's orientation with the Y axis
+upwards.
+
+
+=item B<max_glyph_d, descent>
+
+the maximum distance from the baseline to the lowest grid coordinate
+used to place a glyph outline point, for all the rendered glyphs.
+This is a negative value, due to the grid's orientation, with the Y axis
+upwards.
+
+
+=item B<n>
+
+the number of input frame, starting from 0
+
+
+=item B<t>
+
+timestamp expressed in seconds, NAN if the input timestamp is unknown
+
+
+=item B<timecode>
+
+initial timecode representation in "hh:mm:ss[:;.]ff" format. It can be used
+with or without text parameter. I<rate> option must be specified.
+Note that timecode options are I<not> effective if FFmpeg is build with
+C<--disable-avcodec>.
+
+
+=item B<r, rate>
+
+frame rate (timecode only)
+
+=back
+
+
+Some examples follow.
+
+
+=over 4
+
+
+
+=item *
+
+Draw "Test Text" with font FreeSerif, using the default values for the
+optional parameters.
+
 	
 	drawtext="fontfile=/usr/share/fonts/truetype/freefont/FreeSerif.ttf: text='Test Text'"
 
 
-will draw "Test Text" with font FreeSerif, using the default values
-for the optional parameters.
 
-The command:
+=item *
+
+Draw 'Test Text' with font FreeSerif of size 24 at position x=100
+and y=50 (counting from the top-left corner of the screen), text is
+yellow with a red box around it. Both the text and the box have an
+opacity of 20%.
+
 	
 	drawtext="fontfile=/usr/share/fonts/truetype/freefont/FreeSerif.ttf: text='Test Text':\
 	          x=100: y=50: fontsize=24: fontcolor=yellow@0.2: box=1: boxcolor=red@0.2"
 
 
-will draw 'Test Text' with font FreeSerif of size 24 at position x=100
-and y=50 (counting from the top-left corner of the screen), text is
-yellow with a red box around it. Both the text and the box have an
-opacity of 20%.
-
 Note that the double quotes are not necessary if spaces are not used
 within the parameter list.
+
+
+=item *
+
+Show the text at the center of the video frame:
+	
+	drawtext=fontsize=30:fontfile=FreeSerif.ttf:text='hello world':x=(w-text_w)/2:y=(h-text_h-line_h)/2"
+
+
+
+=item *
+
+Show a text line sliding from right to left in the last row of the video
+frame. The file F<LONG_LINE> is assumed to contain a single line
+with no newlines.
+	
+	drawtext=fontsize=15:fontfile=FreeSerif.ttf:text=LONG_LINE:y=h-line_h:x=-50*t
+
+
+
+=item *
+
+Show the content of file F<CREDITS> off the bottom of the frame and scroll up.
+	
+	drawtext=fontsize=20:fontfile=FreeSerif.ttf:textfile=CREDITS:y=h-20*t"
+
+
+
+=item *
+
+Draw a single green letter "g", at the center of the input video.
+The glyph baseline is placed at half screen height.
+	
+	drawtext=fontsize=60:fontfile=FreeSerif.ttf:fontcolor=green:text=g:x=(w-max_glyph_w)/2:y=h/2-ascent
+
+
+
+=back
+
 
 For more information about libfreetype, check:
 E<lt>B<http://www.freetype.org/>E<gt>.
@@ -5260,7 +7535,7 @@ E<lt>B<http://www.freetype.org/>E<gt>.
 Apply fade-in/out effect to input video.
 
 It accepts the parameters:
-I<type>:I<start_frame>:I<nb_frames>
+I<type>:I<start_frame>:I<nb_frames>[:I<options>]
 
 I<type> specifies if the effect type, can be either "in" for
 fade-in, or "out" for a fade-out effect.
@@ -5272,6 +7547,37 @@ I<nb_frames> specifies the number of frames for which the fade
 effect has to last. At the end of the fade-in effect the output video
 will have the same intensity as the input video, at the end of the
 fade-out transition the output video will be completely black.
+
+I<options> is an optional sequence of I<key>=I<value> pairs,
+separated by ":". The description of the accepted options follows.
+
+
+=over 4
+
+
+
+=item B<type, t>
+
+See I<type>.
+
+
+=item B<start_frame, s>
+
+See I<start_frame>.
+
+
+=item B<nb_frames, n>
+
+See I<nb_frames>.
+
+
+=item B<alpha>
+
+If set to 1, fade only alpha channel, if one exists on the input.
+Default value is 0.
+
+=back
+
 
 A few usage examples follow, usable too as test scenarios.
 	
@@ -5286,6 +7592,9 @@ A few usage examples follow, usable too as test scenarios.
 	
 	# make first 5 frames black, then fade in from frame 5-24
 	fade=in:5:20
+	
+	# fade in alpha over first 25 frames of video
+	fade=in:0:25:alpha=1
 
 
 
@@ -5328,7 +7637,7 @@ which is bottom field first.
 
 For example:
 	
-	./ffmpeg -i in.vob -vf "fieldorder=bff" out.dv
+	ffmpeg -i in.vob -vf "fieldorder=bff" out.dv
 
 
 
@@ -5370,7 +7679,7 @@ Some examples follow:
 Apply a frei0r effect to the input video.
 
 To enable compilation of this filter you need to install the frei0r
-header and configure FFmpeg with --enable-frei0r.
+header and configure FFmpeg with C<--enable-frei0r>.
 
 The filter supports the syntax:
 	
@@ -5420,7 +7729,7 @@ E<lt>B<http://piksel.org/frei0r>E<gt>
 
 
 Fix the banding artifacts that are sometimes introduced into nearly flat
-regions by truncation to 8bit colordepth.
+regions by truncation to 8bit color depth.
 Interpolate the gradients that should go where the bands are, and
 dither them.
 
@@ -5456,8 +7765,7 @@ valid range.
 
 Flip the input video horizontally.
 
-For example to horizontally flip the video in input with
-F<ffmpeg>:
+For example to horizontally flip the input video with B<ffmpeg>:
 	
 	ffmpeg -i in.avi -vf "hflip" out.avi
 
@@ -5504,6 +7812,184 @@ I<luma_tmp>*I<chroma_spatial>/I<luma_spatial>
 
 
 
+=head2 lut, lutrgb, lutyuv
+
+
+Compute a look-up table for binding each pixel component input value
+to an output value, and apply it to input video.
+
+I<lutyuv> applies a lookup table to a YUV input video, I<lutrgb>
+to an RGB input video.
+
+These filters accept in input a ":"-separated list of options, which
+specify the expressions used for computing the lookup table for the
+corresponding pixel component values.
+
+The I<lut> filter requires either YUV or RGB pixel formats in
+input, and accepts the options:
+
+=over 4
+
+
+=item B<c0>
+
+first  pixel component
+
+=item B<c1>
+
+second pixel component
+
+=item B<c2>
+
+third  pixel component
+
+=item B<c3>
+
+fourth pixel component, corresponds to the alpha component
+
+=back
+
+
+The exact component associated to each option depends on the format in
+input.
+
+The I<lutrgb> filter requires RGB pixel formats in input, and
+accepts the options:
+
+=over 4
+
+
+=item B<r>
+
+red component
+
+=item B<g>
+
+green component
+
+=item B<b>
+
+blue component
+
+=item B<a>
+
+alpha component
+
+=back
+
+
+The I<lutyuv> filter requires YUV pixel formats in input, and
+accepts the options:
+
+=over 4
+
+
+=item B<y>
+
+Y/luminance component
+
+=item B<u>
+
+U/Cb component
+
+=item B<v>
+
+V/Cr component
+
+=item B<a>
+
+alpha component
+
+=back
+
+
+The expressions can contain the following constants and functions:
+
+
+=over 4
+
+
+=item B<w, h>
+
+the input width and height
+
+
+=item B<val>
+
+input value for the pixel component
+
+
+=item B<clipval>
+
+the input value clipped in the I<minval>-I<maxval> range
+
+
+=item B<maxval>
+
+maximum value for the pixel component
+
+
+=item B<minval>
+
+minimum value for the pixel component
+
+
+=item B<negval>
+
+the negated value for the pixel component value clipped in the
+I<minval>-I<maxval> range , it corresponds to the expression
+"maxval-clipval+minval"
+
+
+=item B<clip(val)>
+
+the computed value in I<val> clipped in the
+I<minval>-I<maxval> range
+
+
+=item B<gammaval(gamma)>
+
+the computed gamma correction value of the pixel component value
+clipped in the I<minval>-I<maxval> range, corresponds to the
+expression
+"pow((clipval-minval)/(maxval-minval),I<gamma>)*(maxval-minval)+minval"
+
+
+=back
+
+
+All expressions default to "val".
+
+Some examples follow:
+	
+	# negate input video
+	lutrgb="r=maxval+minval-val:g=maxval+minval-val:b=maxval+minval-val"
+	lutyuv="y=maxval+minval-val:u=maxval+minval-val:v=maxval+minval-val"
+	
+	# the above is the same as
+	lutrgb="r=negval:g=negval:b=negval"
+	lutyuv="y=negval:u=negval:v=negval"
+	
+	# negate luminance
+	lutyuv=y=negval
+	
+	# remove chroma components, turns the video into a graytone image
+	lutyuv="u=128:v=128"
+	
+	# apply a luma burning effect
+	lutyuv="y=2*val"
+	
+	# remove green and blue components
+	lutrgb="g=0:b=0"
+	
+	# set a constant alpha channel value on input
+	format=rgba,lutrgb=a="maxval-minval/2"
+	
+	# correct luminance gamma by a 0.5 factor
+	lutyuv=y=gammaval(0.5)
+
+
+
 =head2 mp
 
 
@@ -5532,19 +8018,7 @@ The list of the currently supported filters follows:
 =item I<2xsai>
 
 
-=item I<blackframe>
-
-
-=item I<boxblur>
-
-
-=item I<cropdetect>
-
-
 =item I<decimate>
-
-
-=item I<delogo>
 
 
 =item I<denoise3d>
@@ -5587,9 +8061,6 @@ The list of the currently supported filters follows:
 
 
 =item I<geq>
-
-
-=item I<gradfun>
 
 
 =item I<harddup>
@@ -5649,9 +8120,6 @@ The list of the currently supported filters follows:
 =item I<remove-logo>
 
 
-=item I<rgbtest>
-
-
 =item I<rotate>
 
 
@@ -5677,9 +8145,6 @@ The list of the currently supported filters follows:
 
 
 =item I<telecine>
-
-
-=item I<test>
 
 
 =item I<tile>
@@ -5722,6 +8187,15 @@ Some examples follow:
 See also mplayer(1), E<lt>B<http://www.mplayerhq.hu/>E<gt>.
 
 
+=head2 negate
+
+
+Negate input video.
+
+This filter accepts an integer in input, if non-zero it negates the
+alpha component (if available). The default value in input is 0.
+
+
 =head2 noformat
 
 
@@ -5754,7 +8228,7 @@ Pass the video source unchanged to the output.
 Apply video transform using libopencv.
 
 To enable this filter install libopencv library and headers and
-configure FFmpeg with --enable-libopencv.
+configure FFmpeg with C<--enable-libopencv>.
 
 The filter takes the parameters: I<filter_name>{:=}I<filter_params>.
 
@@ -5764,7 +8238,7 @@ I<filter_params> specifies the parameters to pass to the libopencv
 filter. If not specified the default values are assumed.
 
 Refer to the official libopencv documentation for more precise
-informations:
+information:
 E<lt>B<http://opencv.willowgarage.com/documentation/c/image_filtering.html>E<gt>
 
 Follows the list of supported libopencv filters.
@@ -5782,7 +8256,7 @@ It accepts the parameters: I<struct_el>:I<nb_iterations>.
 I<struct_el> represents a structuring element, and has the syntax:
 I<cols>xI<rows>+I<anchor_x>xI<anchor_y>/I<shape>
 
-I<cols> and I<rows> represent the number of colums and rows of
+I<cols> and I<rows> represent the number of columns and rows of
 the structuring element, I<anchor_x> and I<anchor_y> the anchor
 point, and I<shape> the shape for the structuring element, and
 can be one of the values "rect", "cross", "ellipse", "custom".
@@ -5826,7 +8300,7 @@ Erode an image by using a specific structuring element.
 This filter corresponds to the libopencv function C<cvErode>.
 
 The filter accepts the parameters: I<struct_el>:I<nb_iterations>,
-with the same meaning and use of those of the dilate filter.
+with the same syntax and semantics as the dilate filter.
 
 
 =head3 smooth
@@ -5853,6 +8327,7 @@ These parameters correspond to the parameters assigned to the
 libopencv function C<cvSmooth>.
 
 
+
 =head2 overlay
 
 
@@ -5861,10 +8336,10 @@ Overlay one video on top of another.
 It takes two inputs and one output, the first input is the "main"
 video on which the second input is overlayed.
 
-It accepts the parameters: I<x>:I<y>.
+It accepts the parameters: I<x>:I<y>[:I<options>].
 
 I<x> is the x coordinate of the overlayed video on the main video,
-I<y> is the y coordinate. The parameters are expressions containing
+I<y> is the y coordinate. I<x> and I<y> are expressions containing
 the following parameters:
 
 
@@ -5889,6 +8364,23 @@ overlay input width and height
 =item B<w, h>
 
 same as I<overlay_w> and I<overlay_h>
+
+=back
+
+
+I<options> is an optional list of I<key>=I<value> pairs,
+separated by ":".
+
+The description of the accepted options follows.
+
+
+=over 4
+
+
+=item B<rgb>
+
+If set to 1, force the filter to accept inputs in the RGB
+color space. Default value is 0.
 
 =back
 
@@ -5921,7 +8413,7 @@ Follow some examples:
 	color=red.3:WxH [over]; [in][over] overlay [out]
 
 
-You can chain togheter more overlays but the efficiency of such
+You can chain together more overlays but the efficiency of such
 approach is yet to be tested.
 
 
@@ -5941,15 +8433,9 @@ expressions containing the following constants:
 =over 4
 
 
-=item B<E, PI, PHI>
-
-the corresponding mathematical approximated values for e
-(euler number), pi (greek PI), phi (golden ratio)
-
-
 =item B<in_w, in_h>
 
-the input video width and heigth
+the input video width and height
 
 
 =item B<iw, ih>
@@ -5959,7 +8445,7 @@ same as I<in_w> and I<in_h>
 
 =item B<out_w, out_h>
 
-the output width and heigth, that is the size of the padded area as
+the output width and height, that is the size of the padded area as
 specified by the I<width> and I<height> expressions
 
 
@@ -5976,7 +8462,17 @@ expressions, or NAN if not yet specified
 
 =item B<a>
 
-input display aspect ratio, same as I<iw> / I<ih>
+same as I<iw> / I<ih>
+
+
+=item B<sar>
+
+input sample aspect ratio
+
+
+=item B<dar>
+
+input display aspect ratio, it is the same as (I<iw> / I<ih>) * I<sar>
 
 
 =item B<hsub, vsub>
@@ -6001,7 +8497,7 @@ value for I<width> or I<height> is 0, the corresponding input size
 is used for the output.
 
 The I<width> expression can reference the value set by the
-I<height> expression, and viceversa.
+I<height> expression, and vice versa.
 
 The default value of I<width> and I<height> is 0.
 
@@ -6013,7 +8509,7 @@ Specify the offsets where to place the input image in the padded area
 with respect to the top/left border of the output image.
 
 The I<x> expression can reference the value set by the I<y>
-expression, and viceversa.
+expression, and vice versa.
 
 The default value of I<x> and I<y> is 0.
 
@@ -6050,6 +8546,12 @@ Some examples follow:
 	# pad the input to get a final w/h ratio of 16:9
 	pad="ih*16/9:ih:(ow-iw)/2:(oh-ih)/2"
 	
+	# for anamorphic video, in order to set the output display aspect ratio,
+	# it is necessary to use sar in the expression, according to the relation:
+	# (ih * X / ih) * sar = output_dar
+	# X = output_dar / sar
+	pad="ih*16/9/sar:ih:(ow-iw)/2:(oh-ih)/2"
+	
 	# double output size and put the input video in the bottom-right
 	# corner of the output padded area
 	pad="2*iw:2*ih:ow-iw:oh-ih"
@@ -6073,7 +8575,7 @@ can be used to test the monowhite pixel format descriptor definition.
 =head2 scale
 
 
-Scale the input video to I<width>:I<height> and/or convert the image format.
+Scale the input video to I<width>:I<height>[:I<interl>={1|-1}] and/or convert the image format.
 
 The parameters I<width> and I<height> are expressions containing
 the following constants:
@@ -6082,15 +8584,9 @@ the following constants:
 =over 4
 
 
-=item B<E, PI, PHI>
-
-the corresponding mathematical approximated values for e
-(euler number), pi (greek PI), phi (golden ratio)
-
-
 =item B<in_w, in_h>
 
-the input width and heigth
+the input width and height
 
 
 =item B<iw, ih>
@@ -6100,7 +8596,7 @@ same as I<in_w> and I<in_h>
 
 =item B<out_w, out_h>
 
-the output (cropped) width and heigth
+the output (cropped) width and height
 
 
 =item B<ow, oh>
@@ -6110,7 +8606,17 @@ same as I<out_w> and I<out_h>
 
 =item B<a>
 
-input display aspect ratio, same as I<iw> / I<ih>
+same as I<iw> / I<ih>
+
+
+=item B<sar>
+
+input sample aspect ratio
+
+
+=item B<dar>
+
+input display aspect ratio, it is the same as (I<iw> / I<ih>) * I<sar>
 
 
 =item B<hsub, vsub>
@@ -6133,6 +8639,25 @@ use, for the respective output size, a value that maintains the aspect
 ratio of the input image.
 
 The default value of I<width> and I<height> is 0.
+
+Valid values for the optional parameter I<interl> are:
+
+
+=over 4
+
+
+=item B<1>
+
+force interlaced aware scaling
+
+
+=item B<-1>
+
+select interlaced aware scaling depending on whether the source frames
+are flagged as interlaced or not
+
+=back
+
 
 Some examples follow:
 	
@@ -6177,21 +8702,6 @@ The expression can contain the following constants:
 
 
 =over 4
-
-
-=item B<PI>
-
-Greek PI
-
-
-=item B<PHI>
-
-golden ratio
-
-
-=item B<E>
-
-Euler number
 
 
 =item B<n>
@@ -6253,31 +8763,31 @@ the time of the first video frame in the video, NAN if undefined
 
 =item B<pict_type>
 
-the picture type of the filtered frame, can assume one of the following
+the type of the filtered frame, can assume one of the following
 values:
 
 =over 4
 
 
-=item B<PICT_TYPE_I>
+=item B<I>
 
 
-=item B<PICT_TYPE_P>
+=item B<P>
 
 
-=item B<PICT_TYPE_B>
+=item B<B>
 
 
-=item B<PICT_TYPE_S>
+=item B<S>
 
 
-=item B<PICT_TYPE_SI>
+=item B<SI>
 
 
-=item B<PICT_TYPE_SP>
+=item B<SP>
 
 
-=item B<PICT_TYPE_BI>
+=item B<BI>
 
 
 =back
@@ -6291,15 +8801,15 @@ the frame interlace type, can assume one of the following values:
 =over 4
 
 
-=item B<INTERLACE_TYPE_P>
+=item B<PROGRESSIVE>
 
 the frame is progressive (not interlaced)
 
-=item B<INTERLACE_TYPE_T>
+=item B<TOPFIRST>
 
 the frame is top-field-first
 
-=item B<INTERLACE_TYPE_B>
+=item B<BOTTOMFIRST>
 
 the frame is bottom-field-first
 
@@ -6335,7 +8845,7 @@ Some examples follow:
 	select=0
 	
 	# select only I-frames
-	select='eq(pict_type,PICT_TYPE_I)'
+	select='eq(pict_type,I)'
 	
 	# select one frame every 100
 	select='not(mod(n,100))'
@@ -6344,7 +8854,7 @@ Some examples follow:
 	select='gte(t,10)*lte(t,20)'
 	
 	# select only I frames contained in the 10-20 time interval
-	select='gte(t,10)*lte(t,20)*eq(pict_type,PICT_TYPE_I)'
+	select='gte(t,10)*lte(t,20)*eq(pict_type,I)'
 	
 	# select frames with a minimum distance of 10 seconds
 	select='isnan(prev_selected_t)+gte(t-prev_selected_t,10)'
@@ -6380,7 +8890,7 @@ For example to change the display aspect ratio to 16:9, specify:
 	setdar=1.77777
 
 
-See also the "setsar" filter documentation.
+See also the setsar filter documentation.
 
 
 =head2 setpts
@@ -6398,21 +8908,6 @@ can contain the following constants:
 =item B<PTS>
 
 the presentation timestamp in input
-
-
-=item B<PI>
-
-Greek PI
-
-
-=item B<PHI>
-
-golden ratio
-
-
-=item B<E>
-
-Euler number
 
 
 =item B<N>
@@ -6504,7 +8999,7 @@ Set the timebase to use for the output frames timestamps.
 It is mainly useful for testing timebase configuration.
 
 It accepts in input an arithmetic expression representing a rational.
-The expression can contain the constants "PI", "E", "PHI", "AVTB" (the
+The expression can contain the constants "AVTB" (the
 default timebase), and "intb" (the input timebase).
 
 The default value for the input is "intb".
@@ -6564,7 +9059,7 @@ seconds
 =item B<pos>
 
 position of the frame in the input stream, -1 if this information in
-unavailable and/or meanigless (for example in case of synthetic video)
+unavailable and/or meaningless (for example in case of synthetic video)
 
 
 =item B<fmt>
@@ -6606,13 +9101,13 @@ F<libavutil/avutil.h>.
 
 =item B<checksum>
 
-Adler-32 checksum of all the planes of the input frame
+Adler-32 checksum (printed in hexadecimal) of all the planes of the input frame
 
 
 =item B<plane_checksum>
 
-Adler-32 checksum of each plane of the input frame, expressed in the form
-"[I<c0> I<c1> I<c2> I<c3>]"
+Adler-32 checksum (printed in hexadecimal) of each plane of the input frame,
+expressed in the form "[I<c0> I<c1> I<c2> I<c3>]"
 
 =back
 
@@ -6625,7 +9120,7 @@ Pass the images of input video on to next video filter as multiple
 slices.
 
 	
-	./ffmpeg -i in.avi -vf "slicify=32" out.avi
+	ffmpeg -i in.avi -vf "slicify=32" out.avi
 
 
 The filter accepts the slice height as parameter. If the parameter is
@@ -6650,6 +9145,84 @@ For example:
 
 will create two separate outputs from the same input, one cropped and
 one padded.
+
+
+=head2 thumbnail
+
+Select the most representative frame in a given sequence of consecutive frames.
+
+It accepts as argument the frames batch size to analyze (default I<N>=100);
+in a set of I<N> frames, the filter will pick one of them, and then handle
+the next batch of I<N> frames until the end.
+
+Since the filter keeps track of the whole frames sequence, a bigger I<N>
+value will result in a higher memory usage, so a high value is not recommended.
+
+The following example extract one picture each 50 frames:
+	
+	thumbnail=50
+
+
+Complete example of a thumbnail creation with B<ffmpeg>:
+	
+	ffmpeg -i in.avi -vf thumbnail,scale=300:200 -frames:v 1 out.png
+
+
+
+=head2 tinterlace
+
+
+Perform various types of temporal field interlacing.
+
+Frames are counted starting from 1, so the first input frame is
+considered odd.
+
+This filter accepts a single parameter specifying the mode. Available
+modes are:
+
+
+=over 4
+
+
+=item B<0>
+
+Move odd frames into the upper field, even into the lower field,
+generating a double height frame at half framerate.
+
+
+=item B<1>
+
+Only output even frames, odd frames are dropped, generating a frame with
+unchanged height at half framerate.
+
+
+=item B<2>
+
+Only output odd frames, even frames are dropped, generating a frame with
+unchanged height at half framerate.
+
+
+=item B<3>
+
+Expand each frame to full height, but pad alternate lines with black,
+generating a frame with double height at the same input framerate.
+
+
+=item B<4>
+
+Interleave the upper field from odd frames with the lower field from
+even frames, generating a frame with unchanged height at half framerate.
+
+
+=item B<5>
+
+Interleave the lower field from odd frames with the upper field from
+even frames, generating a frame with unchanged height at half framerate.
+
+=back
+
+
+Default mode is 0.
 
 
 =head2 transpose
@@ -6717,7 +9290,7 @@ I<luma_msize_x>:I<luma_msize_y>:I<luma_amount>:I<chroma_msize_x>:I<chroma_msize_
 
 Negative values for the amount will blur the input video, while positive
 values will sharpen. All parameters are optional and default to the
-equivalent of the string '5:5:1.0:0:0:0.0'.
+equivalent of the string '5:5:1.0:5:5:0.0'.
 
 
 =over 4
@@ -6745,16 +9318,16 @@ and 5.0, default value is 1.0.
 =item B<chroma_msize_x>
 
 Set the chroma matrix horizontal size. It can be an integer between 3
-and 13, default value is 0.
+and 13, default value is 5.
 
 
 =item B<chroma_msize_y>
 
 Set the chroma matrix vertical size. It can be an integer between 3
-and 13, default value is 0.
+and 13, default value is 5.
 
 
-=item B<luma_amount>
+=item B<chroma_amount>
 
 Set the chroma effect strength. It can be a float number between -2.0
 and 5.0, default value is 0.0.
@@ -6771,7 +9344,7 @@ and 5.0, default value is 0.0.
 	unsharp=7:7:-2:7:7:-2
 	
 	# Use the default values with B<ffmpeg>
-	./ffmpeg -i in.avi -vf "unsharp" out.mp4
+	ffmpeg -i in.avi -vf "unsharp" out.mp4
 
 
 
@@ -6781,7 +9354,7 @@ and 5.0, default value is 0.0.
 Flip the input video vertically.
 
 	
-	./ffmpeg -i in.avi -vf "vflip" out.avi
+	ffmpeg -i in.avi -vf "vflip" out.avi
 
 
 
@@ -6791,7 +9364,7 @@ Flip the input video vertically.
 Deinterlace the input video ("yadif" means "yet another deinterlacing
 filter").
 
-It accepts the optional parameters: I<mode>:I<parity>.
+It accepts the optional parameters: I<mode>:I<parity>:I<auto>.
 
 I<mode> specifies the interlacing mode to adopt, accepts one of the
 following values:
@@ -6830,11 +9403,11 @@ interlaced video, accepts one of the following values:
 
 =item B<0>
 
-assume bottom field first
+assume top field first
 
 =item B<1>
 
-assume top field first
+assume bottom field first
 
 =item B<-1>
 
@@ -6846,6 +9419,26 @@ enable automatic detection
 Default value is -1.
 If interlacing is unknown or decoder does not export this information,
 top field first will be assumed.
+
+I<auto> specifies if deinterlacer should trust the interlaced flag
+and only deinterlace frames marked as interlaced
+
+
+=over 4
+
+
+=item B<0>
+
+deinterlace all frames
+
+=item B<1>
+
+only deinterlace frames marked as interlaced
+
+=back
+
+
+Default value is 0.
 
 
 =head1 VIDEO SOURCES
@@ -6865,7 +9458,7 @@ through the interface defined in F<libavfilter/vsrc_buffer.h>.
 It accepts the following parameters:
 I<width>:I<height>:I<pix_fmt_string>:I<timebase_num>:I<timebase_den>:I<sample_aspect_ratio_num>:I<sample_aspect_ratio.den>:I<scale_params>
 
-All the parameters but I<scale_params> need to be explicitely
+All the parameters but I<scale_params> need to be explicitly
 defined.
 
 Follows the list of the accepted parameters.
@@ -6924,6 +9517,161 @@ this example corresponds to:
 
 
 
+=head2 cellauto
+
+
+Create a pattern generated by an elementary cellular automaton.
+
+The initial state of the cellular automaton can be defined through the
+B<filename>, and B<pattern> options. If such options are
+not specified an initial state is created randomly.
+
+At each new frame a new row in the video is filled with the result of
+the cellular automaton next generation. The behavior when the whole
+frame is filled is defined by the B<scroll> option.
+
+This source accepts a list of options in the form of
+I<key>=I<value> pairs separated by ":". A description of the
+accepted options follows.
+
+
+=over 4
+
+
+=item B<filename, f>
+
+Read the initial cellular automaton state, i.e. the starting row, from
+the specified file.
+In the file, each non-whitespace character is considered an alive
+cell, a newline will terminate the row, and further characters in the
+file will be ignored.
+
+
+=item B<pattern, p>
+
+Read the initial cellular automaton state, i.e. the starting row, from
+the specified string.
+
+Each non-whitespace character in the string is considered an alive
+cell, a newline will terminate the row, and further characters in the
+string will be ignored.
+
+
+=item B<rate, r>
+
+Set the video rate, that is the number of frames generated per second.
+Default is 25.
+
+
+=item B<random_fill_ratio, ratio>
+
+Set the random fill ratio for the initial cellular automaton row. It
+is a floating point number value ranging from 0 to 1, defaults to
+1/PHI.
+
+This option is ignored when a file or a pattern is specified.
+
+
+=item B<random_seed, seed>
+
+Set the seed for filling randomly the initial row, must be an integer
+included between 0 and UINT32_MAX. If not specified, or if explicitly
+set to -1, the filter will try to use a good random seed on a best
+effort basis.
+
+
+=item B<rule>
+
+Set the cellular automaton rule, it is a number ranging from 0 to 255.
+Default value is 110.
+
+
+=item B<size, s>
+
+Set the size of the output video.
+
+If B<filename> or B<pattern> is specified, the size is set
+by default to the width of the specified initial state row, and the
+height is set to I<width> * PHI.
+
+If B<size> is set, it must contain the width of the specified
+pattern string, and the specified pattern will be centered in the
+larger row.
+
+If a filename or a pattern string is not specified, the size value
+defaults to "320x518" (used for a randomly generated initial state).
+
+
+=item B<scroll>
+
+If set to 1, scroll the output upward when all the rows in the output
+have been already filled. If set to 0, the new generated row will be
+written over the top row just after the bottom row is filled.
+Defaults to 1.
+
+
+=item B<start_full, full>
+
+If set to 1, completely fill the output with generated rows before
+outputting the first frame.
+This is the default behavior, for disabling set the value to 0.
+
+
+=item B<stitch>
+
+If set to 1, stitch the left and right row edges together.
+This is the default behavior, for disabling set the value to 0.
+
+=back
+
+
+
+=head3 Examples
+
+
+
+=over 4
+
+
+=item *
+
+Read the initial state from F<pattern>, and specify an output of
+size 200x400.
+	
+	cellauto=f=pattern:s=200x400
+
+
+
+=item *
+
+Generate a random initial row with a width of 200 cells, with a fill
+ratio of 2/3:
+	
+	cellauto=ratio=2/3:s=200x200
+
+
+
+=item *
+
+Create a pattern generated by rule 18 starting by a single alive cell
+centered on an initial row with width 100:
+	
+	cellauto=p=@s=100x400:full=0:rule=18
+
+
+
+=item *
+
+Specify a more elaborated initial pattern:
+	
+	cellauto=p='@@ @ @@':s=100x400:full=0:rule=18
+
+
+
+=back
+
+
+
 =head2 color
 
 
@@ -6949,7 +9697,7 @@ alpha specifier. The default value is "black".
 =item B<frame_size>
 
 Specify the size of the sourced video, it may be a string of the form
-I<width>xI<heigth>, or the name of a size abbreviation. The
+I<width>xI<height>, or the name of a size abbreviation. The
 default value is "320x240".
 
 
@@ -7042,22 +9790,99 @@ Some examples follow:
 
 
 
-=head2 nullsrc
+=head2 mptestsrc
 
 
-Null video source, never return images. It is mainly useful as a
-template and to be employed in analysis / debugging tools.
+Generate various test patterns, as generated by the MPlayer test filter.
 
-It accepts as optional parameter a string of the form
-I<width>:I<height>:I<timebase>.
+The size of the generated video is fixed, and is 256x256.
+This source is useful in particular for testing encoding features.
 
-I<width> and I<height> specify the size of the configured
-source. The default values of I<width> and I<height> are
-respectively 352 and 288 (corresponding to the CIF size format).
+This source accepts an optional sequence of I<key>=I<value> pairs,
+separated by ":". The description of the accepted options follows.
 
-I<timebase> specifies an arithmetic expression representing a
-timebase. The expression can contain the constants "PI", "E", "PHI",
-"AVTB" (the default timebase), and defaults to the value "AVTB".
+
+=over 4
+
+
+
+=item B<rate, r>
+
+Specify the frame rate of the sourced video, as the number of frames
+generated per second. It has to be a string in the format
+I<frame_rate_num>/I<frame_rate_den>, an integer number, a float
+number or a valid video frame rate abbreviation. The default value is
+"25".
+
+
+=item B<duration, d>
+
+Set the video duration of the sourced video. The accepted syntax is:
+	
+	[-]HH[:MM[:SS[.m...]]]
+	[-]S+[.m...]
+
+See also the function C<av_parse_time()>.
+
+If not specified, or the expressed duration is negative, the video is
+supposed to be generated forever.
+
+
+=item B<test, t>
+
+
+Set the number or the name of the test to perform. Supported tests are:
+
+=over 4
+
+
+=item B<dc_luma>
+
+
+=item B<dc_chroma>
+
+
+=item B<freq_luma>
+
+
+=item B<freq_chroma>
+
+
+=item B<amp_luma>
+
+
+=item B<amp_chroma>
+
+
+=item B<cbp>
+
+
+=item B<mv>
+
+
+=item B<ring1>
+
+
+=item B<ring2>
+
+
+=item B<all>
+
+
+=back
+
+
+Default value is "all", which will cycle through the list of all tests.
+
+=back
+
+
+For example the following:
+	
+	testsrc=t=dc_luma
+
+
+will generate a "dc_luma" test pattern.
 
 
 =head2 frei0r_src
@@ -7066,7 +9891,7 @@ timebase. The expression can contain the constants "PI", "E", "PHI",
 Provide a frei0r source.
 
 To enable compilation of this filter you need to install the frei0r
-header and configure FFmpeg with --enable-frei0r.
+header and configure FFmpeg with C<--enable-frei0r>.
 
 The source supports the syntax:
 	
@@ -7079,14 +9904,267 @@ I<rate> is the rate of the video to generate, may be a string of
 the form I<num>/I<den> or a frame rate abbreviation.
 I<src_name> is the name to the frei0r source to load. For more
 information regarding frei0r and how to set the parameters read the
-section "frei0r" in the description of the video
-filters.
+section frei0r in the description of the video filters.
 
 Some examples follow:
 	
-	# generate a frei0r partik0l source with size 200x200 and framerate 10
+	# generate a frei0r partik0l source with size 200x200 and frame rate 10
 	# which is overlayed on the overlay filter main input
 	frei0r_src=200x200:10:partik0l=1234 [overlay]; [in][overlay] overlay
+
+
+
+=head2 life
+
+
+Generate a life pattern.
+
+This source is based on a generalization of John Conway's life game.
+
+The sourced input represents a life grid, each pixel represents a cell
+which can be in one of two possible states, alive or dead. Every cell
+interacts with its eight neighbours, which are the cells that are
+horizontally, vertically, or diagonally adjacent.
+
+At each interaction the grid evolves according to the adopted rule,
+which specifies the number of neighbor alive cells which will make a
+cell stay alive or born. The B<rule> option allows to specify
+the rule to adopt.
+
+This source accepts a list of options in the form of
+I<key>=I<value> pairs separated by ":". A description of the
+accepted options follows.
+
+
+=over 4
+
+
+=item B<filename, f>
+
+Set the file from which to read the initial grid state. In the file,
+each non-whitespace character is considered an alive cell, and newline
+is used to delimit the end of each row.
+
+If this option is not specified, the initial grid is generated
+randomly.
+
+
+=item B<rate, r>
+
+Set the video rate, that is the number of frames generated per second.
+Default is 25.
+
+
+=item B<random_fill_ratio, ratio>
+
+Set the random fill ratio for the initial random grid. It is a
+floating point number value ranging from 0 to 1, defaults to 1/PHI.
+It is ignored when a file is specified.
+
+
+=item B<random_seed, seed>
+
+Set the seed for filling the initial random grid, must be an integer
+included between 0 and UINT32_MAX. If not specified, or if explicitly
+set to -1, the filter will try to use a good random seed on a best
+effort basis.
+
+
+=item B<rule>
+
+Set the life rule.
+
+A rule can be specified with a code of the kind "SI<NS>/BI<NB>",
+where I<NS> and I<NB> are sequences of numbers in the range 0-8,
+I<NS> specifies the number of alive neighbor cells which make a
+live cell stay alive, and I<NB> the number of alive neighbor cells
+which make a dead cell to become alive (i.e. to "born").
+"s" and "b" can be used in place of "S" and "B", respectively.
+
+Alternatively a rule can be specified by an 18-bits integer. The 9
+high order bits are used to encode the next cell state if it is alive
+for each number of neighbor alive cells, the low order bits specify
+the rule for "borning" new cells. Higher order bits encode for an
+higher number of neighbor cells.
+For example the number 6153 = C<(12E<lt>E<lt>9)+9> specifies a stay alive
+rule of 12 and a born rule of 9, which corresponds to "S23/B03".
+
+Default value is "S23/B3", which is the original Conway's game of life
+rule, and will keep a cell alive if it has 2 or 3 neighbor alive
+cells, and will born a new cell if there are three alive cells around
+a dead cell.
+
+
+=item B<size, s>
+
+Set the size of the output video.
+
+If B<filename> is specified, the size is set by default to the
+same size of the input file. If B<size> is set, it must contain
+the size specified in the input file, and the initial grid defined in
+that file is centered in the larger resulting area.
+
+If a filename is not specified, the size value defaults to "320x240"
+(used for a randomly generated initial grid).
+
+
+=item B<stitch>
+
+If set to 1, stitch the left and right grid edges together, and the
+top and bottom edges also. Defaults to 1.
+
+
+=item B<mold>
+
+Set cell mold speed. If set, a dead cell will go from B<death_color> to
+B<mold_color> with a step of B<mold>. B<mold> can have a
+value from 0 to 255.
+
+
+=item B<life_color>
+
+Set the color of living (or new born) cells.
+
+
+=item B<death_color>
+
+Set the color of dead cells. If B<mold> is set, this is the first color
+used to represent a dead cell.
+
+
+=item B<mold_color>
+
+Set mold color, for definitely dead and moldy cells.
+
+=back
+
+
+
+=head3 Examples
+
+
+
+=over 4
+
+
+=item *
+
+Read a grid from F<pattern>, and center it on a grid of size
+300x300 pixels:
+	
+	life=f=pattern:s=300x300
+
+
+
+=item *
+
+Generate a random grid of size 200x200, with a fill ratio of 2/3:
+	
+	life=ratio=2/3:s=200x200
+
+
+
+=item *
+
+Specify a custom rule for evolving a randomly generated grid:
+	
+	life=rule=S14/B34
+
+
+
+=item *
+
+Full example with slow death effect (mold) using B<ffplay>:
+	
+	ffplay -f lavfi life=s=300x200:mold=10:r=60:ratio=0.1:death_color=#C83232:life_color=#00ff00,scale=1200:800:flags=16
+
+
+=back
+
+
+
+=head2 nullsrc, rgbtestsrc, testsrc
+
+
+The C<nullsrc> source returns unprocessed video frames. It is
+mainly useful to be employed in analysis / debugging tools, or as the
+source for filters which ignore the input data.
+
+The C<rgbtestsrc> source generates an RGB test pattern useful for
+detecting RGB vs BGR issues. You should see a red, green and blue
+stripe from top to bottom.
+
+The C<testsrc> source generates a test video pattern, showing a
+color pattern, a scrolling gradient and a timestamp. This is mainly
+intended for testing purposes.
+
+These sources accept an optional sequence of I<key>=I<value> pairs,
+separated by ":". The description of the accepted options follows.
+
+
+=over 4
+
+
+
+=item B<size, s>
+
+Specify the size of the sourced video, it may be a string of the form
+I<width>xI<height>, or the name of a size abbreviation. The
+default value is "320x240".
+
+
+=item B<rate, r>
+
+Specify the frame rate of the sourced video, as the number of frames
+generated per second. It has to be a string in the format
+I<frame_rate_num>/I<frame_rate_den>, an integer number, a float
+number or a valid video frame rate abbreviation. The default value is
+"25".
+
+
+=item B<sar>
+
+Set the sample aspect ratio of the sourced video.
+
+
+=item B<duration, d>
+
+Set the video duration of the sourced video. The accepted syntax is:
+	
+	[-]HH[:MM[:SS[.m...]]]
+	[-]S+[.m...]
+
+See also the function C<av_parse_time()>.
+
+If not specified, or the expressed duration is negative, the video is
+supposed to be generated forever.
+
+
+=item B<decimals, n>
+
+Set the number of decimals to show in the timestamp, only used in the
+C<testsrc> source.
+
+The displayed timestamp value will correspond to the original
+timestamp value multiplied by the power of 10 of the specified
+value. Default value is 0.
+
+=back
+
+
+For example the following:
+	
+	testsrc=duration=5.3:size=qcif:rate=10
+
+
+will generate a video with a duration of 5.3 seconds, with size
+176x144 and a frame rate of 10 frames per second.
+
+If the input content is to be ignored, C<nullsrc> can be used. The
+following command generates noise in the luminance plane by employing
+the C<mp=geq> filter:
+	
+	nullsrc=s=256x256, mp=geq=random(1)*255:128:128
 
 
 
@@ -7094,6 +10172,21 @@ Some examples follow:
 
 
 Below is a description of the currently available video sinks.
+
+
+=head2 buffersink
+
+
+Buffer video frames, and make them available to the end of the filter
+graph.
+
+This sink is mainly intended for a programmatic use, in particular
+through the interface defined in F<libavfilter/buffersink.h>.
+
+It does not require a string parameter in input, but you need to
+specify a pointer to a list of supported pixel formats terminated by
+-1 in the opaque parameter provided to C<avfilter_init_filter>
+when initializing this sink.
 
 
 =head2 nullsink
@@ -7202,5 +10295,5 @@ ffplay(1), ffprobe(1), ffserver(1) and the FFmpeg HTML documentation
 
 =head1 AUTHORS
 
-The FFmpeg developers
+See git history
 

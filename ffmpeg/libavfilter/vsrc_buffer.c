@@ -24,7 +24,9 @@
  */
 
 #include "avfilter.h"
+#include "internal.h"
 #include "avcodec.h"
+#include "buffersrc.h"
 #include "vsrc_buffer.h"
 #include "libavutil/imgutils.h"
 
@@ -36,6 +38,12 @@ typedef struct {
     AVRational        sample_aspect_ratio;
     char              sws_param[256];
 } BufferSourceContext;
+
+#define CHECK_PARAM_CHANGE(s, c, width, height, format)\
+    if (c->w != width || c->h != height || c->pix_fmt != format) {\
+        av_log(s, AV_LOG_ERROR, "Changing frame properties on the fly is not supported.\n");\
+        return AVERROR(EINVAL);\
+    }
 
 int av_vsrc_buffer_add_video_buffer_ref(AVFilterContext *buffer_filter,
                                         AVFilterBufferRef *picref, int flags)
@@ -104,9 +112,28 @@ int av_vsrc_buffer_add_video_buffer_ref(AVFilterContext *buffer_filter,
     c->picref = avfilter_get_video_buffer(outlink, AV_PERM_WRITE,
                                           picref->video->w, picref->video->h);
     av_image_copy(c->picref->data, c->picref->linesize,
-                  picref->data, picref->linesize,
+                  (void*)picref->data, picref->linesize,
                   picref->format, picref->video->w, picref->video->h);
     avfilter_copy_buffer_ref_props(c->picref, picref);
+
+    return 0;
+}
+
+int av_buffersrc_buffer(AVFilterContext *s, AVFilterBufferRef *buf)
+{
+    BufferSourceContext *c = s->priv;
+
+    if (c->picref) {
+        av_log(s, AV_LOG_ERROR,
+               "Buffering several frames is not supported. "
+               "Please consume all available frames before adding a new one.\n"
+            );
+        return AVERROR(EINVAL);
+    }
+
+//     CHECK_PARAM_CHANGE(s, c, buf->video->w, buf->video->h, buf->format);
+
+    c->picref = buf;
 
     return 0;
 }
@@ -134,7 +161,7 @@ static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
 {
     BufferSourceContext *c = ctx->priv;
     char pix_fmt_str[128];
-    int n = 0;
+    int ret, n = 0;
     *c->sws_param = 0;
 
     if (!args ||
@@ -145,14 +172,8 @@ static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
         return AVERROR(EINVAL);
     }
 
-    if ((c->pix_fmt = av_get_pix_fmt(pix_fmt_str)) == PIX_FMT_NONE) {
-        char *tail;
-        c->pix_fmt = strtol(pix_fmt_str, &tail, 10);
-        if (*tail || c->pix_fmt < 0 || c->pix_fmt >= PIX_FMT_NB) {
-            av_log(ctx, AV_LOG_ERROR, "Invalid pixel format string '%s'\n", pix_fmt_str);
-            return AVERROR(EINVAL);
-        }
-    }
+    if ((ret = ff_parse_pixel_format(&c->pix_fmt, pix_fmt_str, ctx)) < 0)
+        return ret;
 
     av_log(ctx, AV_LOG_INFO, "w:%d h:%d pixfmt:%s tb:%d/%d sar:%d/%d sws_param:%s\n",
            c->w, c->h, av_pix_fmt_descriptors[c->pix_fmt].name,
@@ -161,12 +182,20 @@ static av_cold int init(AVFilterContext *ctx, const char *args, void *opaque)
     return 0;
 }
 
+static av_cold void uninit(AVFilterContext *ctx)
+{
+    BufferSourceContext *s = ctx->priv;
+    if (s->picref)
+        avfilter_unref_buffer(s->picref);
+    s->picref = NULL;
+}
+
 static int query_formats(AVFilterContext *ctx)
 {
     BufferSourceContext *c = ctx->priv;
     enum PixelFormat pix_fmts[] = { c->pix_fmt, PIX_FMT_NONE };
 
-    avfilter_set_common_formats(ctx, avfilter_make_format_list(pix_fmts));
+    avfilter_set_common_pixel_formats(ctx, avfilter_make_format_list(pix_fmts));
     return 0;
 }
 
@@ -204,7 +233,7 @@ static int request_frame(AVFilterLink *link)
 static int poll_frame(AVFilterLink *link)
 {
     BufferSourceContext *c = link->src->priv;
-    return !!(c->picref);
+    return !!c->picref;
 }
 
 AVFilter avfilter_vsrc_buffer = {
@@ -214,9 +243,10 @@ AVFilter avfilter_vsrc_buffer = {
     .query_formats = query_formats,
 
     .init      = init,
+    .uninit    = uninit,
 
-    .inputs    = (AVFilterPad[]) {{ .name = NULL }},
-    .outputs   = (AVFilterPad[]) {{ .name            = "default",
+    .inputs    = (const AVFilterPad[]) {{ .name = NULL }},
+    .outputs   = (const AVFilterPad[]) {{ .name      = "default",
                                     .type            = AVMEDIA_TYPE_VIDEO,
                                     .request_frame   = request_frame,
                                     .poll_frame      = poll_frame,

@@ -10,6 +10,7 @@ ffserver [options]
 
 
 ffserver is a streaming server for both audio and video. It supports
+
 several live feeds, streaming from files and time shifting on live feeds
 (you can seek to positions in the past on each live feed, provided you
 specify a big enough feed storage in ffserver.conf).
@@ -21,7 +22,7 @@ file.
 
 This documentation covers only the streaming aspects of ffserver /
 ffmpeg. All questions about parameters for ffmpeg, codec questions,
-etc. are not covered here. Read F<ffmpeg-doc.html> for more
+etc. are not covered here. Read F<ffmpeg.html> for more
 information.
 
 
@@ -107,8 +108,8 @@ As a simple test, just run the following two command lines where INPUTFILE
 is some file which you can decode with ffmpeg:
 
 	
-	./ffserver -f doc/ffserver.conf &
-	./ffmpeg -i INPUTFILE http://localhost:8090/feed1.ffm
+	ffserver -f doc/ffserver.conf &
+	ffmpeg -i INPUTFILE http://localhost:8090/feed1.ffm
 
 
 At this point you should be able to go to your Windows machine and fire up
@@ -150,7 +151,7 @@ If you are one of these people, then export 'AUDIO_FLIP_LEFT=1' before
 starting ffmpeg.
 
 
-=head3 The audio and video loose sync after a while.
+=head3 The audio and video lose sync after a while.
 
 
 Yes, they do.
@@ -267,13 +268,56 @@ example 'KB', 'MiB', 'G' and 'B' as postfix.
 Options which do not take arguments are boolean options, and set the
 corresponding value to true. They can be set to false by prefixing
 with "no" the option name, for example using "-nofoo" in the
-commandline will set to false the boolean option with name "foo".
+command line will set to false the boolean option with name "foo".
+
+
+
+=head2 Stream specifiers
+
+Some options are applied per-stream, e.g. bitrate or codec. Stream specifiers
+are used to precisely specify which stream(s) does a given option belong to.
+
+A stream specifier is a string generally appended to the option name and
+separated from it by a colon. E.g. C<-codec:a:1 ac3> option contains
+C<a:1> stream specifer, which matches the second audio stream. Therefore it
+would select the ac3 codec for the second audio stream.
+
+A stream specifier can match several stream, the option is then applied to all
+of them. E.g. the stream specifier in C<-b:a 128k> matches all audio
+streams.
+
+An empty stream specifier matches all streams, for example C<-codec copy>
+or C<-codec: copy> would copy all the streams without reencoding.
+
+Possible forms of stream specifiers are:
+
+=over 4
+
+
+=item I<stream_index>
+
+Matches the stream with this index. E.g. C<-threads:1 4> would set the
+thread count for the second stream to 4.
+
+=item I<stream_type>B<[:>I<stream_index>B<]>
+
+I<stream_type> is one of: 'v' for video, 'a' for audio, 's' for subtitle,
+'d' for data and 't' for attachments. If I<stream_index> is given, then
+matches stream number I<stream_index> of this type. Otherwise matches all
+streams of this type.
+
+=item B<p:>I<program_id>B<[:>I<stream_index>B<]>
+
+If I<stream_index> is given, then matches stream number I<stream_index> in
+program with id I<program_id>. Otherwise matches all streams in this program.
+
+=back
 
 
 =head2 Generic options
 
 
-These options are shared amongst the ff* tools.
+These options are shared amongst the av* tools.
 
 
 =over 4
@@ -373,7 +417,12 @@ Show available libavfilter filters.
 Show available pixel formats.
 
 
-=item B<-loglevel> I<loglevel>
+=item B<-sample_fmts>
+
+Show available sample formats.
+
+
+=item B<-loglevel> I<loglevel> B<| -v> I<loglevel>
 
 Set the logging level used by the library.
 I<loglevel> is a number or a string containing one of the following values:
@@ -411,14 +460,67 @@ I<loglevel> is a number or a string containing one of the following values:
 By default the program logs to stderr, if coloring is supported by the
 terminal, colors are used to mark errors and warnings. Log coloring
 can be disabled setting the environment variable
-B<FFMPEG_FORCE_NOCOLOR> or B<NO_COLOR>, or can be forced setting
-the environment variable B<FFMPEG_FORCE_COLOR>.
+B<AV_LOG_FORCE_NOCOLOR> or B<NO_COLOR>, or can be forced setting
+the environment variable B<AV_LOG_FORCE_COLOR>.
 The use of the environment variable B<NO_COLOR> is deprecated and
 will be dropped in a following FFmpeg version.
 
 
+=item B<-report>
+
+Dump full command line and console output to a file named
+C<I<program>-I<YYYYMMDD>-I<HHMMSS>.log> in the current
+directory.
+This file can be useful for bug reports.
+It also implies C<-loglevel verbose>.
+
+Note: setting the environment variable C<FFREPORT> to any value has the
+same effect.
+
+
 =back
 
+
+
+=head2 AVOptions
+
+
+These options are provided directly by the libavformat, libavdevice and
+libavcodec libraries. To see the list of available AVOptions, use the
+B<-help> option. They are separated into two categories:
+
+=over 4
+
+
+=item B<generic>
+
+These options can be set for any container, codec or device. Generic options
+are listed under AVFormatContext options for containers/devices and under
+AVCodecContext options for codecs.
+
+=item B<private>
+
+These options are specific to the given container, device or codec. Private
+options are listed under their corresponding containers/devices/codecs.
+
+=back
+
+
+For example to write an ID3v2.3 header instead of a default ID3v2.4 to
+an MP3 file, use the B<id3v2_version> private option of the MP3
+muxer:
+	
+	ffmpeg -i input.flac -id3v2_version 3 out.mp3
+
+
+All codec AVOptions are obviously per-stream, so the chapter on stream
+specifiers applies to them
+
+Note B<-nooption> syntax cannot be used for boolean AVOptions,
+use B<-option 0>/B<-option 1>.
+
+Note2 old undocumented way of specifying per-stream AVOptions by prepending
+v/a/s to the options name is now obsolete and will be removed soon.
 
 
 =head2 Main options
@@ -450,7 +552,7 @@ rather than as a daemon.
 =head1 SEE ALSO
 
 
-ffmpeg(1), ffplay(1), ffprobe(1), the F<ffmpeg/doc/ffserver.conf>
+ffmpeg(1), ffplay(1), ffprobe(1), the F<ffserver.conf>
 example and the FFmpeg HTML documentation
 
 =head1 AUTHORS

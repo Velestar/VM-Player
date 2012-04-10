@@ -1,1 +1,1 @@
-doc/ffserver.pod: doc/fftools-common-opts.texi
+doc/ffserver.pod: doc/avtools-common-opts.texi

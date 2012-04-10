@@ -20,6 +20,7 @@
  */
 
 #include "avcodec.h"
+#include "internal.h"
 #include "libavutil/avassert.h"
 #include "bytestream.h"
 
@@ -30,17 +31,21 @@ void av_destruct_packet_nofree(AVPacket *pkt)
     pkt->side_data_elems = 0;
 }
 
-void av_destruct_packet(AVPacket *pkt)
+void ff_packet_free_side_data(AVPacket *pkt)
 {
     int i;
-
-    av_free(pkt->data);
-    pkt->data = NULL; pkt->size = 0;
-
     for (i = 0; i < pkt->side_data_elems; i++)
         av_free(pkt->side_data[i].data);
     av_freep(&pkt->side_data);
     pkt->side_data_elems = 0;
+}
+
+void av_destruct_packet(AVPacket *pkt)
+{
+    av_free(pkt->data);
+    pkt->data = NULL; pkt->size = 0;
+
+    ff_packet_free_side_data(pkt);
 }
 
 void av_init_packet(AVPacket *pkt)
@@ -237,10 +242,9 @@ int av_packet_split_side_data(AVPacket *pkt){
     if (!pkt->side_data_elems && pkt->size >12 && AV_RB64(pkt->data + pkt->size - 8) == FF_MERGE_MARKER){
         int i;
         unsigned int size;
-        uint8_t *p= pkt->data + pkt->size - 8 - 5;
+        uint8_t *p;
 
-        av_dup_packet(pkt);
-
+        p = pkt->data + pkt->size - 8 - 5;
         for (i=1; ; i++){
             size = AV_RB32(p);
             if (size>INT_MAX || p - pkt->data <= size)

@@ -36,6 +36,7 @@ const PixelFormatTag ff_raw_pix_fmt_tags[] = {
     { PIX_FMT_YUV411P, MKTAG('Y', '4', '1', 'B') },
     { PIX_FMT_YUV422P, MKTAG('Y', '4', '2', 'B') },
     { PIX_FMT_YUV422P, MKTAG('P', '4', '2', '2') },
+    { PIX_FMT_YUV422P, MKTAG('Y', 'V', '1', '6') },
     /* yuvjXXX formats are deprecated hacks specific to libav*,
        they are identical to yuvXXX  */
     { PIX_FMT_YUVJ420P, MKTAG('I', '4', '2', '0') }, /* Planar formats */
@@ -44,7 +45,7 @@ const PixelFormatTag ff_raw_pix_fmt_tags[] = {
     { PIX_FMT_YUVJ422P, MKTAG('Y', '4', '2', 'B') },
     { PIX_FMT_YUVJ422P, MKTAG('P', '4', '2', '2') },
     { PIX_FMT_GRAY8,    MKTAG('Y', '8', '0', '0') },
-    { PIX_FMT_GRAY8,    MKTAG(' ', ' ', 'Y', '8') },
+    { PIX_FMT_GRAY8,    MKTAG('Y', '8', ' ', ' ') },
 
     { PIX_FMT_YUYV422, MKTAG('Y', 'U', 'Y', '2') }, /* Packed formats */
     { PIX_FMT_YUYV422, MKTAG('Y', '4', '2', '2') },
@@ -62,6 +63,7 @@ const PixelFormatTag ff_raw_pix_fmt_tags[] = {
     { PIX_FMT_UYVY422, MKTAG('A', 'V', 'u', 'p') },
     { PIX_FMT_UYVY422, MKTAG('V', 'D', 'T', 'Z') }, /* SoftLab-NSK VideoTizer */
     { PIX_FMT_UYVY422, MKTAG('a', 'u', 'v', '2') },
+    { PIX_FMT_UYVY422, MKTAG('c', 'y', 'u', 'v') }, /* CYUV is also Creative YUV */
     { PIX_FMT_UYYVYY411, MKTAG('Y', '4', '1', '1') },
     { PIX_FMT_GRAY8,   MKTAG('G', 'R', 'E', 'Y') },
     { PIX_FMT_NV12,    MKTAG('N', 'V', '1', '2') },
@@ -107,6 +109,12 @@ const PixelFormatTag ff_raw_pix_fmt_tags[] = {
     { PIX_FMT_BGR48BE,  MKTAG( 48, 'B', 'G', 'R') },
     { PIX_FMT_GRAY16LE,    MKTAG('Y', '1',  0 , 16 ) },
     { PIX_FMT_GRAY16BE,    MKTAG(16 ,  0 , '1', 'Y') },
+    { PIX_FMT_YUV420P10LE, MKTAG('Y', '3', 11 , 10 ) },
+    { PIX_FMT_YUV420P10BE, MKTAG(10 , 11 , '3', 'Y') },
+    { PIX_FMT_YUV422P10LE, MKTAG('Y', '3', 10 , 10 ) },
+    { PIX_FMT_YUV422P10BE, MKTAG(10 , 10 , '3', 'Y') },
+    { PIX_FMT_YUV444P10LE, MKTAG('Y', '3',  0 , 10 ) },
+    { PIX_FMT_YUV444P10BE, MKTAG(10 ,  0 , '3', 'Y') },
     { PIX_FMT_YUV420P16LE, MKTAG('Y', '3', 11 , 16 ) },
     { PIX_FMT_YUV420P16BE, MKTAG(16 , 11 , '3', 'Y') },
     { PIX_FMT_YUV422P16LE, MKTAG('Y', '3', 10 , 16 ) },
@@ -135,6 +143,7 @@ const PixelFormatTag ff_raw_pix_fmt_tags[] = {
 
     /* special */
     { PIX_FMT_RGB565LE,MKTAG( 3 ,  0 ,  0 ,  0 ) }, /* flipped RGB565LE */
+    { PIX_FMT_YUV444P, MKTAG('Y', 'V', '2', '4') }, /* YUV444P, swapped UV */
 
     { PIX_FMT_NONE, 0 },
 };

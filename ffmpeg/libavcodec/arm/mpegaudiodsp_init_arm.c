@@ -27,7 +27,7 @@ void ff_mpadsp_apply_window_fixed_armv6(int32_t *synth_buf, int32_t *window,
 
 void ff_mpadsp_init_arm(MPADSPContext *s)
 {
-//    if (HAVE_ARMV6) {
-//        s->apply_window_fixed = ff_mpadsp_apply_window_fixed_armv6;
-//    }
+    //if (HAVE_ARMV6) {
+    //    s->apply_window_fixed = ff_mpadsp_apply_window_fixed_armv6;
+    //}
 }

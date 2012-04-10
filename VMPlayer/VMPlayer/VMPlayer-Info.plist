@@ -7,7 +7,48 @@
 	<key>CFBundleDisplayName</key>
 	<string>VM Player</string>
 	<key>CFBundleDocumentTypes</key>
-	<array/>
+	<array>
+		<dict>
+			<key>CFBundleTypeIconFiles</key>
+			<array>
+				<string>Document22.png</string>
+				<string>Document44.png</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>VM Player Movie</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>public.audiovisual-content</string>
+				<string>public.movie</string>
+				<string>public.video</string>
+				<string>public.avi</string>
+				<string>com.microsoft.advanced-systems-format</string>
+				<string>com.microsoft.windows-media-wmv</string>
+				<string>public.3gpp</string>
+				<string>public.3gpp2</string>
+				<string>public.mpeg-4</string>
+				<string>public.mpeg</string>
+				<string>com.microsoft.windows-media-wm</string>
+				<string>com.microsoft.windows-media-wmv</string>
+				<string>com.real.realmedia</string>
+				<string>com.apple.quicktime-movie</string>
+				<string>public.audio</string>
+				<string>public.mp3</string>
+				<string>public.mpeg-4-audio</string>
+				<string>public.ulaw-audio</string>
+				<string>public.aifc-audio</string>
+				<string>public.aiff-audio</string>
+				<string>com.apple.coreaudio-​format</string>
+				<string>com.microsoft.waveform-​audio</string>
+				<string>com.microsoft.advanced-​systems-format</string>
+				<string>com.microsoft.windows-​media-wma</string>
+				<string>com.real.realmedia</string>
+				<string>com.real.realaudio</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleIconFiles</key>
@@ -25,17 +66,19 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.4</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array/>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.4</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>UIApplicationExitsOnSuspend</key>
-	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UIStatusBarStyle</key>
@@ -47,9 +90,105 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>UTExportedTypeDeclarations</key>
-	<array/>
 	<key>UTImportedTypeDeclarations</key>
-	<array/>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>org.matroska.mkv</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>mkv</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/x-matroska</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.avi</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.divx.divx</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>divx</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/x-divx</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.vob.vob</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>vob</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/dvd</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.movie</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.adobe.flash-video</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>flv</string>
+					<string>f4v</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/x-flv</string>
+					<string>flv-application/octet-stream</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.audio</string>
+			</array>
+			<key>UTTypeIdentifier</key>
+			<string>com.gsm.gsm</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>gsm</string>
+				</array>
+				<key>public.mime-type</key>
+				<array>
+					<string>video/dvd</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>

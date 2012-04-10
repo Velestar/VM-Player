@@ -1,12 +1,12 @@
 prefix=
 exec_prefix=
 libdir=${pcfiledir}
-includedir=/Users/Beherith/projects/velestar/VMPlayer/src/ffmpeg
+includedir=.
 
 Name: libavformat
 Description: FFmpeg container format library
-Version: 53.4.0
-Requires: libavcodec = 53.7.0
+Version: 53.31.100
+Requires: libavcodec = 53.60.100
 Conflicts:
 Libs: ${libdir}/libavformat.a  -lm -lbz2 -lz 
 Cflags: -I${includedir}

@@ -1,6 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html401/loose.dtd">
 <html>
-<!-- Created on June, 20 2011 by texi2html 1.70 -->
+<!-- Created on February, 1 2012 by texi2html 1.70 -->
 <!--
 Written by: Lionel Cons <Lionel.Cons@cern.ch> (original author)
             Karl Berry  <karl@freefriends.org>
@@ -11,34 +11,79 @@ Send bugs and suggestions to <users@texi2html.cvshome.org>
 
 -->
 <head>
-<title>General Documentation: </title>
+<title>FFmpeg documentation : General </title>
 
 <meta name="description" content="General Documentation: ">
-<meta name="keywords" content="General Documentation: ">
+<meta name="keywords" content="FFmpeg documentation : General ">
 <meta name="resource-type" content="document">
 <meta name="distribution" content="global">
 <meta name="Generator" content="texi2html 1.70">
 <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
 <style type="text/css">
 <!--
-a.summary-letter {text-decoration: none}
-pre.display {font-family: serif}
-pre.format {font-family: serif}
-pre.menu-comment {font-family: serif}
-pre.menu-preformatted {font-family: serif}
-pre.smalldisplay {font-family: serif; font-size: smaller}
-pre.smallexample {font-size: smaller}
-pre.smallformat {font-family: serif; font-size: smaller}
-pre.smalllisp {font-size: smaller}
-ul.toc {list-style: none}
+a.summary-letter { text-decoration: none }
+a { color: #2D6198; }
+a:visited { color: #884488; }
+h1 a, h2 a, h3 a { text-decoration: inherit; color: inherit; }
+p { margin-left: 1em; margin-right: 1em; }
+table { margin-left: 2em; }
+pre { margin-left: 2em; }
+#footer { text-align: center; }
+#body { margin-left: 1em; margin-right: 1em; }
+body { background-color: #313131; margin: 0; }
+
+#container {
+    background-color: white;
+    color: #202020;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+
+h1 {
+    background-color: #7BB37B;
+    border: 1px solid #6A996A;
+    color: #151515;
+    font-size: 1.2em;
+    padding-bottom: 0.2em;
+    padding-left: 0.4em;
+    padding-top: 0.2em;
+}
+
+h2 {
+    color: #313131;
+    font-size: 1.2em;
+}
+
+h3 {
+    color: #313131;
+    font-size: 0.8em;
+    margin-bottom: -8px;
+}
+
+.note {
+    margin: 1em;
+    border: 1px solid #bbc9d8;
+    background-color: #dde1e1;
+}
+
+.important {
+    margin: 1em;
+    border: 1px solid #d26767;
+    background-color: #f8e1e1;
+}
+
 -->
 </style>
 
+<link rel="icon" href="favicon.png" type="image/png" />
+<link rel="stylesheet" type="text/css" href="default.css" />
 
 </head>
 
-<body lang="en" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#800080" alink="#FF0000">
+<body >
+<div id="container">
 
+<div id="body">
 <a name="SEC_Top"></a>
 <table cellpadding="1" cellspacing="1" border="0">
 <tr><td valign="middle" align="left">[<a href="#SEC_Top" title="Cover (top) of document">Top</a>]</td>
@@ -51,38 +96,106 @@ ul.toc {list-style: none}
 
 
 
-<hr size="1">
+
 <a name="SEC1"></a>
-<h1 class="chapter"> <a href="#TOC1">1. external libraries</a> </h1>
+<h1 class="chapter"> <a href="#TOC1">1. External libraries</a> </h1>
 
 <p>FFmpeg can be hooked up with a number of external libraries to add support
 for more formats. None of them are used by default, their use has to be
 explicitly requested by passing the appropriate flags to `<tt>./configure</tt>'.
 
 </p><a name="SEC2"></a>
-<h2 class="section"> <a href="#TOC2">1.1 OpenCORE AMR</a> </h2>
+<h2 class="section"> <a href="#TOC2">1.1 OpenJPEG</a> </h2>
+
+<p>FFmpeg can use the OpenJPEG libraries for encoding/decoding J2K videos.  Go to
+<a href="http://www.openjpeg.org/">http://www.openjpeg.org/</a> to get the libraries and follow the installation
+instructions.  To enable using OpenJPEG in FFmpeg, pass <code>--enable-libopenjpeg</code> to
+`<tt>./configure</tt>'.
+
+</p>
+<a name="SEC3"></a>
+<h2 class="section"> <a href="#TOC3">1.2 OpenCORE and VisualOn libraries</a> </h2>
+
+<p>Spun off Google Android sources, OpenCore and VisualOn libraries provide
+encoders for a number of audio codecs.
+
+</p><p>@float NOTE
+OpenCORE and VisualOn libraries are under the Apache License 2.0
+(see <a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a> for details), which is
+incompatible with the LGPL version 2.1 and GPL version 2. You have to
+upgrade FFmpeg's license to LGPL version 3 (or if you have enabled
+GPL components, GPL version 3) to use it.
+@end float
+</p><a name="SEC4"></a>
+<h3 class="subsection"> <a href="#TOC4">1.2.1 OpenCORE AMR</a> </h3>
 
 <p>FFmpeg can make use of the OpenCORE libraries for AMR-NB
 decoding/encoding and AMR-WB decoding.
 
-</p><p>Go to <a href="http://sourceforge.net/projects/opencore-amr/">http://sourceforge.net/projects/opencore-amr/</a> and follow the instructions for
-installing the libraries. Then pass <code>--enable-libopencore-amrnb</code> and/or
-<code>--enable-libopencore-amrwb</code> to configure to enable the libraries.
+</p><p>Go to <a href="http://sourceforge.net/projects/opencore-amr/">http://sourceforge.net/projects/opencore-amr/</a> and follow the
+instructions for installing the libraries.
+Then pass <code>--enable-libopencore-amrnb</code> and/or
+<code>--enable-libopencore-amrwb</code> to configure to enable them.
 
-</p><p>Note that OpenCORE is under the Apache License 2.0 (see
-<a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a> for details), which is
-incompatible with the LGPL version 2.1 and GPL version 2. You have to
-upgrade FFmpeg's license to LGPL version 3 (or if you have enabled
-GPL components, GPL version 3) to use it.
+</p><a name="SEC5"></a>
+<h3 class="subsection"> <a href="#TOC5">1.2.2 VisualOn AAC encoder library</a> </h3>
 
+<p>FFmpeg can make use of the VisualOn AACenc library for AAC encoding.
+
+</p><p>Go to <a href="http://sourceforge.net/projects/opencore-amr/">http://sourceforge.net/projects/opencore-amr/</a> and follow the
+instructions for installing the library.
+Then pass <code>--enable-libvo-aacenc</code> to configure to enable it.
+
+</p><a name="SEC6"></a>
+<h3 class="subsection"> <a href="#TOC6">1.2.3 VisualOn AMR-WB encoder library</a> </h3>
+
+<p>FFmpeg can make use of the VisualOn AMR-WBenc library for AMR-WB encoding.
+
+</p><p>Go to <a href="http://sourceforge.net/projects/opencore-amr/">http://sourceforge.net/projects/opencore-amr/</a> and follow the
+instructions for installing the library.
+Then pass <code>--enable-libvo-amrwbenc</code> to configure to enable it.
+
+</p><a name="SEC7"></a>
+<h2 class="section"> <a href="#TOC7">1.3 LAME</a> </h2>
+
+<p>FFmpeg can make use of the LAME library for MP3 encoding.
+
+</p><p>Go to <a href="http://lame.sourceforge.net/">http://lame.sourceforge.net/</a> and follow the
+instructions for installing the library.
+Then pass <code>--enable-libmp3lame</code> to configure to enable it.
+
+</p><a name="SEC8"></a>
+<h2 class="section"> <a href="#TOC8">1.4 libvpx</a> </h2>
+
+<p>FFmpeg can make use of the libvpx library for VP8 encoding.
+
+</p><p>Go to <a href="http://www.webmproject.org/">http://www.webmproject.org/</a> and follow the instructions for
+installing the library. Then pass <code>--enable-libvpx</code> to configure to
+enable it.
+
+</p><a name="SEC9"></a>
+<h2 class="section"> <a href="#TOC9">1.5 x264</a> </h2>
+
+<p>FFmpeg can make use of the x264 library for H.264 encoding.
+
+</p><p>Go to <a href="http://www.videolan.org/developers/x264.html">http://www.videolan.org/developers/x264.html</a> and follow the
+instructions for installing the library. Then pass <code>--enable-libx264</code> to
+configure to enable it.
+
+</p><p>@float NOTE
+x264 is under the GNU Public License Version 2 or later
+(see <a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0.html">http://www.gnu.org/licenses/old-licenses/gpl-2.0.html</a> for
+details), you must upgrade FFmpeg's license to GPL in order to use it.
+@end float
 </p>
-<a name="SEC3"></a>
-<h1 class="chapter"> <a href="#TOC3">2. Supported File Formats and Codecs</a> </h1>
+
+<a name="SEC10"></a>
+<h1 class="chapter"> <a href="#TOC10">2. Supported File Formats, Codecs or Features</a> </h1>
 
 <p>You can use the <code>-formats</code> and <code>-codecs</code> options to have an exhaustive list.
 
-</p><a name="SEC4"></a>
-<h2 class="section"> <a href="#TOC4">2.1 File Formats</a> </h2>
+</p><a name="SEC11"></a>
+<h2 class="section"> <a href="#TOC11">2.1 File Formats</a> </h2>
 
 <p>FFmpeg supports the following file formats through the <code>libavformat</code>
 library:
@@ -95,6 +208,9 @@ library:
 </p></td></tr>
 <tr><td><p> 8088flex TMV              </p></td><td>   </td><td><p> X
 </p></td></tr>
+<tr><td><p> ACT Voice                 </p></td><td>   </td><td><p> X
+    </p></td><td><p> contains G.729 audio
+</p></td></tr>
 <tr><td><p> Adobe Filmstrip           </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
 <tr><td><p> Audio IFF (AIFF)          </p></td><td><p> X </p></td><td><p> X
@@ -105,6 +221,8 @@ library:
 <tr><td><p> 3GPP AMR                  </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
 <tr><td><p> Apple HTTP Live Streaming </p></td><td>   </td><td><p> X
+</p></td></tr>
+<tr><td><p> Artworx Data Format       </p></td><td>   </td><td><p> X
 </p></td></tr>
 <tr><td><p> ASF                       </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
@@ -121,6 +239,8 @@ library:
 <tr><td><p> Bethesda Softworks VID    </p></td><td>   </td><td><p> X
     </p></td><td><p> Used in some games from Bethesda Softworks.
 </p></td></tr>
+<tr><td><p> Binary text               </p></td><td>   </td><td><p> X
+</p></td></tr>
 <tr><td><p> Bink                      </p></td><td>   </td><td><p> X
     </p></td><td><p> Multimedia format used by many games.
 </p></td></tr>
@@ -129,6 +249,13 @@ library:
 </p></td></tr>
 <tr><td><p> Brute Force &amp; Ignorance   </p></td><td>   </td><td><p> X
     </p></td><td><p> Used in the game Flash Traffic: City of Angels.
+</p></td></tr>
+<tr><td><p> BWF                       </p></td><td><p> X </p></td><td><p> X
+</p></td></tr>
+<tr><td><p> CRI ADX                   </p></td><td><p> X </p></td><td><p> X
+    </p></td><td><p> Audio-only format used in console video games.
+</p></td></tr>
+<tr><td><p> Discworld II BMV          </p></td><td>   </td><td><p> X
 </p></td></tr>
 <tr><td><p> Interplay C93             </p></td><td>   </td><td><p> X
     </p></td><td><p> Used in the game Cyberia from Interplay.
@@ -186,16 +313,27 @@ library:
 <tr><td><p> FunCom ISS                </p></td><td>   </td><td><p> X
     </p></td><td><p> Audio format used in various games from FunCom like The Longest Journey.
 </p></td></tr>
+<tr><td><p> G.723.1                   </p></td><td><p> X </p></td><td><p> X
+</p></td></tr>
+<tr><td><p> G.729 BIT                 </p></td><td><p> X </p></td><td><p> X
+</p></td></tr>
+<tr><td><p> G.729 raw                 </p></td><td>   </td><td><p> X
+</p></td></tr>
 <tr><td><p> GIF Animation             </p></td><td><p> X </p></td><td>
 </td></tr>
 <tr><td><p> GXF                       </p></td><td><p> X </p></td><td><p> X
     </p></td><td><p> General eXchange Format SMPTE 360M, used by Thomson Grass Valley
          playout servers.
 </p></td></tr>
+<tr><td><p> iCEDraw File              </p></td><td>   </td><td><p> X
+</p></td></tr>
+<tr><td><p> ICO                       </p></td><td>   </td><td><p> X
+    </p></td><td><p> Microsoft Windows ICO
+</p></td></tr>
 <tr><td><p> id Quake II CIN video     </p></td><td>   </td><td><p> X
 </p></td></tr>
 <tr><td><p> id RoQ                    </p></td><td><p> X </p></td><td><p> X
-    </p></td><td><p> Used in Quake III, Jedi Knight 2, other computer games.
+    </p></td><td><p> Used in Quake III, Jedi Knight 2 and other computer games.
 </p></td></tr>
 <tr><td><p> IEC61937 encapsulation </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
@@ -211,8 +349,13 @@ library:
 <tr><td><p> IVF (On2)                 </p></td><td><p> X </p></td><td><p> X
     </p></td><td><p> A format used by libvpx
 </p></td></tr>
+<tr><td><p> LATM                      </p></td><td><p> X </p></td><td><p> X
+</p></td></tr>
 <tr><td><p> LMLM4                     </p></td><td>   </td><td><p> X
     </p></td><td><p> Used by Linux Media Labs MPEG-4 PCI boards
+</p></td></tr>
+<tr><td><p> LOAS                      </p></td><td>   </td><td><p> X
+    </p></td><td><p> contains LATM multiplexed AAC audio
 </p></td></tr>
 <tr><td><p> LXF                       </p></td><td>   </td><td><p> X
     </p></td><td><p> VR native stream format, used by Leitch/Harris' video servers.
@@ -412,6 +555,8 @@ library:
 </p></td></tr>
 <tr><td><p> SAP                       </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
+<tr><td><p> SBG                       </p></td><td>   </td><td><p> X
+</p></td></tr>
 <tr><td><p> SDP                       </p></td><td>   </td><td><p> X
 </p></td></tr>
 <tr><td><p> Sega FILM/CPK             </p></td><td>   </td><td><p> X
@@ -426,7 +571,10 @@ library:
 <tr><td><p> Smacker                   </p></td><td>   </td><td><p> X
     </p></td><td><p> Multimedia format used by many games.
 </p></td></tr>
-<tr><td><p> Sony OpenMG (OMA)         </p></td><td>   </td><td><p> X
+<tr><td><p> SMJPEG                    </p></td><td><p> X </p></td><td><p> X
+    </p></td><td><p> Used in certain Loki game ports.
+</p></td></tr>
+<tr><td><p> Sony OpenMG (OMA)         </p></td><td><p> X </p></td><td><p> X
     </p></td><td><p> Audio format used in Sony Sonic Stage and Sony Vegas.
 </p></td></tr>
 <tr><td><p> Sony PlayStation STR      </p></td><td>   </td><td><p> X
@@ -455,7 +603,7 @@ library:
 </p></td></tr>
 <tr><td><p> WebM                      </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
-<tr><td><p> Windows Televison (WTV)   </p></td><td>   </td><td><p> X
+<tr><td><p> Windows Televison (WTV)   </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
 <tr><td><p> Wing Commander III movie  </p></td><td>   </td><td><p> X
     </p></td><td><p> Multimedia format used in Origin's Wing Commander III computer game.
@@ -466,8 +614,13 @@ library:
 <tr><td><p> Westwood Studios VQA      </p></td><td>   </td><td><p> X
     </p></td><td><p> Multimedia format used in Westwood Studios games.
 </p></td></tr>
+<tr><td><p> XMV                       </p></td><td>   </td><td><p> X
+    </p></td><td><p> Microsoft video container used in Xbox games.
+</p></td></tr>
 <tr><td><p> xWMA                      </p></td><td>   </td><td><p> X
     </p></td><td><p> Microsoft audio container used by XAudio 2.
+</p></td></tr>
+<tr><td><p> eXtended BINary text (XBIN) </p></td><td> </td><td><p> X
 </p></td></tr>
 <tr><td><p> YUV4MPEG pipe             </p></td><td><p> X </p></td><td><p> X
 </p></td></tr>
@@ -477,8 +630,8 @@ library:
 
 <p><code>X</code> means that encoding (resp. decoding) is supported.
 
-</p><a name="SEC5"></a>
-<h2 class="section"> <a href="#TOC5">2.2 Image Formats</a> </h2>
+</p><a name="SEC12"></a>
+<h2 class="section"> <a href="#TOC12">2.2 Image Formats</a> </h2>
 
 <p>FFmpeg can read and write images for each frame of a video sequence. The
 following image formats are supported:
@@ -527,7 +680,6 @@ following image formats are supported:
     </p></td><td><p> Pictor/PC Paint
 </p></td></tr>
 <tr><td><p> PNG          </p></td><td><p> X </p></td><td><p> X
-    </p></td><td><p> 2/4 bpp not supported yet
 </p></td></tr>
 <tr><td><p> PPM          </p></td><td><p> X </p></td><td><p> X
     </p></td><td><p> Portable PixelMap image
@@ -547,14 +699,17 @@ following image formats are supported:
 <tr><td><p> Truevision Targa  </p></td><td><p> X </p></td><td><p> X
     </p></td><td><p> Targa (.TGA) image format
 </p></td></tr>
+<tr><td><p> XWD  </p></td><td><p> X </p></td><td><p> X
+    </p></td><td><p> X Window Dump image format
+</p></td></tr>
 </table>
 
 <p><code>X</code> means that encoding (resp. decoding) is supported.
 
 </p><p><code>E</code> means that support is provided through an external library.
 
-</p><a name="SEC6"></a>
-<h2 class="section"> <a href="#TOC6">2.3 Video Codecs</a> </h2>
+</p><a name="SEC13"></a>
+<h2 class="section"> <a href="#TOC13">2.3 Video Codecs</a> </h2>
 
 <table>
 <tr><td><p> Name </p></td><td><p> Encoding </p></td><td><p> Decoding </p></td><td><p> Comments
@@ -574,12 +729,14 @@ following image formats are supported:
 <tr><td><p> American Laser Games MM  </p></td><td>    </td><td><p> X
     </p></td><td><p> Used in games like Mad Dog McCree.
 </p></td></tr>
-<tr><td><p> AMV Video              </p></td><td>     </td><td><p>  X
+<tr><td><p> AMV Video              </p></td><td><p>  X  </p></td><td><p>  X
     </p></td><td><p> Used in Chinese MP3 players.
 </p></td></tr>
 <tr><td><p> ANSI/ASCII art         </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> Apple MJPEG-B          </p></td><td>     </td><td><p>  X
+</p></td></tr>
+<tr><td><p> Apple ProRes           </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> Apple QuickDraw        </p></td><td>     </td><td><p>  X
     </p></td><td><p> fourcc: qdrw
@@ -605,6 +762,9 @@ following image formats are supported:
 <tr><td><p> Autodesk RLE           </p></td><td>     </td><td><p>  X
     </p></td><td><p> fourcc: AASC
 </p></td></tr>
+<tr><td><p> Avid 1:1 10-bit RGB Packer  </p></td><td><p>  X  </p></td><td><p>  X
+    </p></td><td><p> fourcc: AVrp
+</p></td></tr>
 <tr><td><p> AVS (Audio Video Standard) video  </p></td><td>     </td><td><p>  X
     </p></td><td><p> Video encoding used by the Creature Shock game.
 </p></td></tr>
@@ -616,6 +776,8 @@ following image formats are supported:
 <tr><td><p> Bink Video             </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> Bitmap Brothers JV video  </p></td><td>   </td><td><p> X
+</p></td></tr>
+<tr><td><p> y41p Brooktree uncompressed 4:1:1 12-bit     </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> Brute Force &amp; Ignorance   </p></td><td>   </td><td><p> X
     </p></td><td><p> Used in the game Flash Traffic: City of Angels.
@@ -635,9 +797,11 @@ following image formats are supported:
 <tr><td><p> Delphine Software International CIN video  </p></td><td>     </td><td><p>  X
     </p></td><td><p> Codec used in Delphine Software International games.
 </p></td></tr>
+<tr><td><p> Discworld II BMV Video </p></td><td>     </td><td><p>  X
+</p></td></tr>
 <tr><td><p> Cinepak                </p></td><td>     </td><td><p>  X
 </p></td></tr>
-<tr><td><p> Cirrus Logic AccuPak   </p></td><td>     </td><td><p>  X
+<tr><td><p> Cirrus Logic AccuPak   </p></td><td><p>  X  </p></td><td><p>  X
     </p></td><td><p> fourcc: CLJR
 </p></td></tr>
 <tr><td><p> Creative YUV (CYUV)    </p></td><td>     </td><td><p>  X
@@ -645,7 +809,7 @@ following image formats are supported:
 <tr><td><p> DFA                    </p></td><td>     </td><td><p>  X
     </p></td><td><p> Codec used in Chronomaster game.
 </p></td></tr>
-<tr><td><p> Dirac                  </p></td><td><p>  E  </p></td><td><p>  E
+<tr><td><p> Dirac                  </p></td><td><p>  E  </p></td><td><p>  X
     </p></td><td><p> supported through external libdirac/libschroedinger libraries
 </p></td></tr>
 <tr><td><p> Deluxe Paint Animation </p></td><td>     </td><td><p>  X
@@ -660,6 +824,8 @@ following image formats are supported:
     </p></td><td><p> fourcc: TM20
 </p></td></tr>
 <tr><td><p> DV (Digital Video)     </p></td><td><p>  X  </p></td><td><p>  X
+</p></td></tr>
+<tr><td><p> Dxtory capture format  </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> Feeble Files/ScummVM DXA  </p></td><td>     </td><td><p>  X
     </p></td><td><p> Codec originally used in Feeble Files game.
@@ -677,13 +843,15 @@ following image formats are supported:
 </p></td></tr>
 <tr><td><p> Escape 124             </p></td><td>     </td><td><p>  X
 </p></td></tr>
+<tr><td><p> Escape 130             </p></td><td>     </td><td><p>  X
+</p></td></tr>
 <tr><td><p> FFmpeg video codec #1  </p></td><td><p>  X  </p></td><td><p>  X
     </p></td><td><p> experimental lossless codec (fourcc: FFV1)
 </p></td></tr>
 <tr><td><p> Flash Screen Video v1  </p></td><td><p>  X  </p></td><td><p>  X
     </p></td><td><p> fourcc: FSV1
 </p></td></tr>
-<tr><td><p> Flash Screen Video v2  </p></td><td><p>  X
+<tr><td><p> Flash Screen Video v2  </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> Flash Video (FLV)      </p></td><td><p>  X  </p></td><td><p>  X
     </p></td><td><p> Sorenson H.263 used in Flash
@@ -715,7 +883,7 @@ following image formats are supported:
     </p></td><td><p> Used in Quake III, Jedi Knight 2, other computer games.
 </p></td></tr>
 <tr><td><p> IFF ILBM               </p></td><td>     </td><td><p>  X
-    </p></td><td><p> IFF interlaved bitmap
+    </p></td><td><p> IFF interleaved bitmap
 </p></td></tr>
 <tr><td><p> IFF ByteRun1           </p></td><td>     </td><td><p>  X
     </p></td><td><p> IFF run length encoded bitmap
@@ -726,6 +894,8 @@ following image formats are supported:
 </p></td></tr>
 <tr><td><p> Intel Indeo 3          </p></td><td>     </td><td><p>  X
 </p></td></tr>
+<tr><td><p> Intel Indeo 4          </p></td><td>     </td><td><p>  X
+</p></td></tr>
 <tr><td><p> Intel Indeo 5          </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> Interplay C93          </p></td><td>     </td><td><p>  X
@@ -733,6 +903,8 @@ following image formats are supported:
 </p></td></tr>
 <tr><td><p> Interplay MVE video    </p></td><td>     </td><td><p>  X
     </p></td><td><p> Used in Interplay .MVE files.
+</p></td></tr>
+<tr><td><p> J2K </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> Karl Morton's video codec  </p></td><td>     </td><td><p>  X
     </p></td><td><p> Codec used in Worms games.
@@ -775,7 +947,7 @@ following image formats are supported:
 <tr><td><p> MPEG-2 video           </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> MPEG-4 part 2          </p></td><td><p>  X  </p></td><td><p>  X
-    &nbsp;libxvidcore can be used alternatively for encoding.
+    </p></td><td><p> libxvidcore can be used alternatively for encoding.
 </p></td></tr>
 <tr><td><p> MPEG-4 part 2 Microsoft variant version 1  </p></td><td>     </td><td><p>  X
 </p></td></tr>
@@ -803,6 +975,9 @@ following image formats are supported:
 <tr><td><p> planar RGB             </p></td><td>     </td><td><p>  X
     </p></td><td><p> fourcc: 8BPS
 </p></td></tr>
+<tr><td><p> Prores                 </p></td><td>     </td><td><p>  X
+    </p></td><td><p> fourcc: apch,apcn,apcs,apco
+</p></td></tr>
 <tr><td><p> Q-team QPEG            </p></td><td>     </td><td><p>  X
     </p></td><td><p> fourccs: QPEG, Q1.0, Q1.1
 </p></td></tr>
@@ -817,9 +992,9 @@ following image formats are supported:
 <tr><td><p> QuickTime video (RPZA) </p></td><td>     </td><td><p>  X
     </p></td><td><p> fourcc: rpza
 </p></td></tr>
-<tr><td><p> R10K AJA Kona 10-bit RGB Codec     </p></td><td>     </td><td><p>  X
+<tr><td><p> R10K AJA Kona 10-bit RGB Codec     </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
-<tr><td><p> R210 Quicktime Uncompressed RGB 10-bit     </p></td><td>     </td><td><p>  X
+<tr><td><p> R210 Quicktime Uncompressed RGB 10-bit     </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> Raw Video              </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
@@ -869,12 +1044,22 @@ following image formats are supported:
 <tr><td><p> Tiertex Limited SEQ video  </p></td><td>     </td><td><p>  X
     </p></td><td><p> Codec used in DOS CD-ROM FlashBack game.
 </p></td></tr>
-<tr><td><p> V210 Quicktime Uncompressed 4:2:2 10-bit     </p></td><td><p>  X  </p></td><td><p>  X
+<tr><td><p> Ut Video               </p></td><td>     </td><td><p>  X
+</p></td></tr>
+<tr><td><p> v210 QuickTime uncompressed 4:2:2 10-bit     </p></td><td><p>  X  </p></td><td><p>  X
+</p></td></tr>
+<tr><td><p> v308 QuickTime uncompressed 4:4:4            </p></td><td><p>  X  </p></td><td><p>  X
+</p></td></tr>
+<tr><td><p> v410 QuickTime uncompressed 4:4:4 10-bit     </p></td><td><p>  X  </p></td><td><p>  X
+</p></td></tr>
+<tr><td><p> VBLE Lossless Codec    </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> VMware Screen Codec / VMware Video  </p></td><td>     </td><td><p>  X
     </p></td><td><p> Codec used in videos captured by VMware.
 </p></td></tr>
 <tr><td><p> Westwood Studios VQA (Vector Quantized Animation) video  </p></td><td>     </td><td><p>  X
+</p></td></tr>
+<tr><td><p> Windows Media Image    </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> Windows Media Video 7  </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
@@ -897,6 +1082,9 @@ following image formats are supported:
 </p></td></tr>
 <tr><td><p> Psygnosis YOP Video    </p></td><td>     </td><td><p>  X
 </p></td></tr>
+<tr><td><p> yuv4                   </p></td><td><p>  X  </p></td><td><p>  X
+    </p></td><td><p> libquicktime uncompressed packed 4:2:0
+</p></td></tr>
 <tr><td><p> ZLIB                   </p></td><td><p>  X  </p></td><td><p>  X
     </p></td><td><p> part of LCL, encoder experimental
 </p></td></tr>
@@ -909,13 +1097,16 @@ following image formats are supported:
 
 </p><p><code>E</code> means that support is provided through an external library.
 
-</p><a name="SEC7"></a>
-<h2 class="section"> <a href="#TOC7">2.4 Audio Codecs</a> </h2>
+</p><a name="SEC14"></a>
+<h2 class="section"> <a href="#TOC14">2.4 Audio Codecs</a> </h2>
 
 <table>
 <tr><td><p> Name </p></td><td><p> Encoding </p></td><td><p> Decoding </p></td><td><p> Comments
 </p></td></tr>
 <tr><td><p> 8SVX audio             </p></td><td>     </td><td><p>  X
+</p></td></tr>
+<tr><td><p> AAC+                   </p></td><td><p>  E  </p></td><td><p>  X
+    </p></td><td><p> encoding supported through external library libaacplus
 </p></td></tr>
 <tr><td><p> AAC                    </p></td><td><p>  E  </p></td><td><p>  X
     </p></td><td><p> encoding supported through external library libfaac and libvo-aacenc
@@ -1016,11 +1207,13 @@ following image formats are supported:
 <tr><td><p> Bink Audio             </p></td><td>     </td><td><p>  X
     </p></td><td><p> Used in Bink and Smacker files in many games.
 </p></td></tr>
-<tr><td><p> CELT (Opus)            </p></td><td>     </td><td><p>  E
+<tr><td><p> CELT                   </p></td><td>     </td><td><p>  E
     </p></td><td><p> decoding supported through external library libcelt
 </p></td></tr>
 <tr><td><p> Delphine Software International CIN audio  </p></td><td>     </td><td><p>  X
     </p></td><td><p> Codec used in Delphine Software International games.
+</p></td></tr>
+<tr><td><p> Discworld II BMV Audio </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> COOK                   </p></td><td>     </td><td><p>  X
     </p></td><td><p> All versions except 5.1 are supported.
@@ -1028,7 +1221,7 @@ following image formats are supported:
 <tr><td><p> DCA (DTS Coherent Acoustics)  </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> DPCM id RoQ            </p></td><td><p>  X  </p></td><td><p>  X
-    </p></td><td><p> Used in Quake III, Jedi Knight 2, other computer games.
+    </p></td><td><p> Used in Quake III, Jedi Knight 2 and other computer games.
 </p></td></tr>
 <tr><td><p> DPCM Interplay         </p></td><td>     </td><td><p>  X
     </p></td><td><p> Used in various Interplay computer games.
@@ -1048,6 +1241,10 @@ following image formats are supported:
 <tr><td><p> Enhanced AC-3          </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
 <tr><td><p> FLAC (Free Lossless Audio Codec)  </p></td><td><p>  X  </p></td><td><p>  IX
+</p></td></tr>
+<tr><td><p> G.723.1                </p></td><td><p> X </p></td><td><p> X
+</p></td></tr>
+<tr><td><p> G.729                  </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> GSM                    </p></td><td><p>  E  </p></td><td><p>  X
     </p></td><td><p> encoding supported through external library libgsm
@@ -1128,7 +1325,7 @@ following image formats are supported:
 </p></td></tr>
 <tr><td><p> PCM unsigned 32-bit little-endian  </p></td><td><p>  X  </p></td><td><p>  X
 </p></td></tr>
-<tr><td><p> PCM Zork               </p></td><td><p>  X  </p></td><td><p>  X
+<tr><td><p> PCM Zork               </p></td><td>     </td><td><p>  X
 </p></td></tr>
 <tr><td><p> QCELP / PureVoice      </p></td><td>     </td><td><p>  X
 </p></td></tr>
@@ -1161,7 +1358,7 @@ following image formats are supported:
 <tr><td><p> Sonic lossless         </p></td><td><p>  X  </p></td><td><p>  X
     </p></td><td><p> experimental codec
 </p></td></tr>
-<tr><td><p> Speex                  </p></td><td>     </td><td><p>  E
+<tr><td><p> Speex                  </p></td><td><p>  E  </p></td><td><p>  E
     </p></td><td><p> supported through external library libspeex
 </p></td></tr>
 <tr><td><p> True Audio (TTA)       </p></td><td>     </td><td><p>  X
@@ -1195,8 +1392,8 @@ following image formats are supported:
 </p><p><code>I</code> means that an integer-only version is available, too (ensures high
 performance on systems without hardware floating point support).
 
-</p><a name="SEC8"></a>
-<h2 class="section"> <a href="#TOC8">2.5 Subtitle Formats</a> </h2>
+</p><a name="SEC15"></a>
+<h2 class="section"> <a href="#TOC15">2.5 Subtitle Formats</a> </h2>
 
 <table>
 <tr><td><p> Name </p></td><td><p> Muxing </p></td><td><p> Demuxing </p></td><td><p> Encoding </p></td><td><p> Decoding
@@ -1219,8 +1416,8 @@ performance on systems without hardware floating point support).
 
 <p><code>X</code> means that the feature is supported.
 
-</p><a name="SEC9"></a>
-<h2 class="section"> <a href="#TOC9">2.6 Network Protocols</a> </h2>
+</p><a name="SEC16"></a>
+<h2 class="section"> <a href="#TOC16">2.6 Network Protocols</a> </h2>
 
 <table>
 <tr><td><p> Name         </p></td><td><p> Support
@@ -1248,8 +1445,8 @@ performance on systems without hardware floating point support).
 <p><code>X</code> means that the protocol is supported.
 
 </p>
-<a name="SEC10"></a>
-<h2 class="section"> <a href="#TOC10">2.7 Input/Output Devices</a> </h2>
+<a name="SEC17"></a>
+<h2 class="section"> <a href="#TOC17">2.7 Input/Output Devices</a> </h2>
 
 <table>
 <tr><td><p> Name              </p></td><td><p> Input  </p></td><td><p> Output
@@ -1266,6 +1463,8 @@ performance on systems without hardware floating point support).
 </td></tr>
 <tr><td><p> OSS               </p></td><td><p> X      </p></td><td><p> X
 </p></td></tr>
+<tr><td><p> Pulseaudio        </p></td><td><p> X      </p></td><td>
+</td></tr>
 <tr><td><p> Video4Linux       </p></td><td><p> X      </p></td><td>
 </td></tr>
 <tr><td><p> Video4Linux2      </p></td><td><p> X      </p></td><td>
@@ -1278,321 +1477,24 @@ performance on systems without hardware floating point support).
 
 <p><code>X</code> means that input/output is supported.
 
-</p>
-<a name="SEC11"></a>
-<h1 class="chapter"> <a href="#TOC11">3. Platform Specific information</a> </h1>
-
-<a name="SEC12"></a>
-<h2 class="section"> <a href="#TOC12">3.1 DOS</a> </h2>
-
-<p>Using a cross-compiler is preferred for various reasons.
-
-</p><a name="SEC13"></a>
-<h2 class="section"> <a href="#TOC13">3.2 OS/2</a> </h2>
-
-<p>For information about compiling FFmpeg on OS/2 see
-<a href="http://www.edm2.com/index.php/FFmpeg">http://www.edm2.com/index.php/FFmpeg</a>.
-
-</p><a name="SEC14"></a>
-<h2 class="section"> <a href="#TOC14">3.3 Unix-like</a> </h2>
-
-<p>Some parts of FFmpeg cannot be built with version 2.15 of the GNU
-assembler which is still provided by a few AMD64 distributions. To
-make sure your compiler really uses the required version of gas
-after a binutils upgrade, run:
-
-</p><table><tr><td>&nbsp;</td><td><pre class="example">$(gcc -print-prog-name=as) --version
-</pre></td></tr></table>
-<p>If not, then you should install a different compiler that has no
-hard-coded path to gas. In the worst case pass <code>--disable-asm</code>
-to configure.
-
-</p><a name="SEC15"></a>
-<h3 class="subsection"> <a href="#TOC15">3.3.1 BSD</a> </h3>
-
-<p>BSD make will not build FFmpeg, you need to install and use GNU Make
-(`<tt>gmake</tt>').
-
-</p><a name="SEC16"></a>
-<h3 class="subsection"> <a href="#TOC16">3.3.2 (Open)Solaris</a> </h3>
-
-<p>GNU Make is required to build FFmpeg, so you have to invoke (`<tt>gmake</tt>'),
-standard Solaris Make will not work. When building with a non-c99 front-end
-(gcc, generic suncc) add either <code>--extra-libs=/usr/lib/values-xpg6.o</code>
-or <code>--extra-libs=/usr/lib/64/values-xpg6.o</code> to the configure options
-since the libc is not c99-compliant by default. The probes performed by
-configure may raise an exception leading to the death of configure itself
-due to a bug in the system shell. Simply invoke a different shell such as
-bash directly to work around this:
-
-</p><table><tr><td>&nbsp;</td><td><pre class="example">bash ./configure
-</pre></td></tr></table>
-<a name="SEC17"></a>
-<h3 class="subsection"> <a href="#TOC17">3.3.3 Darwin (MacOS X, iPhone)</a> </h3>
-
-<p>MacOS X on PowerPC or ARM (iPhone) requires a preprocessor from
-<a href="http://github.com/yuvi/gas-preprocessor">http://github.com/yuvi/gas-preprocessor</a> to build the optimized
-assembler functions. Just download the Perl script and put it somewhere
-in your PATH, FFmpeg's configure will pick it up automatically.
-
 </p><a name="SEC18"></a>
-<h2 class="section"> <a href="#TOC18">3.4 Windows</a> </h2>
+<h2 class="section"> <a href="#TOC18">2.8 Timecode</a> </h2>
 
-<p>To get help and instructions for building FFmpeg under Windows, check out
-the FFmpeg Windows Help Forum at
-<a href="http://ffmpeg.arrozcru.org/">http://ffmpeg.arrozcru.org/</a>.
+<table>
+<tr><td><p> Codec/format      </p></td><td><p> Read   </p></td><td><p> Write
+</p></td></tr>
+<tr><td><p> DV                </p></td><td><p> X      </p></td><td><p> X
+</p></td></tr>
+<tr><td><p> GXF               </p></td><td><p> X      </p></td><td><p> X
+</p></td></tr>
+<tr><td><p> MOV               </p></td><td><p> X      </p></td><td>
+</td></tr>
+<tr><td><p> MPEG1/2           </p></td><td><p> X      </p></td><td><p> X
+</p></td></tr>
+<tr><td><p> MXF               </p></td><td>        </td><td><p> X
+</p></td></tr>
+</table>
 
-</p><a name="SEC19"></a>
-<h3 class="subsection"> <a href="#TOC19">3.4.1 Native Windows compilation</a> </h3>
-
-<p>FFmpeg can be built to run natively on Windows using the MinGW tools. Install
-the latest versions of MSYS and MinGW from <a href="http://www.mingw.org/">http://www.mingw.org/</a>.
-You can find detailed installation
-instructions in the download section and the FAQ.
-
-</p><p>FFmpeg does not build out-of-the-box with the packages the automated MinGW
-installer provides. It also requires coreutils to be installed and many other
-packages updated to the latest version. The minimum version for some packages
-are listed below:
-
-</p><ul class="toc">
-<li><p> bash 3.1
-</p></li><li><p> msys-make 3.81-2 (note: not mingw32-make)
-</p></li><li><p> w32api 3.13
-</p></li><li><p> mingw-runtime 3.15
-</p></li></ul>
-
-<p>FFmpeg automatically passes <code>-fno-common</code> to the compiler to work around
-a GCC bug (see <a href="http://gcc.gnu.org/bugzilla/show_bug.cgi?id=37216">http://gcc.gnu.org/bugzilla/show_bug.cgi?id=37216</a>).
-
-</p><p>Notes:
-
-</p><ul class="toc">
-<li><p> Building natively using MSYS can be sped up by disabling implicit rules
-in the Makefile by calling <code>make -r</code> instead of plain <code>make</code>. This
-speed up is close to non-existent for normal one-off builds and is only
-noticeable when running make for a second time (for example in
-<code>make install</code>).
-
-</p></li><li><p> In order to compile FFplay, you must have the MinGW development library
-of SDL. Get it from <a href="http://www.libsdl.org">http://www.libsdl.org</a>.
-Edit the `<tt>bin/sdl-config</tt>' script so that it points to the correct prefix
-where SDL was installed. Verify that `<tt>sdl-config</tt>' can be launched from
-the MSYS command line.
-
-</p></li><li><p> By using <code>./configure --enable-shared</code> when configuring FFmpeg,
-you can build libavutil, libavcodec and libavformat as DLLs.
-
-</p></li></ul>
-
-<a name="SEC20"></a>
-<h3 class="subsection"> <a href="#TOC20">3.4.2 Microsoft Visual C++ compatibility</a> </h3>
-
-<p>As stated in the FAQ, FFmpeg will not compile under MSVC++. However, if you
-want to use the libav* libraries in your own applications, you can still
-compile those applications using MSVC++. But the libav* libraries you link
-to <em>must</em> be built with MinGW. However, you will not be able to debug
-inside the libav* libraries, since MSVC++ does not recognize the debug
-symbols generated by GCC.
-We strongly recommend you to move over from MSVC++ to MinGW tools.
-
-</p><p>This description of how to use the FFmpeg libraries with MSVC++ is based on
-Microsoft Visual C++ 2005 Express Edition. If you have a different version,
-you might have to modify the procedures slightly.
-
-</p><a name="SEC21"></a>
-<h4 class="subsubsection"> <a href="#TOC21">3.4.2.1 Using static libraries</a> </h4>
-
-<p>Assuming you have just built and installed FFmpeg in `<tt>/usr/local</tt>'.
-
-</p><ol>
-<li><p> Create a new console application (&quot;File / New / Project&quot;) and then
-select &quot;Win32 Console Application&quot;. On the appropriate page of the
-Application Wizard, uncheck the &quot;Precompiled headers&quot; option.
-
-</p></li><li><p> Write the source code for your application, or, for testing, just
-copy the code from an existing sample application into the source file
-that MSVC++ has already created for you. For example, you can copy
-`<tt>libavformat/output-example.c</tt>' from the FFmpeg distribution.
-
-</p></li><li><p> Open the &quot;Project / Properties&quot; dialog box. In the &quot;Configuration&quot;
-combo box, select &quot;All Configurations&quot; so that the changes you make will
-affect both debug and release builds. In the tree view on the left hand
-side, select &quot;C/C++ / General&quot;, then edit the &quot;Additional Include
-Directories&quot; setting to contain the path where the FFmpeg includes were
-installed (i.e. `<tt>c:\msys\1.0\local\include</tt>').
-Do not add MinGW's include directory here, or the include files will
-conflict with MSVC's.
-
-</p></li><li><p> Still in the &quot;Project / Properties&quot; dialog box, select
-&quot;Linker / General&quot; from the tree view and edit the
-&quot;Additional Library Directories&quot; setting to contain the `<tt>lib</tt>'
-directory where FFmpeg was installed (i.e. `<tt>c:\msys\1.0\local\lib</tt>'),
-the directory where MinGW libs are installed (i.e. `<tt>c:\mingw\lib</tt>'),
-and the directory where MinGW's GCC libs are installed
-(i.e. `<tt>C:\mingw\lib\gcc\mingw32\4.2.1-sjlj</tt>'). Then select
-&quot;Linker / Input&quot; from the tree view, and add the files `<tt>libavformat.a</tt>',
-`<tt>libavcodec.a</tt>', `<tt>libavutil.a</tt>', `<tt>libmingwex.a</tt>',
-`<tt>libgcc.a</tt>', and any other libraries you used (i.e. `<tt>libz.a</tt>')
-to the end of &quot;Additional Dependencies&quot;.
-
-</p></li><li><p> Now, select &quot;C/C++ / Code Generation&quot; from the tree view. Select
-&quot;Debug&quot; in the &quot;Configuration&quot; combo box. Make sure that &quot;Runtime
-Library&quot; is set to &quot;Multi-threaded Debug DLL&quot;. Then, select &quot;Release&quot; in
-the &quot;Configuration&quot; combo box and make sure that &quot;Runtime Library&quot; is
-set to &quot;Multi-threaded DLL&quot;.
-
-</p></li><li><p> Click &quot;OK&quot; to close the &quot;Project / Properties&quot; dialog box.
-
-</p></li><li><p> MSVC++ lacks some C99 header files that are fundamental for FFmpeg.
-Get msinttypes from <a href="http://code.google.com/p/msinttypes/downloads/list">http://code.google.com/p/msinttypes/downloads/list</a>
-and install it in MSVC++'s include directory
-(i.e. `<tt>C:\Program Files\Microsoft Visual Studio 8\VC\include</tt>').
-
-</p></li><li><p> MSVC++ also does not understand the <code>inline</code> keyword used by
-FFmpeg, so you must add this line before <code>#include</code>ing libav*:
-</p><table><tr><td>&nbsp;</td><td><pre class="example">#define inline _inline
-</pre></td></tr></table></li><li><p> Build your application, everything should work.
-
-</p></li></ol>
-
-<a name="SEC22"></a>
-<h4 class="subsubsection"> <a href="#TOC22">3.4.2.2 Using shared libraries</a> </h4>
-
-<p>This is how to create DLL and LIB files that are compatible with MSVC++:
-
-</p><ol>
-<li><p> Add a call to `<tt>vcvars32.bat</tt>' (which sets up the environment
-variables for the Visual C++ tools) as the first line of `<tt>msys.bat</tt>'.
-The standard location for `<tt>vcvars32.bat</tt>' is
-`<tt>C:\Program Files\Microsoft Visual Studio 8\VC\bin\vcvars32.bat</tt>',
-and the standard location for `<tt>msys.bat</tt>' is `<tt>C:\msys\1.0\msys.bat</tt>'.
-If this corresponds to your setup, add the following line as the first line
-of `<tt>msys.bat</tt>':
-
-</p><table><tr><td>&nbsp;</td><td><pre class="example">call &quot;C:\Program Files\Microsoft Visual Studio 8\VC\bin\vcvars32.bat&quot;
-</pre></td></tr></table>
-<p>Alternatively, you may start the `<tt>Visual Studio 2005 Command Prompt</tt>',
-and run `<tt>c:\msys\1.0\msys.bat</tt>' from there.
-
-</p></li><li><p> Within the MSYS shell, run <code>lib.exe</code>. If you get a help message
-from `<tt>Microsoft (R) Library Manager</tt>', this means your environment
-variables are set up correctly, the `<tt>Microsoft (R) Library Manager</tt>'
-is on the path and will be used by FFmpeg to create
-MSVC++-compatible import libraries.
-
-</p></li><li><p> Build FFmpeg with
-
-</p><table><tr><td>&nbsp;</td><td><pre class="example">./configure --enable-shared --enable-memalign-hack
-make
-make install
-</pre></td></tr></table>
-<p>Your install path (`<tt>/usr/local/</tt>' by default) should now have the
-necessary DLL and LIB files under the `<tt>bin</tt>' directory.
-
-</p></li></ol>
-
-<p>To use those files with MSVC++, do the same as you would do with
-the static libraries, as described above. But in Step 4,
-you should only need to add the directory where the LIB files are installed
-(i.e. `<tt>c:\msys\usr\local\bin</tt>'). This is not a typo, the LIB files are
-installed in the `<tt>bin</tt>' directory. And instead of adding the static
-libraries (`<tt>libxxx.a</tt>' files) you should add the MSVC import libraries
-(`<tt>avcodec.lib</tt>', `<tt>avformat.lib</tt>', and
-`<tt>avutil.lib</tt>'). Note that you should not use the GCC import
-libraries (`<tt>libxxx.dll.a</tt>' files), as these will give you undefined
-reference errors. There should be no need for `<tt>libmingwex.a</tt>',
-`<tt>libgcc.a</tt>', and `<tt>wsock32.lib</tt>', nor any other external library
-statically linked into the DLLs. The `<tt>bin</tt>' directory contains a bunch
-of DLL files, but the ones that are actually used to run your application
-are the ones with a major version number in their filenames
-(i.e. `<tt>avcodec-51.dll</tt>').
-
-</p><p>FFmpeg headers do not declare global data for Windows DLLs through the usual
-dllexport/dllimport interface. Such data will be exported properly while
-building, but to use them in your MSVC++ code you will have to edit the
-appropriate headers and mark the data as dllimport. For example, in
-libavutil/pixdesc.h you should have:
-</p><table><tr><td>&nbsp;</td><td><pre class="example">extern __declspec(dllimport) const AVPixFmtDescriptor av_pix_fmt_descriptors[];
-</pre></td></tr></table>
-<p>Note that using import libraries created by dlltool requires
-the linker optimization option to be set to
-&quot;References: Keep Unreferenced Data (/OPT:NOREF)&quot;, otherwise
-the resulting binaries will fail during runtime. This isn't
-required when using import libraries generated by lib.exe.
-
-</p><a name="SEC23"></a>
-<h3 class="subsection"> <a href="#TOC23">3.4.3 Cross compilation for Windows with Linux</a> </h3>
-
-<p>You must use the MinGW cross compilation tools available at
-<a href="http://www.mingw.org/">http://www.mingw.org/</a>.
-
-</p><p>Then configure FFmpeg with the following options:
-</p><table><tr><td>&nbsp;</td><td><pre class="example">./configure --target-os=mingw32 --cross-prefix=i386-mingw32msvc-
-</pre></td></tr></table><p>(you can change the cross-prefix according to the prefix chosen for the
-MinGW tools).
-
-</p><p>Then you can easily test FFmpeg with Wine
-(<a href="http://www.winehq.com/">http://www.winehq.com/</a>).
-
-</p><a name="SEC24"></a>
-<h3 class="subsection"> <a href="#TOC24">3.4.4 Compilation under Cygwin</a> </h3>
-
-<p>Please use Cygwin 1.7.x as the obsolete 1.5.x Cygwin versions lack
-llrint() in its C library.
-
-</p><p>Install your Cygwin with all the &quot;Base&quot; packages, plus the
-following &quot;Devel&quot; ones:
-</p><table><tr><td>&nbsp;</td><td><pre class="example">binutils, gcc4-core, make, git, mingw-runtime, texi2html
-</pre></td></tr></table>
-<p>And the following &quot;Utils&quot; one:
-</p><table><tr><td>&nbsp;</td><td><pre class="example">diffutils
-</pre></td></tr></table>
-<p>Then run
-
-</p><table><tr><td>&nbsp;</td><td><pre class="example">./configure --enable-static --disable-shared
-</pre></td></tr></table>
-<p>to make a static build.
-
-</p><p>The current <code>gcc4-core</code> package is buggy and needs this flag to build
-shared libraries:
-
-</p><table><tr><td>&nbsp;</td><td><pre class="example">./configure --enable-shared --disable-static --extra-cflags=-fno-reorder-functions
-</pre></td></tr></table>
-<p>If you want to build FFmpeg with additional libraries, download Cygwin
-&quot;Devel&quot; packages for Ogg and Vorbis from any Cygwin packages repository:
-</p><table><tr><td>&nbsp;</td><td><pre class="example">libogg-devel, libvorbis-devel
-</pre></td></tr></table>
-<p>These library packages are only available from Cygwin Ports
-(<a href="http://sourceware.org/cygwinports/">http://sourceware.org/cygwinports/</a>) :
-
-</p><table><tr><td>&nbsp;</td><td><pre class="example">yasm, libSDL-devel, libdirac-devel, libfaac-devel, libgsm-devel,
-libmp3lame-devel, libschroedinger1.0-devel, speex-devel, libtheora-devel,
-libxvidcore-devel
-</pre></td></tr></table>
-<p>The recommendation for libnut and x264 is to build them from source by
-yourself, as they evolve too quickly for Cygwin Ports to be up to date.
-
-</p><p>Cygwin 1.7.x has IPv6 support. You can add IPv6 to Cygwin 1.5.x by means
-of the <code>libgetaddrinfo-devel</code> package, available at Cygwin Ports.
-
-</p><a name="SEC25"></a>
-<h3 class="subsection"> <a href="#TOC25">3.4.5 Crosscompilation for Windows under Cygwin</a> </h3>
-
-<p>With Cygwin you can create Windows binaries that do not need the cygwin1.dll.
-
-</p><p>Just install your Cygwin as explained before, plus these additional
-&quot;Devel&quot; packages:
-</p><table><tr><td>&nbsp;</td><td><pre class="example">gcc-mingw-core, mingw-runtime, mingw-zlib
-</pre></td></tr></table>
-<p>and add some special flags to your configure invocation.
-
-</p><p>For a static build run
-</p><table><tr><td>&nbsp;</td><td><pre class="example">./configure --target-os=mingw32 --enable-memalign-hack --enable-static --disable-shared --extra-cflags=-mno-cygwin --extra-libs=-mno-cygwin
-</pre></td></tr></table>
-<p>and for a build with shared libraries
-</p><table><tr><td>&nbsp;</td><td><pre class="example">./configure --target-os=mingw32 --enable-memalign-hack --enable-shared --disable-static --extra-cflags=-mno-cygwin --extra-libs=-mno-cygwin
-</pre></td></tr></table>
 <a name="SEC_Contents"></a>
 <table cellpadding="1" cellspacing="1" border="0">
 <tr><td valign="middle" align="left">[<a href="#SEC_Top" title="Cover (top) of document">Top</a>]</td>
@@ -1604,48 +1506,34 @@ of the <code>libgetaddrinfo-devel</code> package, available at Cygwin Ports.
 <div class="contents">
 
 <ul class="toc">
-  <li><a name="TOC1" href="#SEC1">1. external libraries</a>
+  <li><a name="TOC1" href="#SEC1">1. External libraries</a>
   <ul class="toc">
-    <li><a name="TOC2" href="#SEC2">1.1 OpenCORE AMR</a></li>
-  </ul></li>
-  <li><a name="TOC3" href="#SEC3">2. Supported File Formats and Codecs</a>
-  <ul class="toc">
-    <li><a name="TOC4" href="#SEC4">2.1 File Formats</a></li>
-    <li><a name="TOC5" href="#SEC5">2.2 Image Formats</a></li>
-    <li><a name="TOC6" href="#SEC6">2.3 Video Codecs</a></li>
-    <li><a name="TOC7" href="#SEC7">2.4 Audio Codecs</a></li>
-    <li><a name="TOC8" href="#SEC8">2.5 Subtitle Formats</a></li>
-    <li><a name="TOC9" href="#SEC9">2.6 Network Protocols</a></li>
-    <li><a name="TOC10" href="#SEC10">2.7 Input/Output Devices</a></li>
-  </ul></li>
-  <li><a name="TOC11" href="#SEC11">3. Platform Specific information</a>
-  <ul class="toc">
-    <li><a name="TOC12" href="#SEC12">3.1 DOS</a></li>
-    <li><a name="TOC13" href="#SEC13">3.2 OS/2</a></li>
-    <li><a name="TOC14" href="#SEC14">3.3 Unix-like</a>
+    <li><a name="TOC2" href="#SEC2">1.1 OpenJPEG</a></li>
+    <li><a name="TOC3" href="#SEC3">1.2 OpenCORE and VisualOn libraries</a>
     <ul class="toc">
-      <li><a name="TOC15" href="#SEC15">3.3.1 BSD</a></li>
-      <li><a name="TOC16" href="#SEC16">3.3.2 (Open)Solaris</a></li>
-      <li><a name="TOC17" href="#SEC17">3.3.3 Darwin (MacOS X, iPhone)</a></li>
+      <li><a name="TOC4" href="#SEC4">1.2.1 OpenCORE AMR</a></li>
+      <li><a name="TOC5" href="#SEC5">1.2.2 VisualOn AAC encoder library</a></li>
+      <li><a name="TOC6" href="#SEC6">1.2.3 VisualOn AMR-WB encoder library</a></li>
     </ul></li>
-    <li><a name="TOC18" href="#SEC18">3.4 Windows</a>
-    <ul class="toc">
-      <li><a name="TOC19" href="#SEC19">3.4.1 Native Windows compilation</a></li>
-      <li><a name="TOC20" href="#SEC20">3.4.2 Microsoft Visual C++ compatibility</a>
-      <ul class="toc">
-        <li><a name="TOC21" href="#SEC21">3.4.2.1 Using static libraries</a></li>
-        <li><a name="TOC22" href="#SEC22">3.4.2.2 Using shared libraries</a></li>
-      </ul></li>
-      <li><a name="TOC23" href="#SEC23">3.4.3 Cross compilation for Windows with Linux</a></li>
-      <li><a name="TOC24" href="#SEC24">3.4.4 Compilation under Cygwin</a></li>
-      <li><a name="TOC25" href="#SEC25">3.4.5 Crosscompilation for Windows under Cygwin</a></li>
-    </ul>
-</li>
+    <li><a name="TOC7" href="#SEC7">1.3 LAME</a></li>
+    <li><a name="TOC8" href="#SEC8">1.4 libvpx</a></li>
+    <li><a name="TOC9" href="#SEC9">1.5 x264</a></li>
+  </ul></li>
+  <li><a name="TOC10" href="#SEC10">2. Supported File Formats, Codecs or Features</a>
+  <ul class="toc">
+    <li><a name="TOC11" href="#SEC11">2.1 File Formats</a></li>
+    <li><a name="TOC12" href="#SEC12">2.2 Image Formats</a></li>
+    <li><a name="TOC13" href="#SEC13">2.3 Video Codecs</a></li>
+    <li><a name="TOC14" href="#SEC14">2.4 Audio Codecs</a></li>
+    <li><a name="TOC15" href="#SEC15">2.5 Subtitle Formats</a></li>
+    <li><a name="TOC16" href="#SEC16">2.6 Network Protocols</a></li>
+    <li><a name="TOC17" href="#SEC17">2.7 Input/Output Devices</a></li>
+    <li><a name="TOC18" href="#SEC18">2.8 Timecode</a></li>
   </ul>
 </li>
 </ul>
 </div>
-<hr size="1">
+
 <a name="SEC_About"></a>
 <table cellpadding="1" cellspacing="1" border="0">
 <tr><td valign="middle" align="left">[<a href="#SEC_Top" title="Cover (top) of document">Top</a>]</td>
@@ -1655,7 +1543,7 @@ of the <code>libgetaddrinfo-devel</code> package, available at Cygwin Ports.
 </tr></table>
 <h1>About This Document</h1>
 <p>
-  This document was generated by <em>Beherith</em> on <em>June, 20 2011</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
+  This document was generated by <em>Beherith</em> on <em>February, 1 2012</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
 </p>
 <p>
   The buttons in the navigation panels have the following meaning:
@@ -1754,14 +1642,15 @@ of the <code>libgetaddrinfo-devel</code> package, available at Cygwin Ports.
   </li>
 </ul>
 
-<hr size="1">
-<hr size="1">
+
+<div id="footer">
 <p>
  <font size="-1">
-  This document was generated by <em>Beherith</em> on <em>June, 20 2011</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
+  This document was generated by <em>Beherith</em> on <em>February, 1 2012</em> using <a href="http://texi2html.cvshome.org/"><em>texi2html 1.70</em></a>.
  </font>
  <br>
-
+</div></div>
 </p>
 </body>
 </html>
+</div>

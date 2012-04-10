@@ -39,7 +39,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
     const uint8_t *buf = avpkt->data;
     const uint8_t *buf_end = buf + avpkt->size;
     KgvContext * const c = avctx->priv_data;
-    int offsets[7];
+    int offsets[8];
     uint16_t *out, *prev;
     int outcnt = 0, maxcnt;
     int w, h, i;
@@ -69,7 +69,7 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *data_size, AVPac
         return -1;
     c->prev = prev;
 
-    for (i = 0; i < 7; i++)
+    for (i = 0; i < 8; i++)
         offsets[i] = -1;
 
     while (outcnt < maxcnt && buf_end - 2 > buf) {
@@ -166,14 +166,12 @@ static av_cold int decode_end(AVCodecContext *avctx)
 }
 
 AVCodec ff_kgv1_decoder = {
-    "kgv1",
-    AVMEDIA_TYPE_VIDEO,
-    CODEC_ID_KGV1,
-    sizeof(KgvContext),
-    decode_init,
-    NULL,
-    decode_end,
-    decode_frame,
-    .max_lowres = 1,
+    .name           = "kgv1",
+    .type           = AVMEDIA_TYPE_VIDEO,
+    .id             = CODEC_ID_KGV1,
+    .priv_data_size = sizeof(KgvContext),
+    .init           = decode_init,
+    .close          = decode_end,
+    .decode         = decode_frame,
     .long_name = NULL_IF_CONFIG_SMALL("Kega Game Video"),
 };

@@ -123,34 +123,6 @@ void sws_rgb2rgb_init(void)
         rgb2rgb_init_x86();
 }
 
-#if LIBSWSCALE_VERSION_MAJOR < 1
-void palette8topacked32(const uint8_t *src, uint8_t *dst, long num_pixels, const uint8_t *palette)
-{
-    sws_convertPalette8ToPacked32(src, dst, num_pixels, palette);
-}
-
-void palette8topacked24(const uint8_t *src, uint8_t *dst, long num_pixels, const uint8_t *palette)
-{
-    sws_convertPalette8ToPacked24(src, dst, num_pixels, palette);
-}
-
-/**
- * Palette is assumed to contain BGR16, see rgb32to16 to convert the palette.
- */
-void palette8torgb16(const uint8_t *src, uint8_t *dst, long num_pixels, const uint8_t *palette)
-{
-    long i;
-    for (i=0; i<num_pixels; i++)
-        ((uint16_t *)dst)[i] = ((const uint16_t *)palette)[src[i]];
-}
-void palette8tobgr16(const uint8_t *src, uint8_t *dst, long num_pixels, const uint8_t *palette)
-{
-    long i;
-    for (i=0; i<num_pixels; i++)
-        ((uint16_t *)dst)[i] = av_bswap16(((const uint16_t *)palette)[src[i]]);
-}
-#endif
-
 void rgb32to24(const uint8_t *src, uint8_t *dst, int src_size)
 {
     int i;
@@ -199,15 +171,34 @@ void rgb16tobgr32(const uint8_t *src, uint8_t *dst, int src_size)
         bgr = *s++;
 #if HAVE_BIGENDIAN
         *d++ = 255;
-        *d++ = (bgr&0x1F)<<3;
-        *d++ = (bgr&0x7E0)>>3;
-        *d++ = (bgr&0xF800)>>8;
+        *d++ = ((bgr&0x1F)<<3) | ((bgr&0x1F)>>2);
+        *d++ = ((bgr&0x7E0)>>3) | ((bgr&0x7E0)>>9);
+        *d++ = ((bgr&0xF800)>>8) | ((bgr&0xF800)>>13);
 #else
-        *d++ = (bgr&0xF800)>>8;
-        *d++ = (bgr&0x7E0)>>3;
-        *d++ = (bgr&0x1F)<<3;
+        *d++ = ((bgr&0xF800)>>8) | ((bgr&0xF800)>>13);
+        *d++ = ((bgr&0x7E0)>>3) | ((bgr&0x7E0)>>9);
+        *d++ = ((bgr&0x1F)<<3) | ((bgr&0x1F)>>2);
         *d++ = 255;
 #endif
+    }
+}
+
+void rgb12to15(const uint8_t *src, uint8_t *dst, int src_size)
+{
+    const uint16_t *end;
+    uint16_t *d = (uint16_t *)dst;
+    const uint16_t *s = (const uint16_t *)src;
+    uint16_t rgb, r, g, b;
+    end = s + src_size / 2;
+    while (s < end) {
+        rgb = *s++;
+        r = rgb & 0xF00;
+        g = rgb & 0x0F0;
+        b = rgb & 0x00F;
+        r = (r << 3) | ((r & 0x800) >> 1);
+        g = (g << 2) | ((g & 0x080) >> 2);
+        b = (b << 1) | ( b          >> 3);
+        *d++ = r | g | b;
     }
 }
 
@@ -220,9 +211,9 @@ void rgb16to24(const uint8_t *src, uint8_t *dst, int src_size)
     while (s < end) {
         register uint16_t bgr;
         bgr = *s++;
-        *d++ = (bgr&0xF800)>>8;
-        *d++ = (bgr&0x7E0)>>3;
-        *d++ = (bgr&0x1F)<<3;
+        *d++ = ((bgr&0xF800)>>8) | ((bgr&0xF800)>>13);
+        *d++ = ((bgr&0x7E0)>>3) | ((bgr&0x7E0)>>9);
+        *d++ = ((bgr&0x1F)<<3) | ((bgr&0x1F)>>2);
     }
 }
 
@@ -259,13 +250,13 @@ void rgb15tobgr32(const uint8_t *src, uint8_t *dst, int src_size)
         bgr = *s++;
 #if HAVE_BIGENDIAN
         *d++ = 255;
-        *d++ = (bgr&0x1F)<<3;
-        *d++ = (bgr&0x3E0)>>2;
-        *d++ = (bgr&0x7C00)>>7;
+        *d++ = ((bgr&0x1F)<<3) | ((bgr&0x1F)>>2);
+        *d++ = ((bgr&0x3E0)>>2) | ((bgr&0x3E0)>>7);
+        *d++ = ((bgr&0x7C00)>>7) | ((bgr&0x7C00)>>12);
 #else
-        *d++ = (bgr&0x7C00)>>7;
-        *d++ = (bgr&0x3E0)>>2;
-        *d++ = (bgr&0x1F)<<3;
+        *d++ = ((bgr&0x7C00)>>7) | ((bgr&0x7C00)>>12);
+        *d++ = ((bgr&0x3E0)>>2) | ((bgr&0x3E0)>>7);
+        *d++ = ((bgr&0x1F)<<3) | ((bgr&0x1F)>>2);
         *d++ = 255;
 #endif
     }
@@ -280,9 +271,9 @@ void rgb15to24(const uint8_t *src, uint8_t *dst, int src_size)
     while (s < end) {
         register uint16_t bgr;
         bgr = *s++;
-        *d++ = (bgr&0x7C00)>>7;
-        *d++ = (bgr&0x3E0)>>2;
-        *d++ = (bgr&0x1F)<<3;
+        *d++ = ((bgr&0x7C00)>>7) | ((bgr&0x7C00)>>12);
+        *d++ = ((bgr&0x3E0)>>2) | ((bgr&0x3E0)>>7);
+        *d++ = ((bgr&0x1F)<<3) | ((bgr&0x1F)>>2);
     }
 }
 
@@ -310,18 +301,16 @@ void rgb15tobgr15(const uint8_t *src, uint8_t *dst, int src_size)
     }
 }
 
-void bgr8torgb8(const uint8_t *src, uint8_t *dst, int src_size)
+void rgb12tobgr12(const uint8_t *src, uint8_t *dst, int src_size)
 {
+    uint16_t *d = (uint16_t*)dst;
+    uint16_t *s = (uint16_t*)src;
     int i;
-    int num_pixels = src_size;
-    for (i=0; i<num_pixels; i++) {
-        unsigned b,g,r;
-        register uint8_t rgb;
-        rgb = src[i];
-        r = (rgb&0x07);
-        g = (rgb&0x38)>>3;
-        b = (rgb&0xC0)>>6;
-        dst[i] = ((b<<1)&0x07) | ((g&0x07)<<3) | ((r&0x03)<<6);
+    int num_pixels = src_size >> 1;
+
+    for (i = 0; i < num_pixels; i++) {
+        unsigned rgb = s[i];
+        d[i] = (rgb << 8 | rgb & 0xF0 | rgb >> 8) & 0xFFF;
     }
 }
 
@@ -338,8 +327,8 @@ void shuffle_bytes_##a##b##c##d(const uint8_t *src, uint8_t *dst, int src_size) 
     }                                                                   \
 }
 
-DEFINE_SHUFFLE_BYTES(0, 3, 2, 1);
-DEFINE_SHUFFLE_BYTES(1, 2, 3, 0);
-DEFINE_SHUFFLE_BYTES(3, 0, 1, 2);
-DEFINE_SHUFFLE_BYTES(3, 2, 1, 0);
+DEFINE_SHUFFLE_BYTES(0, 3, 2, 1)
+DEFINE_SHUFFLE_BYTES(1, 2, 3, 0)
+DEFINE_SHUFFLE_BYTES(3, 0, 1, 2)
+DEFINE_SHUFFLE_BYTES(3, 2, 1, 0)
 

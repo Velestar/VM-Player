@@ -20,7 +20,9 @@
  */
 
 #include "libavutil/intreadwrite.h"
+#include "libavutil/intfloat.h"
 #include "avformat.h"
+#include "internal.h"
 #include "ffm.h"
 #if CONFIG_FFSERVER
 #include <unistd.h>
@@ -120,6 +122,11 @@ static int ffm_read_data(AVFormatContext *s,
             if (avio_tell(pb) == ffm->file_size)
                 avio_seek(pb, ffm->packet_size, SEEK_SET);
     retry_read:
+            if (pb->buffer_size != ffm->packet_size) {
+                int64_t tell = avio_tell(pb);
+                url_setbufsize(pb, ffm->packet_size);
+                avio_seek(pb, tell, SEEK_SET);
+            }
             id = avio_rb16(pb); /* PACKET_ID */
             if (id != PACKET_ID)
                 if (ffm_resync(s, id) < 0)
@@ -165,7 +172,7 @@ static int ffm_read_data(AVFormatContext *s,
 
 /* ensure that acutal seeking happens between FFM_PACKET_SIZE
    and file_size - FFM_PACKET_SIZE */
-static void ffm_seek1(AVFormatContext *s, int64_t pos1)
+static int64_t ffm_seek1(AVFormatContext *s, int64_t pos1)
 {
     FFMContext *ffm = s->priv_data;
     AVIOContext *pb = s->pb;
@@ -174,7 +181,7 @@ static void ffm_seek1(AVFormatContext *s, int64_t pos1)
     pos = FFMIN(pos1, ffm->file_size - FFM_PACKET_SIZE);
     pos = FFMAX(pos, FFM_PACKET_SIZE);
     av_dlog(s, "seek to %"PRIx64" -> %"PRIx64"\n", pos1, pos);
-    avio_seek(pb, pos, SEEK_SET);
+    return avio_seek(pb, pos, SEEK_SET);
 }
 
 static int64_t get_dts(AVFormatContext *s, int64_t pos)
@@ -289,18 +296,17 @@ static int ffm_read_header(AVFormatContext *s, AVFormatParameters *ap)
     for(i=0;i<nb_streams;i++) {
         char rc_eq_buf[128];
 
-        st = av_new_stream(s, 0);
+        st = avformat_new_stream(s, NULL);
         if (!st)
             goto fail;
 
-        av_set_pts_info(st, 64, 1, 1000000);
+        avpriv_set_pts_info(st, 64, 1, 1000000);
 
         codec = st->codec;
         /* generic info */
         codec->codec_id = avio_rb32(pb);
         codec->codec_type = avio_r8(pb); /* codec_type */
         codec->bit_rate = avio_rb32(pb);
-        st->quality = avio_rb32(pb);
         codec->flags = avio_rb32(pb);
         codec->flags2 = avio_rb32(pb);
         codec->debug = avio_rb32(pb);
@@ -319,14 +325,15 @@ static int ffm_read_header(AVFormatContext *s, AVFormatParameters *ap)
             codec->qcompress = avio_rb16(pb) / 10000.0;
             codec->qblur = avio_rb16(pb) / 10000.0;
             codec->bit_rate_tolerance = avio_rb32(pb);
-            codec->rc_eq = av_strdup(get_strz(pb, rc_eq_buf, sizeof(rc_eq_buf)));
+            avio_get_str(pb, INT_MAX, rc_eq_buf, sizeof(rc_eq_buf));
+            codec->rc_eq = av_strdup(rc_eq_buf);
             codec->rc_max_rate = avio_rb32(pb);
             codec->rc_min_rate = avio_rb32(pb);
             codec->rc_buffer_size = avio_rb32(pb);
-            codec->i_quant_factor = av_int2dbl(avio_rb64(pb));
-            codec->b_quant_factor = av_int2dbl(avio_rb64(pb));
-            codec->i_quant_offset = av_int2dbl(avio_rb64(pb));
-            codec->b_quant_offset = av_int2dbl(avio_rb64(pb));
+            codec->i_quant_factor = av_int2double(avio_rb64(pb));
+            codec->b_quant_factor = av_int2double(avio_rb64(pb));
+            codec->i_quant_offset = av_int2double(avio_rb64(pb));
+            codec->b_quant_offset = av_int2double(avio_rb64(pb));
             codec->dct_algo = avio_rb32(pb);
             codec->strict_std_compliance = avio_rb32(pb);
             codec->max_b_frames = avio_rb32(pb);
@@ -338,7 +345,7 @@ static int ffm_read_header(AVFormatContext *s, AVFormatParameters *ap)
             codec->mb_decision = avio_rb32(pb);
             codec->nsse_weight = avio_rb32(pb);
             codec->frame_skip_cmp = avio_rb32(pb);
-            codec->rc_buffer_aggressivity = av_int2dbl(avio_rb64(pb));
+            codec->rc_buffer_aggressivity = av_int2double(avio_rb64(pb));
             codec->codec_tag = avio_rb32(pb);
             codec->thread_count = avio_r8(pb);
             codec->coder_type = avio_rb32(pb);
@@ -349,8 +356,8 @@ static int ffm_read_header(AVFormatContext *s, AVFormatParameters *ap)
             codec->keyint_min = avio_rb32(pb);
             codec->scenechange_threshold = avio_rb32(pb);
             codec->b_frame_strategy = avio_rb32(pb);
-            codec->qcompress = av_int2dbl(avio_rb64(pb));
-            codec->qblur = av_int2dbl(avio_rb64(pb));
+            codec->qcompress = av_int2double(avio_rb64(pb));
+            codec->qblur = av_int2double(avio_rb64(pb));
             codec->max_qdiff = avio_rb32(pb);
             codec->refs = avio_rb32(pb);
             codec->directpred = avio_rb32(pb);
@@ -461,11 +468,25 @@ static int ffm_seek(AVFormatContext *s, int stream_index, int64_t wanted_pts, in
     av_dlog(s, "wanted_pts=%0.6f\n", wanted_pts / 1000000.0);
     /* find the position using linear interpolation (better than
        dichotomy in typical cases) */
-    pos_min = FFM_PACKET_SIZE;
-    pos_max = ffm->file_size - FFM_PACKET_SIZE;
+    if (ffm->write_index && ffm->write_index < ffm->file_size) {
+        if (get_dts(s, FFM_PACKET_SIZE) < wanted_pts) {
+            pos_min = FFM_PACKET_SIZE;
+            pos_max = ffm->write_index - FFM_PACKET_SIZE;
+        } else {
+            pos_min = ffm->write_index;
+            pos_max = ffm->file_size - FFM_PACKET_SIZE;
+        }
+    } else {
+        pos_min = FFM_PACKET_SIZE;
+        pos_max = ffm->file_size - FFM_PACKET_SIZE;
+    }
     while (pos_min <= pos_max) {
         pts_min = get_dts(s, pos_min);
         pts_max = get_dts(s, pos_max);
+        if (pts_min > wanted_pts || pts_max < wanted_pts) {
+            pos = pts_min > wanted_pts ? pos_min : pos_max;
+            goto found;
+        }
         /* linear interpolation */
         pos1 = (double)(pos_max - pos_min) * (double)(wanted_pts - pts_min) /
             (double)(pts_max - pts_min);
@@ -487,7 +508,8 @@ static int ffm_seek(AVFormatContext *s, int stream_index, int64_t wanted_pts, in
     pos = (flags & AVSEEK_FLAG_BACKWARD) ? pos_min : pos_max;
 
  found:
-    ffm_seek1(s, pos);
+    if (ffm_seek1(s, pos) < 0)
+        return -1;
 
     /* reset read state */
     ffm->read_state = READ_HEADER;
@@ -508,12 +530,12 @@ static int ffm_probe(AVProbeData *p)
 }
 
 AVInputFormat ff_ffm_demuxer = {
-    "ffm",
-    NULL_IF_CONFIG_SMALL("FFM (FFserver live feed) format"),
-    sizeof(FFMContext),
-    ffm_probe,
-    ffm_read_header,
-    ffm_read_packet,
-    ffm_close,
-    ffm_seek,
+    .name           = "ffm",
+    .long_name      = NULL_IF_CONFIG_SMALL("FFM (FFserver live feed) format"),
+    .priv_data_size = sizeof(FFMContext),
+    .read_probe     = ffm_probe,
+    .read_header    = ffm_read_header,
+    .read_packet    = ffm_read_packet,
+    .read_close     = ffm_close,
+    .read_seek      = ffm_seek,
 };

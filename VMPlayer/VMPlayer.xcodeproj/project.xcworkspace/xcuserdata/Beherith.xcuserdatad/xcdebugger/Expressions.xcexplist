@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "-[MoviePlayer openStreamAtIndex:flush:context:]:MoviePlayer.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "audioChannels">
+            </PersistentString>
+            <PersistentString
+               value = "audioSampleRate">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController nativePlaybackStateChanged:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView loadState]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView movieSourceType]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView movieMediaTypes]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView playbackState]">
+            </PersistentString>
+            <PersistentString
+               value = "(double) [nativePlayerView duration]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "_tango_populate_request_header:TangoBase.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "*(unsigned short *)(buffer_ptr + 10)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[MoviePlayer readAudioSamples:size:]:MoviePlayer.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "current_buf">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController tmrUpdateInfoFired:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView movieSourceType]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView movieMediaTypes]">
+            </PersistentString>
+            <PersistentString
+               value = "(double) [nativePlayerView duration]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView playbackState]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[MoviePlayer decodeAudioFrame:]:MoviePlayer.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(WMAProDecodeCtx *) dec-&gt;priv_data">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController nativePlaybackDidStart:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView movieSourceType]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView movieMediaTypes]">
+            </PersistentString>
+            <PersistentString
+               value = "(double) [nativePlayerView duration]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView playbackState]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "inputFilterReleaseBuffer:MoviePlayer.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController nativePlaybackDidFinish:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView movieMediaTypes]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController nativeMediaTypesAvailable:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView playbackState]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

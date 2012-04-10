@@ -1,4 +1,4 @@
-doc/ffmpeg.html: doc/fftools-common-opts.texi
+doc/ffmpeg.html: doc/avtools-common-opts.texi
 doc/ffmpeg.html: doc/eval.texi
 doc/ffmpeg.html: doc/decoders.texi
 doc/ffmpeg.html: doc/encoders.texi

@@ -62,7 +62,7 @@ static int query_formats(AVFilterContext *ctx)
         PIX_FMT_NONE
     };
 
-    avfilter_set_common_formats(ctx, avfilter_make_format_list(pix_fmts));
+    avfilter_set_common_pixel_formats(ctx, avfilter_make_format_list(pix_fmts));
     return 0;
 }
 
@@ -96,10 +96,8 @@ static void draw_slice(AVFilterLink *inlink, int y, int h, int slice_dir)
         for (i = 0; i < h>>vsub; i++) {
             switch (step) {
             case 1:
-            {
                 for (j = 0; j < (inlink->w >> hsub); j++)
                     outrow[j] = inrow[-j];
-            }
             break;
 
             case 2:
@@ -150,13 +148,13 @@ AVFilter avfilter_vf_hflip = {
     .priv_size = sizeof(FlipContext),
     .query_formats = query_formats,
 
-    .inputs    = (AVFilterPad[]) {{ .name            = "default",
+    .inputs    = (const AVFilterPad[]) {{ .name      = "default",
                                     .type            = AVMEDIA_TYPE_VIDEO,
                                     .draw_slice      = draw_slice,
                                     .config_props    = config_props,
                                     .min_perms       = AV_PERM_READ, },
                                   { .name = NULL}},
-    .outputs   = (AVFilterPad[]) {{ .name            = "default",
+    .outputs   = (const AVFilterPad[]) {{ .name      = "default",
                                     .type            = AVMEDIA_TYPE_VIDEO, },
                                   { .name = NULL}},
 };

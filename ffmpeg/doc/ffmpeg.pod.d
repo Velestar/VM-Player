@@ -1,4 +1,4 @@
-doc/ffmpeg.pod: doc/fftools-common-opts.texi
+doc/ffmpeg.pod: doc/avtools-common-opts.texi
 doc/ffmpeg.pod: doc/eval.texi
 doc/ffmpeg.pod: doc/decoders.texi
 doc/ffmpeg.pod: doc/encoders.texi

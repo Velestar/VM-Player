@@ -169,13 +169,20 @@ int ff_h264_decode_sei(H264Context *h){
 
         type=0;
         do{
+            if (get_bits_left(&s->gb) < 8)
+                return -1;
             type+= show_bits(&s->gb, 8);
         }while(get_bits(&s->gb, 8) == 255);
 
         size=0;
         do{
+            if (get_bits_left(&s->gb) < 8)
+                return -1;
             size+= show_bits(&s->gb, 8);
         }while(get_bits(&s->gb, 8) == 255);
+
+        if(s->avctx->debug&FF_DEBUG_STARTCODE)
+            av_log(h->s.avctx, AV_LOG_DEBUG, "SEI %d len:%d\n", type, size);
 
         switch(type){
         case SEI_TYPE_PIC_TIMING: // Picture timing SEI

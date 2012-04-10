@@ -31,6 +31,16 @@
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
 		<dict>
+			<key>DefaultValue</key>
+			<true/>
+			<key>Key</key>
+			<string>download-during-playback</string>
+			<key>Title</key>
+			<string>Download during playback</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
 			<key>Title</key>
 			<string>Playback</string>
 			<key>Type</key>
@@ -43,6 +53,16 @@
 			<string>loop-playback</string>
 			<key>Title</key>
 			<string>Loop playback</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<true/>
+			<key>Key</key>
+			<string>folder-playlist</string>
+			<key>Title</key>
+			<string>Folder as playlist</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>
@@ -102,7 +122,7 @@
 			<key>DefaultValue</key>
 			<true/>
 			<key>Key</key>
-			<string>library-tutorial</string>
+			<string>library-tutorial-2</string>
 			<key>Title</key>
 			<string>Library tutorial</string>
 			<key>Type</key>
@@ -112,7 +132,7 @@
 			<key>DefaultValue</key>
 			<true/>
 			<key>Key</key>
-			<string>player-tutorial</string>
+			<string>player-tutorial-2</string>
 			<key>Title</key>
 			<string>Player tutorial</string>
 			<key>Type</key>

@@ -4,10 +4,25 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>VMPlayer HD.xcscheme</key>
+		<key>Build All.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
+		<key>VMPlayer HD Lite.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>3</integer>
+		</dict>
+		<key>VMPlayer HD.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>VMPlayer Lite.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
 		</dict>
 		<key>VMPlayer.xcscheme</key>
 		<dict>
@@ -17,12 +32,32 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>6213069E14C8545E00889A7E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6213071214C8546900889A7E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>6213078714C854E900889A7E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>626393EE1369C78B009F9477</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>629696331369B93400362427</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>62D833E11526229E0017C39B</key>
 		<dict>
 			<key>primary</key>
 			<true/>

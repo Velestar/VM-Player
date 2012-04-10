@@ -64,9 +64,10 @@ static int mpegaudio_parse(AVCodecParserContext *s1,
 
                 state= (state<<8) + buf[i++];
 
-                ret = ff_mpa_decode_header(avctx, state, &sr, &channels, &frame_size, &bit_rate);
+                ret = avpriv_mpa_decode_header(avctx, state, &sr, &channels, &frame_size, &bit_rate);
                 if (ret < 4) {
-                    s->header_count= -2;
+                    if(i > 4)
+                        s->header_count= -2;
                 } else {
                     if((state&SAME_HEADER_MASK) != (s->header&SAME_HEADER_MASK) && s->header)
                         s->header_count= -3;
@@ -100,9 +101,8 @@ static int mpegaudio_parse(AVCodecParserContext *s1,
 
 
 AVCodecParser ff_mpegaudio_parser = {
-    { CODEC_ID_MP1, CODEC_ID_MP2, CODEC_ID_MP3 },
-    sizeof(MpegAudioParseContext),
-    NULL,
-    mpegaudio_parse,
-    ff_parse_close,
+    .codec_ids      = { CODEC_ID_MP1, CODEC_ID_MP2, CODEC_ID_MP3 },
+    .priv_data_size = sizeof(MpegAudioParseContext),
+    .parser_parse   = mpegaudio_parse,
+    .parser_close   = ff_parse_close,
 };

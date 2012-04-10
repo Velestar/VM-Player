@@ -109,7 +109,9 @@ typedef struct MOVStreamContext {
     unsigned int keyframe_count;
     int *keyframes;
     int time_scale;
-    int64_t time_offset;  ///< time offset of the first edit list entry
+    int64_t empty_duration; ///< empty duration of the first edit list entry
+    int64_t start_time;   ///< start time of the media
+    int64_t time_offset;  ///< time offset of the edit list entries
     int current_sample;
     unsigned int bytes_per_frame;
     unsigned int samples_per_frame;
@@ -125,9 +127,11 @@ typedef struct MOVStreamContext {
     int dts_shift;        ///< dts shift when ctts is negative
     uint32_t palette[256];
     int has_palette;
+    int64_t data_size;
 } MOVStreamContext;
 
 typedef struct MOVContext {
+    AVClass *avclass;
     AVFormatContext *fc;
     int time_scale;
     int64_t duration;     ///< duration of the longest track
@@ -141,16 +145,20 @@ typedef struct MOVContext {
     unsigned trex_count;
     int itunes_metadata;  ///< metadata are itunes style
     int chapter_track;
+    int use_absolute_path;
 } MOVContext;
 
 int ff_mp4_read_descr_len(AVIOContext *pb);
 int ff_mp4_read_descr(AVFormatContext *fc, AVIOContext *pb, int *tag);
 int ff_mp4_read_dec_config_descr(AVFormatContext *fc, AVStream *st, AVIOContext *pb);
+void ff_mp4_parse_es_descr(AVIOContext *pb, int *es_id);
 
+#define MP4ODescrTag                    0x01
 #define MP4IODescrTag                   0x02
 #define MP4ESDescrTag                   0x03
 #define MP4DecConfigDescrTag            0x04
 #define MP4DecSpecificDescrTag          0x05
+#define MP4SLDescrTag                   0x06
 
 int ff_mov_read_esds(AVFormatContext *fc, AVIOContext *pb, MOVAtom atom);
 enum CodecID ff_mov_get_lpcm_codec_id(int bps, int flags);

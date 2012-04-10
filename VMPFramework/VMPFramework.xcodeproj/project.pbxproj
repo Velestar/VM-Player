@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		62068A841534604E0072B657 /* FakeClass.h in Headers */ = {isa = PBXBuildFile; fileRef = 62A4151613B8B19100416E1F /* FakeClass.h */; };
+		62068A861534604E0072B657 /* FakeClass.m in Sources */ = {isa = PBXBuildFile; fileRef = 62A4151713B8B19100416E1F /* FakeClass.m */; };
+		62068A881534604E0072B657 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62588DE61338FA73000039A6 /* Security.framework */; };
+		62068A891534604E0072B657 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62588DE71338FA73000039A6 /* SystemConfiguration.framework */; };
+		62068A8C1534604E0072B657 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AACBBE490F95108600F1A2B1 /* Foundation.framework */; };
+		62068A8D1534604E0072B657 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217D011B5C9BB008ACC84 /* CoreAudio.framework */; };
+		62068A8E1534604E0072B657 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217D211B5C9BB008ACC84 /* MessageUI.framework */; };
+		62068A8F1534604E0072B657 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217D411B5C9BB008ACC84 /* QuartzCore.framework */; };
+		62068A901534604E0072B657 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217E011B5C9D2008ACC84 /* UIKit.framework */; };
+		62068A911534604E0072B657 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A217E611B5C9DA008ACC84 /* CoreGraphics.framework */; };
+		62068A921534604E0072B657 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62A2180311B5CA7F008ACC84 /* CFNetwork.framework */; };
+		62068A931534604E0072B657 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 627A01C712494CBA003CFBA7 /* AVFoundation.framework */; };
+		62068A941534604E0072B657 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62521CC112514602007F7161 /* MediaPlayer.framework */; };
+		62068A9D153460740072B657 /* libVMPFrameworkLite_dev.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62068A9B153460740072B657 /* libVMPFrameworkLite_dev.a */; };
+		62068A9E153460740072B657 /* libVMPFrameworkLite_sim.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 62068A9C153460740072B657 /* libVMPFrameworkLite_sim.a */; };
 		62521CC212514602007F7161 /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62521CC112514602007F7161 /* MediaPlayer.framework */; };
 		62588DE81338FA73000039A6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62588DE61338FA73000039A6 /* Security.framework */; };
 		62588DE91338FA73000039A6 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 62588DE71338FA73000039A6 /* SystemConfiguration.framework */; };
@@ -25,6 +40,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		62068A991534604E0072B657 /* libVMPFrameworkLite.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVMPFrameworkLite.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		62068A9B153460740072B657 /* libVMPFrameworkLite_dev.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libVMPFrameworkLite_dev.a; sourceTree = "<group>"; };
+		62068A9C153460740072B657 /* libVMPFrameworkLite_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libVMPFrameworkLite_sim.a; sourceTree = "<group>"; };
 		62521CC112514602007F7161 /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
 		62588DE61338FA73000039A6 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		62588DE71338FA73000039A6 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -44,6 +62,26 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		62068A871534604E0072B657 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62068A9D153460740072B657 /* libVMPFrameworkLite_dev.a in Frameworks */,
+				62068A9E153460740072B657 /* libVMPFrameworkLite_sim.a in Frameworks */,
+				62068A881534604E0072B657 /* Security.framework in Frameworks */,
+				62068A891534604E0072B657 /* SystemConfiguration.framework in Frameworks */,
+				62068A8C1534604E0072B657 /* Foundation.framework in Frameworks */,
+				62068A8D1534604E0072B657 /* CoreAudio.framework in Frameworks */,
+				62068A8E1534604E0072B657 /* MessageUI.framework in Frameworks */,
+				62068A8F1534604E0072B657 /* QuartzCore.framework in Frameworks */,
+				62068A901534604E0072B657 /* UIKit.framework in Frameworks */,
+				62068A911534604E0072B657 /* CoreGraphics.framework in Frameworks */,
+				62068A921534604E0072B657 /* CFNetwork.framework in Frameworks */,
+				62068A931534604E0072B657 /* AVFoundation.framework in Frameworks */,
+				62068A941534604E0072B657 /* MediaPlayer.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D2AAC07C0554694100DB518D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -71,6 +109,7 @@
 			isa = PBXGroup;
 			children = (
 				D2AAC07E0554694100DB518D /* libVMPFramework.a */,
+				62068A991534604E0072B657 /* libVMPFrameworkLite.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -80,8 +119,6 @@
 			children = (
 				6289F2DB11B684740044F954 /* Classes */,
 				0867D69AFE84028FC02AAC07 /* Frameworks */,
-				62A4150E13B8B05400416E1F /* libVMPFramework_dev.a */,
-				62A4150F13B8B05400416E1F /* libVMPFramework_sim.a */,
 				034768DFFF38A50411DB9C8B /* Products */,
 			);
 			name = RadioEngine;
@@ -90,6 +127,10 @@
 		0867D69AFE84028FC02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				62068A9B153460740072B657 /* libVMPFrameworkLite_dev.a */,
+				62068A9C153460740072B657 /* libVMPFrameworkLite_sim.a */,
+				62A4150E13B8B05400416E1F /* libVMPFramework_dev.a */,
+				62A4150F13B8B05400416E1F /* libVMPFramework_sim.a */,
 				62588DE61338FA73000039A6 /* Security.framework */,
 				62588DE71338FA73000039A6 /* SystemConfiguration.framework */,
 				62A2180311B5CA7F008ACC84 /* CFNetwork.framework */,
@@ -117,6 +158,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		62068A831534604E0072B657 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62068A841534604E0072B657 /* FakeClass.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D2AAC07A0554694100DB518D /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +177,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		62068A821534604E0072B657 /* VMPFrameworkLite */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 62068A951534604E0072B657 /* Build configuration list for PBXNativeTarget "VMPFrameworkLite" */;
+			buildPhases = (
+				62068A831534604E0072B657 /* Headers */,
+				62068A851534604E0072B657 /* Sources */,
+				62068A871534604E0072B657 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VMPFrameworkLite;
+			productName = RadioEngine;
+			productReference = 62068A991534604E0072B657 /* libVMPFrameworkLite.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		D2AAC07D0554694100DB518D /* VMPFramework */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1DEB921E08733DC00010E9CD /* Build configuration list for PBXNativeTarget "VMPFramework" */;
@@ -171,11 +237,20 @@
 			projectRoot = "";
 			targets = (
 				D2AAC07D0554694100DB518D /* VMPFramework */,
+				62068A821534604E0072B657 /* VMPFrameworkLite */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		62068A851534604E0072B657 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62068A861534604E0072B657 /* FakeClass.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		D2AAC07B0554694100DB518D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -191,7 +266,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = (
+					armv6,
+					armv7,
+				);
 				COPY_PHASE_STRIP = NO;
 				DSTROOT = /tmp/RadioEngine.dst;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -212,7 +290,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = (
+					armv6,
+					armv7,
+				);
 				DSTROOT = /tmp/RadioEngine.dst;
 				GCC_MODEL_TUNING = G5;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
@@ -258,6 +339,70 @@
 			};
 			name = Release;
 		};
+		62068A961534604E0072B657 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					armv6,
+					armv7,
+				);
+				COPY_PHASE_STRIP = NO;
+				DSTROOT = /tmp/RadioEngine.dst;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = VMPFrameworkLite;
+			};
+			name = Debug;
+		};
+		62068A971534604E0072B657 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					armv6,
+					armv7,
+				);
+				DSTROOT = /tmp/RadioEngine.dst;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = VMPFrameworkLite;
+			};
+			name = Release;
+		};
+		62068A981534604E0072B657 /* Distribution */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					armv6,
+					armv7,
+				);
+				DSTROOT = /tmp/RadioEngine.dst;
+				GCC_MODEL_TUNING = G5;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
+				INSTALL_PATH = /usr/local/lib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
+				PRODUCT_NAME = VMPFrameworkLite;
+			};
+			name = Distribution;
+		};
 		62103CE711C18B710064DF5A /* Distribution */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -278,6 +423,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = (
+					armv6,
+					armv7,
+				);
 				DSTROOT = /tmp/RadioEngine.dst;
 				GCC_MODEL_TUNING = G5;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../ffmpeg/**";
@@ -309,6 +458,16 @@
 				1DEB922308733DC00010E9CD /* Debug */,
 				1DEB922408733DC00010E9CD /* Release */,
 				62103CE711C18B710064DF5A /* Distribution */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		62068A951534604E0072B657 /* Build configuration list for PBXNativeTarget "VMPFrameworkLite" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62068A961534604E0072B657 /* Debug */,
+				62068A971534604E0072B657 /* Release */,
+				62068A981534604E0072B657 /* Distribution */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

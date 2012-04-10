@@ -61,7 +61,7 @@ static int query_formats(AVFilterContext *ctx)
         PIX_FMT_BGR24, PIX_FMT_BGRA, PIX_FMT_GRAY8, PIX_FMT_NONE
     };
 
-    avfilter_set_common_formats(ctx, avfilter_make_format_list(pix_fmts));
+    avfilter_set_common_pixel_formats(ctx, avfilter_make_format_list(pix_fmts));
     return 0;
 }
 
@@ -379,14 +379,14 @@ AVFilter avfilter_vf_ocv = {
     .init = init,
     .uninit = uninit,
 
-    .inputs    = (AVFilterPad[]) {{ .name             = "default",
+    .inputs    = (const AVFilterPad[]) {{ .name       = "default",
                                     .type             = AVMEDIA_TYPE_VIDEO,
                                     .draw_slice       = null_draw_slice,
                                     .end_frame        = end_frame,
                                     .min_perms        = AV_PERM_READ },
                                   { .name = NULL}},
 
-    .outputs   = (AVFilterPad[]) {{ .name             = "default",
+    .outputs   = (const AVFilterPad[]) {{ .name       = "default",
                                     .type             = AVMEDIA_TYPE_VIDEO, },
                                   { .name = NULL}},
 };

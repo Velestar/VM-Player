@@ -27,6 +27,7 @@
 #include "libavutil/pixdesc.h"
 #include "libavutil/colorspace.h"
 #include "libavutil/imgutils.h"
+#include "libavutil/mathematics.h"
 #include "libavutil/parseutils.h"
 #include "drawutils.h"
 
@@ -99,7 +100,7 @@ static int query_formats(AVFilterContext *ctx)
         PIX_FMT_NONE
     };
 
-    avfilter_set_common_formats(ctx, avfilter_make_format_list(pix_fmts));
+    avfilter_set_common_pixel_formats(ctx, avfilter_make_format_list(pix_fmts));
     return 0;
 }
 
@@ -129,6 +130,7 @@ static int color_config_props(AVFilterLink *inlink)
            is_packed_rgba ? "rgba" : "yuva");
     inlink->w = color->w;
     inlink->h = color->h;
+    inlink->time_base = color->time_base;
 
     return 0;
 }
@@ -138,7 +140,7 @@ static int color_request_frame(AVFilterLink *link)
     ColorContext *color = link->src->priv;
     AVFilterBufferRef *picref = avfilter_get_video_buffer(link, AV_PERM_WRITE, color->w, color->h);
     picref->video->sample_aspect_ratio = (AVRational) {1, 1};
-    picref->pts                 = av_rescale_q(color->pts++, color->time_base, AV_TIME_BASE_Q);
+    picref->pts = color->pts++;
     picref->pos = -1;
 
     avfilter_start_frame(link, avfilter_ref_buffer(picref, ~0));
@@ -154,7 +156,7 @@ static int color_request_frame(AVFilterLink *link)
 
 AVFilter avfilter_vsrc_color = {
     .name        = "color",
-    .description = NULL_IF_CONFIG_SMALL("Provide an uniformly colored input, syntax is: [color[:size[:rate]]]"),
+    .description = NULL_IF_CONFIG_SMALL("Provide an uniformly colored input, syntax is: [color[:size[:rate]]]."),
 
     .priv_size = sizeof(ColorContext),
     .init      = color_init,
@@ -162,9 +164,9 @@ AVFilter avfilter_vsrc_color = {
 
     .query_formats = query_formats,
 
-    .inputs    = (AVFilterPad[]) {{ .name = NULL}},
+    .inputs    = (const AVFilterPad[]) {{ .name = NULL}},
 
-    .outputs   = (AVFilterPad[]) {{ .name            = "default",
+    .outputs   = (const AVFilterPad[]) {{ .name      = "default",
                                     .type            = AVMEDIA_TYPE_VIDEO,
                                     .request_frame   = color_request_frame,
                                     .config_props    = color_config_props },

@@ -1,1 +1,1 @@
-doc/ffserver.html: doc/fftools-common-opts.texi
+doc/ffserver.html: doc/avtools-common-opts.texi
