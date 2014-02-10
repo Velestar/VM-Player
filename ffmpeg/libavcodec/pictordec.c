@@ -264,11 +264,11 @@ static av_cold int decode_end(AVCodecContext *avctx)
 AVCodec ff_pictor_decoder = {
     .name           = "pictor",
     .type           = AVMEDIA_TYPE_VIDEO,
-    .id             = CODEC_ID_PICTOR,
+    .id             = AV_CODEC_ID_PICTOR,
     .priv_data_size = sizeof(PicContext),
     .init           = decode_init,
     .close          = decode_end,
     .decode         = decode_frame,
     .capabilities   = CODEC_CAP_DR1,
-    .long_name = NULL_IF_CONFIG_SMALL("Pictor/PC Paint"),
+    .long_name      = NULL_IF_CONFIG_SMALL("Pictor/PC Paint"),
 };

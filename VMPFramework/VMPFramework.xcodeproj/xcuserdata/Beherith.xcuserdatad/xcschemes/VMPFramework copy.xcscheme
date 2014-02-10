@@ -14,7 +14,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "62068A821534604E0072B657"
-               BuildableName = "libVMPFramework.a"
+               BuildableName = "libVMPFrameworkLite.a"
                BlueprintName = "VMPFrameworkLite"
                ReferencedContainer = "container:VMPFramework.xcodeproj">
             </BuildableReference>

@@ -1,19 +1,20 @@
 libavcodec/wmalosslessdec.o libavcodec/wmalosslessdec.o:  \
- libavcodec/wmalosslessdec.c libavcodec/avcodec.h libavutil/samplefmt.h \
-  libavutil/avutil.h libavutil/common.h libavutil/attributes.h \
-  libavutil/avconfig.h config.h libavutil/intmath.h \
-  libavutil/x86/intmath.h libavutil/mem.h libavutil/error.h \
-  libavutil/internal.h libavutil/timer.h libavutil/x86/timer.h \
-  libavutil/cpu.h libavutil/dict.h libavutil/libm.h \
-  libavutil/mathematics.h libavutil/rational.h \
-  libavutil/intfloat_readwrite.h libavutil/log.h libavutil/pixfmt.h \
-  libavutil/avutil.h libavutil/cpu.h libavutil/dict.h libavutil/log.h \
-  libavutil/pixfmt.h libavutil/rational.h libavcodec/version.h \
-  libavutil/audioconvert.h libavcodec/internal.h libavcodec/get_bits.h \
-  libavutil/common.h libavutil/intreadwrite.h libavutil/bswap.h \
-  libavutil/x86/bswap.h config.h libavutil/attributes.h \
-  libavutil/x86/intreadwrite.h libavcodec/mathops.h config.h \
-  libavcodec/x86/mathops.h config.h libavutil/common.h \
-  libavcodec/put_bits.h libavutil/bswap.h libavcodec/dsputil.h \
-  libavcodec/wma.h libavcodec/fft.h libavutil/mem.h libavcodec/avfft.h \
-  libavcodec/fmtconvert.h
+ libavcodec/wmalosslessdec.c libavutil/attributes.h libavcodec/avcodec.h \
+  libavutil/samplefmt.h libavutil/avutil.h libavutil/common.h \
+  libavutil/attributes.h libavutil/avconfig.h config.h \
+  libavutil/intmath.h libavutil/x86/intmath.h libavutil/mem.h \
+  libavutil/error.h libavutil/internal.h libavutil/timer.h \
+  libavutil/x86/timer.h libavutil/cpu.h libavutil/dict.h libavutil/libm.h \
+  libavutil/intfloat.h libavutil/version.h libavutil/mathematics.h \
+  libavutil/rational.h libavutil/intfloat_readwrite.h libavutil/log.h \
+  libavutil/pixfmt.h libavutil/avutil.h libavutil/cpu.h libavutil/dict.h \
+  libavutil/log.h libavutil/pixfmt.h libavutil/rational.h \
+  libavutil/audioconvert.h libavcodec/version.h \
+  libavcodec/old_codec_ids.h libavutil/common.h libavcodec/internal.h \
+  libavutil/mathematics.h libavcodec/get_bits.h libavutil/intreadwrite.h \
+  libavutil/bswap.h libavutil/x86/bswap.h config.h libavutil/attributes.h \
+  libavutil/x86/intreadwrite.h libavutil/avassert.h libavcodec/mathops.h \
+  config.h libavcodec/x86/mathops.h config.h libavutil/common.h \
+  libavcodec/put_bits.h libavutil/bswap.h libavcodec/wma.h \
+  libavcodec/dsputil.h libavcodec/fft.h libavutil/mem.h \
+  libavcodec/avfft.h libavcodec/fmtconvert.h libavcodec/wma_common.h

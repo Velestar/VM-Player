@@ -5,8 +5,8 @@ includedir=${prefix}/include
 
 Name: libavfilter
 Description: FFmpeg video filtering library
-Version: 2.60.100
-Requires: 
+Version: 3.17.100
+Requires: libswresample = 0.15.100, libswscale = 2.1.101, libavformat = 54.29.104, libavcodec = 54.59.100
 Requires.private: 
 Conflicts:
 Libs: -L${libdir} -lavfilter -lm -lbz2 -lz

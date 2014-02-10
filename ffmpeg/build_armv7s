@@ -1,0 +1,24 @@
+#!/bin/tcsh -f
+
+if (! -d armv7s) mkdir armv7s
+if (! -d lib) mkdir lib
+
+rm armv7s/*.a
+
+make clean
+
+./configure --enable-cross-compile --arch=arm --target-os=darwin --cc=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc --as='gas-preprocessor/gas-preprocessor.pl /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/gcc' --sysroot=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk --cpu=cortex-a8 --extra-cflags='-arch armv7s' --extra-ldflags='-arch armv7s' --enable-neon --disable-debug --disable-armv5te --disable-encoders --disable-fast-unaligned --enable-pic --extra-ldflags=-L/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS6.0.sdk/usr/lib/system
+
+make
+
+mv libavcodec/libavcodec.a armv7s/
+mv libavdevice/libavdevice.a armv7s/
+mv libavformat/libavformat.a armv7s/
+mv libavutil/libavutil.a armv7s/
+mv libswscale/libswscale.a armv7s/
+mv libswresample/libswresample.a armv7s/
+mv libavfilter/libavfilter.a armv7s/
+
+rm lib/*.a
+
+cp armv7s/*.a lib/

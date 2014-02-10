@@ -1,19 +1,18 @@
 libavcodec/amrwbdec.o libavcodec/amrwbdec.o: libavcodec/amrwbdec.c \
+  libavutil/common.h libavutil/attributes.h libavutil/avconfig.h config.h \
+  libavutil/intmath.h libavutil/x86/intmath.h libavutil/common.h \
+  libavutil/mem.h libavutil/error.h libavutil/avutil.h \
+  libavutil/version.h libavutil/mathematics.h libavutil/rational.h \
+  libavutil/intfloat.h libavutil/intfloat_readwrite.h libavutil/log.h \
+  libavutil/pixfmt.h libavutil/internal.h libavutil/timer.h \
+  libavutil/x86/timer.h libavutil/cpu.h libavutil/dict.h libavutil/libm.h \
   libavutil/lfg.h libavcodec/avcodec.h libavutil/samplefmt.h \
-  libavutil/avutil.h libavutil/common.h libavutil/attributes.h \
-  libavutil/avconfig.h config.h libavutil/intmath.h \
-  libavutil/x86/intmath.h libavutil/mem.h libavutil/error.h \
-  libavutil/internal.h libavutil/timer.h libavutil/x86/timer.h \
-  libavutil/cpu.h libavutil/dict.h libavutil/libm.h \
-  libavutil/mathematics.h libavutil/rational.h \
-  libavutil/intfloat_readwrite.h libavutil/log.h libavutil/pixfmt.h \
   libavutil/avutil.h libavutil/cpu.h libavutil/dict.h libavutil/log.h \
-  libavutil/pixfmt.h libavutil/rational.h libavcodec/version.h \
-  libavutil/audioconvert.h libavcodec/get_bits.h libavutil/common.h \
+  libavutil/pixfmt.h libavutil/rational.h libavutil/audioconvert.h \
+  libavcodec/version.h libavcodec/old_codec_ids.h libavcodec/dsputil.h \
   libavutil/intreadwrite.h libavutil/bswap.h libavutil/x86/bswap.h \
   config.h libavutil/attributes.h libavutil/x86/intreadwrite.h \
-  libavcodec/mathops.h config.h libavcodec/x86/mathops.h config.h \
-  libavutil/common.h libavcodec/lsp.h libavcodec/celp_math.h \
-  libavcodec/celp_filters.h libavcodec/acelp_filters.h \
-  libavcodec/acelp_vectors.h libavcodec/acelp_pitch_delay.h \
-  libavcodec/dsputil.h libavcodec/amr.h libavcodec/amrwbdata.h
+  libavcodec/lsp.h libavcodec/celp_filters.h libavcodec/celp_math.h \
+  libavcodec/acelp_filters.h libavcodec/acelp_vectors.h \
+  libavcodec/acelp_pitch_delay.h libavcodec/amr.h libavcodec/amrwbdata.h \
+  libavcodec/mips/amrwbdec_mips.h config.h

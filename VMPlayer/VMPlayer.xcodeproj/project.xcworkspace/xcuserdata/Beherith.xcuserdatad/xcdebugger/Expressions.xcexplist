@@ -3,6 +3,96 @@
    version = "1.0">
    <ContextStates>
       <ContextState
+         contextName = "_tango_TRANS2_FIND_FIRST2:Tango_Find2First.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "(*file_info_p_arr)[idx]">
+            </PersistentString>
+            <PersistentString
+               value = "*((unsigned int *)(data_ptr + data_offset - 1))">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController viewDidLayoutSubviews]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[[UIApplication sharedApplication] statusBarFrame]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "inputFilterReleaseBuffer:MoviePlayer.m">
+      </ContextState>
+      <ContextState
+         contextName = "-[MoviePlayer readCurrentVideoFrame]:MoviePlayer.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "[frameItem dataRef]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "_tango_populate_request_header:TangoBase.c">
+         <PersistentStrings>
+            <PersistentString
+               value = "*(unsigned short *)(buffer_ptr + 10)">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[MoviePlayer decodeAudioFrame:]:MoviePlayer.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(WMAProDecodeCtx *) dec-&gt;priv_data">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[MoviePlayer readAudioSamples:size:]:MoviePlayer.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "current_buf">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "_tango_TRANS2_FIND_NEXT2:Tango_Find2First.c">
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController nativeMediaTypesAvailable:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView playbackState]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController nativePlaybackDidStart:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView movieSourceType]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView movieMediaTypes]">
+            </PersistentString>
+            <PersistentString
+               value = "(double) [nativePlayerView duration]">
+            </PersistentString>
+            <PersistentString
+               value = "(int) [nativePlayerView playbackState]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "-[PlayerViewController nativePlaybackDidFinish:]:PlayerViewController.m">
+         <PersistentStrings>
+            <PersistentString
+               value = "(int) [nativePlayerView movieMediaTypes]">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
          contextName = "-[MoviePlayer openStreamAtIndex:flush:context:]:MoviePlayer.m">
          <PersistentStrings>
             <PersistentString
@@ -34,18 +124,10 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "_tango_populate_request_header:TangoBase.c">
+         contextName = "-[MovieLibraryViewController displayFolderViewController:animated:]:MovieLibraryViewController.m">
          <PersistentStrings>
             <PersistentString
-               value = "*(unsigned short *)(buffer_ptr + 10)">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "-[MoviePlayer readAudioSamples:size:]:MoviePlayer.m">
-         <PersistentStrings>
-            <PersistentString
-               value = "current_buf">
+               value = "[self rootView].frame">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
@@ -67,46 +149,24 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "-[MoviePlayer decodeAudioFrame:]:MoviePlayer.m">
+         contextName = "_tango_NT_Create:Tango_NT_Create.c">
          <PersistentStrings>
             <PersistentString
-               value = "(WMAProDecodeCtx *) dec-&gt;priv_data">
+               value = "*((unsigned int *)(parameters_ptr + parameters_offset))">
+            </PersistentString>
+            <PersistentString
+               value = " *((unsigned short *)(parameters_ptr + parameters_offset))">
+            </PersistentString>
+            <PersistentString
+               value = "(char *)data_ptr + data_offset">
             </PersistentString>
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "-[PlayerViewController nativePlaybackDidStart:]:PlayerViewController.m">
+         contextName = "_tango_READ:tango_Read.c">
          <PersistentStrings>
             <PersistentString
-               value = "(int) [nativePlayerView movieSourceType]">
-            </PersistentString>
-            <PersistentString
-               value = "(int) [nativePlayerView movieMediaTypes]">
-            </PersistentString>
-            <PersistentString
-               value = "(double) [nativePlayerView duration]">
-            </PersistentString>
-            <PersistentString
-               value = "(int) [nativePlayerView playbackState]">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "inputFilterReleaseBuffer:MoviePlayer.m">
-      </ContextState>
-      <ContextState
-         contextName = "-[PlayerViewController nativePlaybackDidFinish:]:PlayerViewController.m">
-         <PersistentStrings>
-            <PersistentString
-               value = "(int) [nativePlayerView movieMediaTypes]">
-            </PersistentString>
-         </PersistentStrings>
-      </ContextState>
-      <ContextState
-         contextName = "-[PlayerViewController nativeMediaTypesAvailable:]:PlayerViewController.m">
-         <PersistentStrings>
-            <PersistentString
-               value = "(int) [nativePlayerView playbackState]">
+               value = "*((short *)(parameters_ptr + parameters_offset - 2))">
             </PersistentString>
          </PersistentStrings>
       </ContextState>

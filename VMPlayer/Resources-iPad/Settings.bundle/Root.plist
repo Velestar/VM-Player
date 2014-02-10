@@ -78,11 +78,111 @@
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
+			<true/>
+			<key>Key</key>
+			<string>auto-pause-video-background</string>
+			<key>Title</key>
+			<string>Auto-pause video in background</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>10</integer>
+			<key>Key</key>
+			<string>rewind-button-step</string>
+			<key>Title</key>
+			<string>Rewind buttons step</string>
+			<key>Titles</key>
+			<array>
+				<string>1 second</string>
+				<string>2 seconds</string>
+				<string>5 seconds</string>
+				<string>10 seconds</string>
+				<string>15 seconds</string>
+				<string>20 seconds</string>
+				<string>30 seconds</string>
+				<string>45 seconds</string>
+				<string>1 minute</string>
+				<string>1.5 minute</string>
+				<string>2 minutes</string>
+				<string>3 minutes</string>
+				<string>5 minutes</string>
+				<string>10 minutes</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>1</integer>
+				<integer>2</integer>
+				<integer>5</integer>
+				<integer>10</integer>
+				<integer>15</integer>
+				<integer>20</integer>
+				<integer>30</integer>
+				<integer>45</integer>
+				<integer>60</integer>
+				<integer>90</integer>
+				<integer>120</integer>
+				<integer>180</integer>
+				<integer>300</integer>
+				<integer>600</integer>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<integer>300</integer>
+			<key>Key</key>
+			<string>touch-rewind-step</string>
+			<key>Title</key>
+			<string>Touch rewind interval equal to screen width</string>
+			<key>Titles</key>
+			<array>
+				<string>1 minute</string>
+				<string>2 minutes</string>
+				<string>3 minutes</string>
+				<string>5 minutes</string>
+				<string>10 minutes</string>
+				<string>15 minutes</string>
+				<string>20 minutes</string>
+				<string>30 minutes</string>
+				<string>45 minutes</string>
+				<string>1 hour</string>
+			</array>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Values</key>
+			<array>
+				<integer>60</integer>
+				<integer>120</integer>
+				<integer>180</integer>
+				<integer>300</integer>
+				<integer>600</integer>
+				<string>900</string>
+				<string>1200</string>
+				<string>1800</string>
+				<string>2700</string>
+				<string>3600</string>
+			</array>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
 			<false/>
 			<key>Key</key>
 			<string>lock-landscape</string>
 			<key>Title</key>
 			<string>Lock landscape</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<true/>
+			<key>Key</key>
+			<string>dual-core-optimization-2</string>
+			<key>Title</key>
+			<string>Dual-core CPU optimization</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 		</dict>

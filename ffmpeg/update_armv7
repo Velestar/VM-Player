@@ -1,0 +1,16 @@
+#!/bin/tcsh -f
+
+if (! -d armv7) mkdir armv7
+if (! -d lib) mkdir lib
+
+rm armv7/*.a
+
+mv libavcodec/libavcodec.a armv7/
+mv libavdevice/libavdevice.a armv7/
+mv libavformat/libavformat.a armv7/
+mv libavutil/libavutil.a armv7/
+mv libswscale/libswscale.a armv7/
+mv libswresample/libswresample.a armv7/
+mv libavfilter/libavfilter.a armv7/
+
+source ./build_universal
